@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Soton Auto-Check — 中文宣传横幅</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Noto+Sans+SC:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root { color-scheme: dark; }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: #071d2e; font-family: "Noto Sans SC", "Microsoft YaHei", sans-serif; }
+    .canvas { position: relative; width: 1200px; height: 675px; overflow: hidden; isolation: isolate; background: #002c48; color: #f5fbff; box-shadow: 0 35px 110px #0009; }
+    .canvas::before { content: ""; position: absolute; inset: 0; z-index: -1; background: radial-gradient(circle at 82% 3%, #20ddff6b 0, #2b91e32b 18%, transparent 46%), radial-gradient(circle at 53% 110%, #126c9c8c 0, transparent 40%), linear-gradient(125deg, #002c48 7%, #052c4a 52%, #051a32 100%); }
+    .orb { position: absolute; width: 500px; height: 500px; right: -110px; top: -240px; border-radius: 50%; background: radial-gradient(circle, #39e6ff9c, #1095df70 37%, transparent 69%); filter: blur(61px); opacity: .75; pointer-events: none; }
+    .dot-grid { position: absolute; inset: 0; opacity: .20; pointer-events: none; }
+    .diagonal { position: absolute; width: 710px; height: 710px; border: 1px solid #8adff725; border-radius: 50%; right: -112px; top: -14px; transform: rotate(-13deg); pointer-events: none; }
+    .diagonal::before, .diagonal::after { content: ""; position: absolute; inset: 46px; border: 1px solid #9feafa16; border-radius: inherit; }
+    .diagonal::after { inset: 99px; }
+    .bottom-line { position: absolute; left: 62px; right: 62px; bottom: 50px; height: 1px; background: linear-gradient(90deg, #8ac9e37a, #d2f9ff1c 61%, transparent); }
+    .brand-mark { width: 36px; height: 36px; display: grid; place-items: center; border-radius: 10px; background: #0ce6ef; color: #002c48; box-shadow: 0 0 30px #12edff6e; }
+    .tiny { font-family: "DM Mono", monospace; letter-spacing: .17em; }
+    .gradient-text { background: linear-gradient(90deg, #58eaf6 0%, #62c6ff 53%, #a6b6ff 100%); background-clip: text; -webkit-background-clip: text; color: transparent; }
+    .headline { font-size: 61px; line-height: 1.13; letter-spacing: -.055em; font-weight: 800; margin: 0; }
+    .feature-line { position: relative; display: flex; align-items: center; gap: 12px; }
+    .feature-line:not(:last-child)::after { content: ""; width: 28px; height: 1px; margin-left: 3px; background: #7ba9bc71; }
+    .step-number { font-family: "DM Mono", monospace; font-size: 11px; color: #5ee7f2; }
+    .cta { display: inline-flex; align-items: center; justify-content: center; gap: 15px; padding: 17px 22px; border-radius: 13px; background: #e5fbff; color: #002c48; font-size: 16px; font-weight: 700; box-shadow: 0 12px 34px #03152766, 0 0 27px #67e7ff53; }
+    .glass { background: linear-gradient(137deg, #ffffff24, #ffffff0a 55%, #ffffff12); border: 1px solid #ffffff35; box-shadow: 0 31px 85px #0008, inset 0 1px #ffffff35; -webkit-backdrop-filter: blur(26px); backdrop-filter: blur(26px); }
+    .browser { position: absolute; width: 492px; height: 418px; top: 112px; right: 56px; border-radius: 22px; transform: rotate(-2.2deg); overflow: hidden; }
+    .browser::after { content: ""; pointer-events: none; position: absolute; inset: 0; border-radius: inherit; background: linear-gradient(150deg, #ffffff10, transparent 31%, #5ae9ff0a 85%); }
+    .browser-top { height: 51px; padding: 0 21px; display: flex; align-items: center; border-bottom: 1px solid #ffffff22; background: #001c31a3; }
+    .browser-dot { width: 8px; height: 8px; border-radius: 50%; }
+    .mock-body { padding: 23px 25px 26px; }
+    .day { padding: 8px 12px; border: 1px solid #ffffff17; border-radius: 10px; min-width: 54px; text-align: center; background: #ffffff08; }
+    .day.active { color: #002c48; background: #92f3fb; border-color: #c5fcff; box-shadow: 0 0 24px #00e8ff43; }
+    .course { display: flex; align-items: center; gap: 15px; padding: 14px 15px; border: 1px solid #ffffff1f; border-radius: 14px; background: #ffffff0e; }
+    .course + .course { margin-top: 9px; }
+    .course.is-success { border-color: #56f5c55c; background: linear-gradient(90deg, #09c59424, #49e6dc0b); }
+    .time { width: 57px; height: 43px; flex: none; display: grid; place-items: center; border-radius: 10px; background: #ffffff17; color: #b7d8e9; font: 500 12px "DM Mono", monospace; }
+    .course.is-success .time { color: #75f7c5; background: #17cf9840; }
+    .success-card { position: absolute; right: 26px; top: 454px; width: 449px; height: 119px; border-radius: 20px; transform: rotate(2.2deg); background: linear-gradient(112deg, #0b7a6bd9, #0b664fc9 62%, #0b6e76d9); border: 1px solid #78ffd285; box-shadow: 0 30px 75px #001e2fa6, 0 0 42px #20ffc967, inset 0 1px #ddfff988; -webkit-backdrop-filter: blur(30px); backdrop-filter: blur(30px); }
+    .success-icon { width: 51px; height: 51px; display: grid; place-items: center; border-radius: 15px; background: #adffe9; color: #075d52; box-shadow: 0 0 25px #9dffe48b; }
+    .community-badge { position: absolute; left: 62px; top: 564px; display: flex; align-items: center; gap: 11px; padding: 8px 13px 8px 9px; border: 1px solid #ffffff2b; border-radius: 999px; background: #ffffff10; -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px); color: #d4edf5; font-size: 11px; font-weight: 600; }
+    .brand-name { font-family: "Space Grotesk", Arial, sans-serif; }
+    .avatar { display: grid; place-items: center; width: 24px; height: 24px; border: 2px solid #002c48; border-radius: 50%; }
+    .corner-index { position: absolute; right: 60px; top: 43px; font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: .15em; color: #aed7e4; }
+    .small-rule { width: 35px; height: 1px; background: #45e7f2; }
+    @media (prefers-reduced-transparency: reduce) { .glass { background: #164562; } .success-card { background: #0b725f; } }
+  </style>
+</head>
+<body>
+  <main class="canvas w-[1200px] h-[675px] overflow-hidden" aria-label="Soton Auto-Check 中文宣传横幅">
+    <div class="orb" aria-hidden="true"></div>
+    <svg class="dot-grid" aria-hidden="true" width="1200" height="675" viewBox="0 0 1200 675" fill="none"><defs><pattern id="dots" x="0" y="0" width="22" height="22" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r="1" fill="#B2E5F5"/></pattern></defs><rect width="1200" height="675" fill="url(#dots)"/></svg>
+    <div class="diagonal" aria-hidden="true"></div>
+    <div class="absolute left-[62px] top-[40px] flex items-center gap-3">
+      <div class="brand-mark">
+        <svg width="23" height="23" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 12.2 9.2 17 20 6.5" stroke="currentColor" stroke-width="2.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div><div class="brand-name text-[17px] font-bold tracking-[-.045em] leading-none">Soton <span class="text-[#82edf5]">Auto-Check</span></div><div class="mt-[5px] text-[9px] tracking-[.09em] text-[#99bdce]">独立开发的 Chrome 扩展</div></div>
+    </div>
+    <div class="corner-index">SOTON / 学生工具 001</div>
+
+    <section class="absolute left-[62px] top-[144px] w-[580px]" aria-label="产品介绍">
+      <div class="mb-[21px] inline-flex items-center gap-2 rounded-full border border-[#79e9f266] bg-[#69e5ef17] px-3 py-[8px] text-[11px] font-semibold tracking-[.07em] text-[#a9f4fa]"><span class="h-[6px] w-[6px] rounded-full bg-[#6cf6d1] shadow-[0_0_12px_#6cf6d1]"></span> 让上课流程更轻松</div>
+      <h1 class="headline">告别重复扫码。<br><span class="gradient-text">打卡按课表来。</span></h1>
+      <p class="mt-[23px] max-w-[535px] text-[16px] leading-[1.6] text-[#c2d7e2]">导入课表，绑定课程二维码。Soton Auto-Check 在下课前 5 分钟自动尝试填写并提交 Microsoft Forms。</p>
+
+      <div class="mt-[25px] flex items-center gap-1 text-[11px] font-semibold tracking-[.04em] text-[#e5f5fb]" aria-label="导入课表、绑定表单、定时打卡">
+        <div class="feature-line"><span class="step-number">01</span><span>导入课表</span></div>
+        <div class="feature-line"><span class="step-number">02</span><span>绑定表单</span></div>
+        <div class="feature-line"><span class="step-number">03</span><span>定时打卡</span></div>
+      </div>
+
+      <div class="mt-[32px] flex items-center gap-[17px]">
+        <div class="cta" aria-label="私信获取安装包"><span>私信获取安装包</span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h13m-5-5 5 5-5 5" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="max-w-[174px] text-[11px] leading-[1.45] text-[#94bbc9]">Windows + macOS<br>共用一个 Chrome 扩展</div>
+      </div>
+    </section>
+
+    <div class="community-badge"><div class="flex items-center"><span class="avatar bg-[#49dbdb]"><svg width="14" height="14" viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="10" cy="7" r="3" fill="#07344b"/><path d="M4 17c0-3 2.5-5 6-5s6 2 6 5" fill="#07344b"/></svg></span><span class="avatar -ml-[7px] bg-[#8dafff]"><svg width="14" height="14" viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="10" cy="7" r="3" fill="#07344b"/><path d="M4 17c0-3 2.5-5 6-5s6 2 6 5" fill="#07344b"/></svg></span><span class="avatar -ml-[7px] bg-[#aaf2ce]"><svg width="14" height="14" viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="10" cy="7" r="3" fill="#07344b"/><path d="M4 17c0-3 2.5-5 6-5s6 2 6 5" fill="#07344b"/></svg></span></div><span>专为 Soton 学生设计</span></div>
+
+    <div class="browser glass" aria-label="Illustrative extension interface preview">
+      <div class="browser-top">
+        <div class="flex items-center gap-[6px]"><span class="browser-dot bg-[#fa6670]"></span><span class="browser-dot bg-[#ffc857]"></span><span class="browser-dot bg-[#42dba1]"></span></div>
+        <div class="ml-[34px] flex h-[28px] flex-1 items-center justify-center gap-2 rounded-[8px] border border-[#ffffff1c] bg-[#ffffff0d] text-[10px] text-[#a5c3d2]"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="2" stroke="currentColor" stroke-width="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3" stroke="currentColor" stroke-width="2"/></svg> 扩展 / 每周课表</div>
+      </div>
+      <div class="mock-body">
+        <div class="flex items-start justify-between"><div><div class="text-[10px] tracking-[.13em] text-[#7eecf1]">本周 / 已安排</div><h2 class="mt-[6px] text-[23px] font-bold tracking-[-.055em]">课程与打卡同步。</h2></div><div class="rounded-full border border-[#7df0e04a] bg-[#3adbbd1a] px-[10px] py-[6px] text-[10px] font-bold text-[#8af6d6]">● 运行中</div></div>
+        <div class="mt-[20px] grid grid-cols-5 gap-[8px] text-center text-[10px] font-bold text-[#a0becc]"><div class="day">周一</div><div class="day">周二</div><div class="day active">周三</div><div class="day">周四</div><div class="day">周五</div></div>
+        <div class="mt-[17px]">
+          <div class="course is-success"><div class="time">09:00</div><div class="min-w-0 flex-1"><div class="text-[14px] font-bold tracking-[-.03em]">COMP1311 <span class="text-[#a3e4e8]">/ 辅导课</span></div><div class="mt-[3px] text-[10px] text-[#a9cbcd]">表单已确认提交成功</div></div><div class="grid h-[23px] w-[23px] place-items-center rounded-full bg-[#69efb8] text-[#074b47]"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="m4 12 5 5L20 6" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div>
+          <div class="course"><div class="time">11:00</div><div class="min-w-0 flex-1"><div class="text-[14px] font-bold tracking-[-.03em]">COMP1312 <span class="text-[#91bfd0]">/ 实验课</span></div><div class="mt-[3px] text-[10px] text-[#8eafc0]">下课前 5 分钟尝试打卡</div></div><div class="h-[16px] w-[16px] rounded-full border border-[#a9cddd66]"></div></div>
+        </div>
+        <div class="mt-[18px] flex items-center gap-2 border-t border-[#ffffff20] pt-[14px] text-[10px] text-[#9abaca]"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M12 3v9l6 3" stroke="#69e6ef" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="12" r="9" stroke="#69e6ef" stroke-width="2"/></svg>按每周课表安排 <span class="ml-auto text-[8px] tracking-[.08em]">界面示意</span></div>
+      </div>
+    </div>
+
+    <div class="success-card flex items-center gap-[17px] px-[21px]" aria-label="打卡成功通知示意"><div class="success-icon"><svg width="27" height="27" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m4 12 5 5L20 6" stroke="currentColor" stroke-width="2.7" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div><div class="text-[10px] tracking-[.12em] text-[#9ef7d7]">MICROSOFT FORMS 已确认</div><div class="mt-[5px] text-[23px] font-bold tracking-[-.04em]">打卡成功</div><div class="mt-[2px] text-[11px] text-[#b2ebdc]">COMP1311 · 辅导课 · 09:00</div></div></div>
+
+    <div class="bottom-line"></div>
+    <footer class="absolute bottom-[18px] left-[62px] right-[62px] flex items-center justify-between gap-5 text-[9px] text-[#91b6c9]"><div class="flex items-center gap-[10px]"><span class="small-rule"></span><span class="text-[9px] tracking-[.09em]">独立开发的学生工具</span></div><span>需保持 Chrome 开启 · 登录学校账号 · 以表单成功反馈为准</span></footer>
+  </main>
+</body>
+</html>

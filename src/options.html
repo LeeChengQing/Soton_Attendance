@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Attendance · 自动打卡设置</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <header class="hero"><div class="wrap"><p class="eyebrow">SOTON AUTO-CHECK / V2.3.0</p><h1>把课表变成可靠的打卡安排</h1><p>上传课表，按课程代码绑定二维码，一键建立每周自动打卡，并用手机查看提醒与结果。</p></div></header>
+  <main class="wrap">
+    <section class="card" aria-labelledby="profile-heading"><div class="section-head"><span class="step">01</span><div><h2 id="profile-heading">学生资料</h2><p>使用学校账号登录 Microsoft Forms 的同一个 Chrome 用户。</p></div></div>
+      <form id="profile-form" class="form-grid"><label>学号<input name="student" maxlength="50" required></label><label>姓名<input name="name" maxlength="100" required></label><label>学生身份<select name="studentType"><option value="local">Local Student</option><option value="international">International Student</option></select></label><button type="submit">保存资料</button></form>
+      <div class="cloud-row"><p id="cloud-status" class="status" role="status" aria-live="polite">正在连接云端提醒…</p></div>
+      <p id="ntfy-status" class="status" role="status" aria-live="polite">正在准备 ntfy 手机提醒主题…</p>
+    </section>
+      <section class="card" aria-labelledby="import-heading"><div class="section-head"><span class="step">02</span><div><h2 id="import-heading">导入并核对课表</h2><p>按星期浏览课程；点开任意一节即可修改。</p></div><button id="clear-preview" type="button" class="quiet clear-section">清空本区</button></div>
+        <div class="toolbar"><label class="file-button">选择课表文件<input id="timetable-file" type="file" accept=".jpg,.jpeg,.png,.pdf,image/jpeg,image/png,application/pdf"></label><button id="add-row" type="button" class="secondary">手动添加课程</button></div>
+      <p class="upload-hint">支持 JPG、PNG 和 PDF。课表中的日期会自动转换为星期；Group 1／2 只保留自己的组别。</p>
+      <p id="import-status" class="status" role="status" aria-live="polite">还没有导入课表。</p>
+      <div id="preview-summary" class="agenda-overview" aria-live="polite"></div>
+      <div id="preview-rows" class="agenda"></div>
+      <button id="create-tasks" type="button" class="primary">一键创建每周自动打卡</button>
+    </section>
+    <section class="card" aria-labelledby="binding-heading"><div class="section-head"><span class="step">03</span><div><h2 id="binding-heading">绑定课程二维码或链接</h2><p>同一课程代码只绑定一次，例如 COMP1311 的 LEC、LAB、TUT 共用一个链接。上传二维码后核对题目。</p></div><button id="clear-bindings" type="button" class="quiet clear-section">清空本区</button></div><div id="bindings" class="binding-list"><p class="muted">先导入或添加课程。</p></div></section>
+    <section class="card" aria-labelledby="tasks-heading"><div class="section-head"><span class="step">04</span><div><h2 id="tasks-heading">已创建的每周任务</h2><p>每节课结束前 5 分钟自动执行，无需每天确认。Chrome 必须运行且学校账号保持登录；电脑休眠时不会被唤醒。</p></div><button id="clear-sessions" type="button" class="quiet clear-section">清空本区</button></div><div id="sessions" class="list"></div></section>
+    <section class="card" aria-labelledby="records-heading"><div class="section-head"><span class="step">05</span><div><h2 id="records-heading">打卡记录</h2><p>只有原表单明确确认后才显示“成功”。</p></div></div><div id="records" class="list"></div></section>
+  </main>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script type="module" src="options.js"></script>
+</body>
+</html>

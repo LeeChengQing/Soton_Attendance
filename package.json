@@ -1,0 +1,24 @@
+{
+  "name": "attendance-extension",
+  "private": true,
+  "version": "2.3.0",
+  "type": "module",
+  "scripts": {
+    "test": "node --test",
+    "build": "node scripts/build.mjs",
+    "smoke": "node scripts/smoke.mjs"
+  },
+  "dependencies": {
+    "@tesseract.js-data/eng": "^1.0.0",
+    "jsqr": "^1.4.0",
+    "pdfjs-dist": "^6.3.289",
+    "tesseract.js": "^7.0.0"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.0",
+    "pdf-lib": "^1.17.1",
+    "playwright": "^1.63.0",
+    "pngjs": "^7.0.0",
+    "qrcode": "^1.5.4"
+  }
+}

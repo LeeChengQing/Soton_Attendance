@@ -1,0 +1,18 @@
+node_modules/
+Attendance-extension-Windows-macOS-v2.3.0-ntfy/
+*.zip
+test-results/
+.env
+.env.*
+!.env.example
+.DS_Store
+Thumbs.db
+*.log
+npm-debug.log*
+
+# Local Supabase CLI state
+.supabase/
+
+# Generated preview exports
+preview.png
+preview-agenda.png

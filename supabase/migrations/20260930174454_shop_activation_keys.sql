@@ -1,3 +1,10 @@
+alter table public.notification_outbox
+  add column discarded_at timestamptz;
+
+create index notification_outbox_pending_live_idx
+  on public.notification_outbox (available_at, created_at)
+  where sent_at is null and discarded_at is null;
+
 create table public.activation_keys (
   key_hash text primary key check (key_hash ~ '^[0-9a-f]{64}$'),
   plan text not null check (plan in ('bundle', 'phone_notifications')),

@@ -261,6 +261,7 @@ async function readNotifications(request: Request) {
   const { data, error } = await db.from("notification_outbox")
     .select("id,kind,title,body,payload,created_at")
     .eq("device_id", device.id).is("sent_at", null)
+    .is("discarded_at", null)
     .order("created_at", { ascending: true }).limit(50);
   if (error) return response({ error: "notifications_read_failed" }, 500);
   const ids = (data ?? []).map((item) => item.id);

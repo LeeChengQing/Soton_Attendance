@@ -13,6 +13,7 @@
 - ¥12 套餐商品包含插件使用权和首学期手机提醒；续期商品只延长手机提醒权限。本功能只在服务端限制手机提醒，不新增本机自动打卡的付费锁。
 - 每学期为各商品生成一批密钥；生成批次时指定该学期的固定截止日期。
 - 商品页还未创建时，设置页按钮打开卖家店铺页 `https://shop.368fk.cn/shop/CFI5VKXO`。拿到两个新商品的详情页链接后，可以分别改为直达商品页。
+- 续期密钥只授予到该密钥批次指定的学期截止日；如果当前授权已经晚于这个截止日，兑换不会再增加时长，同一学期的密钥不会叠加。
 - 368FK 当前商品页显示“自动发货”和卡密寄售说明；库存配置按每笔订单发放一条密钥处理。将密钥库存导入商家后台前，管理员需确认该商品配置确实会逐单发放不同库存卡密。
 
 ## 密钥发放与兑换
@@ -55,7 +56,7 @@
 - `entitlement-status`：使用 bearer token 返回当前设备授权的套餐、状态与有效期。
 - `redeem-activation-key`：使用 bearer token 接收密钥；成功时服务端兑换，失败时返回无效、已使用、已撤销或已过期的明确错误。
 
-`notification-worker` 在查 ntfy 主题或发请求前，必须确认同设备的授权为 active、`phone_notifications = true`、`starts_at <= now` 且 `expires_at > now`。无有效授权时不发送，保持 `sent_at` 为空并将 `last_error` 设为 `subscription_required`；队列和日志保留。已授权设备继续使用原 ntfy 主题和通知内容。
+`notification-worker` 在查 ntfy 主题或发请求前，必须确认同设备的授权为 active、`phone_notifications = true`、`starts_at <= now` 且 `expires_at > now`。无有效授权时不发送，保持 `sent_at` 为空，将 `last_error` 设为 `subscription_required` 并设置 `discarded_at`，保留记录但从待发送队列移除，避免旧未授权通知阻塞后续队列。已授权设备继续使用原 ntfy 主题和通知内容。
 
 本机自动打卡不读取手机提醒授权，不因缺少、撤销或到期的提醒权限而停止。课程表、Forms 绑定、打卡记录、ntfy 配置均保留。
 
@@ -80,6 +81,6 @@
 - 两种套餐批次均能提供可自动发货的唯一明文密钥和对应的哈希导入数据。
 - 有效密钥只能兑换一次，并绑定到发起兑换的设备；猜测、重复提交、撤销或过期密钥不能激活。
 - 成功兑换后，设置页刷新显示授权套餐和截止日期；合法有效期内的测试提醒可由 worker 投递。
-- 未授权、未开始、已撤销或过期授权的 outbox 项不会发送，记录 `last_error=subscription_required`。
+- 未授权、未开始、已撤销或过期授权的 outbox 项不会发送，记录 `last_error=subscription_required`、保留空 `sent_at` 并标记丢弃；100 条丢弃记录不会阻塞后续已授权通知。
 - 密钥兑换或提醒授权状态不会修改本机课程、Forms 绑定、打卡记录或自动打卡安排。
 - 扩展包不包含明文密钥库存、service-role key 或其他后台凭据。

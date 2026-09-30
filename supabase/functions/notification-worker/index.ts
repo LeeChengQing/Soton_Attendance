@@ -17,6 +17,7 @@ Deno.serve(async (request) => {
   const { data: pending, error } = await db.from("notification_outbox")
     .select("id,device_id,title,body")
     .is("sent_at", null)
+    .is("discarded_at", null)
     .lte("available_at", new Date().toISOString())
     .order("created_at", { ascending: true }).limit(100);
   if (error) return new Response(JSON.stringify({ error: "outbox_read_failed" }), { status: 500 });
@@ -34,9 +35,20 @@ Deno.serve(async (request) => {
       continue;
     }
 
+    let discardFailed = false;
     const authorized = await gatePhoneNotification(entitlement, Date.now(), async () => {
-      await db.from("notification_outbox").update({ last_error: "subscription_required" }).eq("id", item.id);
+      const { error: discardError } = await db.from("notification_outbox").update({
+        last_error: "subscription_required",
+        discarded_at: new Date().toISOString(),
+      }).eq("id", item.id);
+      discardFailed = discardError !== null;
     });
+    if (discardFailed) {
+      return new Response(JSON.stringify({ error: "outbox_discard_failed" }), {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
     if (!authorized) {
       failed += 1;
       continue;

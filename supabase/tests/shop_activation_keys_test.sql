@@ -1,10 +1,49 @@
 begin;
 
-select plan(28);
+select plan(32);
 
 insert into public.devices (id, device_key, auth_token_hash) values
   ('00000000-0000-4000-8000-000000000001', 'test-shop-activation-device-1', repeat('1', 64)),
   ('00000000-0000-4000-8000-000000000002', 'test-shop-activation-device-2', repeat('2', 64));
+
+insert into public.notification_outbox (device_id, kind, title, body, available_at, created_at)
+select '00000000-0000-4000-8000-000000000001', 'tomorrow_reminder', 'old reminder', 'body',
+  pg_catalog.now() - interval '1 day', pg_catalog.now() - interval '1 day' + (n * interval '1 second')
+from generate_series(1, 100) as n;
+update public.notification_outbox
+set discarded_at = pg_catalog.now(), last_error = 'subscription_required'
+where device_id = '00000000-0000-4000-8000-000000000001';
+insert into public.notification_outbox (device_id, kind, title, body)
+values ('00000000-0000-4000-8000-000000000002', 'tomorrow_reminder', 'entitled reminder', 'body');
+
+select is(
+  (select count(*)::integer from public.notification_outbox
+   where sent_at is null and discarded_at is null and available_at <= pg_catalog.now()),
+  1,
+  'discarded unauthorized rows do not occupy pending capacity'
+);
+select is(
+  (select count(*)::integer from (
+    select id from public.notification_outbox
+    where sent_at is null and discarded_at is null and available_at <= pg_catalog.now()
+    order by created_at asc limit 100
+  ) selected
+  where id in (select id from public.notification_outbox where device_id = '00000000-0000-4000-8000-000000000002')),
+  1,
+  'a later entitled notification remains selectable after 100 denials'
+);
+select is(
+  (select count(*)::integer from public.notification_outbox
+   where device_id = '00000000-0000-4000-8000-000000000001' and sent_at is null and discarded_at is not null),
+  100,
+  'denied notifications remain recorded as unsent and discarded'
+);
+select is(
+  (select count(*)::integer from public.notification_outbox
+   where device_id = '00000000-0000-4000-8000-000000000001' and sent_at is null and discarded_at is null),
+  0,
+  'discarded notifications are excluded from device notification reads'
+);
 
 insert into public.activation_keys (key_hash, plan, term_expires_at) values
   (repeat('a', 64), 'bundle', '2099-09-30T16:00:00Z'),
@@ -13,13 +52,17 @@ insert into public.activation_keys (key_hash, plan, term_expires_at) values
   (repeat('d', 64), 'bundle', '2099-09-30T16:00:00Z');
 update public.activation_keys set status = 'revoked' where key_hash = repeat('d', 64);
 
+create temporary table first_redemption_result (result jsonb not null);
+insert into first_redemption_result (result)
+values (public.redeem_activation_key(repeat('a', 64), '00000000-0000-4000-8000-000000000001'));
+
 select is(
-  (public.redeem_activation_key(repeat('a', 64), '00000000-0000-4000-8000-000000000001')->>'ok')::boolean,
+  ((select result from first_redemption_result)->>'ok')::boolean,
   true,
   'a valid bundle key redeems successfully'
 );
 select is(
-  public.redeem_activation_key(repeat('a', 64), '00000000-0000-4000-8000-000000000001')->>'plan',
+  (select result->>'plan' from first_redemption_result),
   'bundle',
   'redemption returns the server-side plan'
 );

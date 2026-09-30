@@ -123,7 +123,7 @@
 - Before topic lookup or network send, load the device entitlement and call `hasActivePhoneEntitlement(entitlement, Date.now())`.
 
 - [x] **Step 1: Add** the entitlement lookup before ntfy subscription lookup.
-- [x] **Step 2: When unauthorized**, update only `last_error = 'subscription_required'`, keep `sent_at` null, and continue without calling ntfy.
+- [x] **Step 2: When unauthorized**, set `last_error = 'subscription_required'` and `discarded_at`, keep `sent_at` null, and continue without calling ntfy; discarded rows are excluded before the 100-item limit.
 - [x] **Step 3: Run** `deno check supabase/functions/notification-worker/index.ts`; review that authorized sends retain the existing topic validation and message body.
 
 ### Task 5: Add purchase, key activation, and status UI

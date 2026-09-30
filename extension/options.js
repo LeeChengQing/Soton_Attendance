@@ -39606,6 +39606,14 @@ async function syncCloud({ sessions = [], bindings = {}, preferences = {} } = {}
   }
   return call("sync", { schedules, preferences: { timezone: "Asia/Kuala_Lumpur", reminderTime: "19:30", remindersEnabled: preferences.remindersEnabled !== false, successNotificationsEnabled: true } }, cloud.attendanceCloudToken);
 }
+async function getEntitlementStatus() {
+  const cloud = await ensureCloudDevice();
+  return call("entitlement-status", {}, cloud.attendanceCloudToken);
+}
+async function redeemActivationKey(activationKey) {
+  const cloud = await ensureCloudDevice();
+  return call("redeem-activation-key", { activationKey }, cloud.attendanceCloudToken);
+}
 
 // src/options.js
 var $ = (id) => document.getElementById(id);
@@ -39661,13 +39669,82 @@ async function showCloudStatus() {
     status.textContent = "\u4E91\u7AEF\u63D0\u9192\u5DF2\u8FDE\u63A5";
     status.className = "status success";
     const ntfy = $("ntfy-status");
-    if (ntfy && data.attendanceNtfyTopic) ntfy.textContent = `\u624B\u673A\u63D0\u9192\uFF1A\u5728 ntfy \u8BA2\u9605 https://ntfy.sh/${data.attendanceNtfyTopic}`;
+    if (ntfy && data.attendanceNtfyTopic) ntfy.textContent = `\u624B\u673A\u4E3B\u9898\u5DF2\u51C6\u5907\uFF08\u4E3B\u9898\u672C\u8EAB\u4E0D\u5305\u542B\u6388\u6743\uFF09\u3002\u5728 ntfy \u8BA2\u9605 https://ntfy.sh/${data.attendanceNtfyTopic}`;
   } catch (error) {
     status.textContent = "\u4E91\u7AEF\u63D0\u9192\u5C1A\u672A\u8FDE\u63A5\uFF1B\u672C\u673A\u81EA\u52A8\u6253\u5361\u4ECD\u53EF\u4F7F\u7528\u3002";
     status.className = "status";
     console.warn(error);
   }
 }
+var activationErrors = {
+  invalid_activation_key: "\u5BC6\u94A5\u65E0\u6548\uFF0C\u8BF7\u68C0\u67E5\u540E\u91CD\u8BD5\u3002",
+  activation_key_used: "\u8FD9\u628A\u5BC6\u94A5\u5DF2\u7ECF\u5151\u6362\u8FC7\u3002",
+  activation_key_revoked: "\u8FD9\u628A\u5BC6\u94A5\u5DF2\u64A4\u9500\uFF0C\u8BF7\u8054\u7CFB\u5E97\u94FA\u5904\u7406\u3002",
+  activation_key_expired: "\u8FD9\u628A\u5BC6\u94A5\u5BF9\u5E94\u7684\u5B66\u671F\u5DF2\u622A\u6B62\uFF0C\u65E0\u6CD5\u6FC0\u6D3B\u3002",
+  activation_redemption_failed: "\u6FC0\u6D3B\u670D\u52A1\u6682\u65F6\u4E0D\u53EF\u7528\uFF0C\u8BF7\u7A0D\u540E\u91CD\u8BD5\u3002",
+  entitlement_status_failed: "\u6682\u65F6\u65E0\u6CD5\u8BFB\u53D6\u624B\u673A\u63D0\u9192\u6388\u6743\uFF0C\u8BF7\u7A0D\u540E\u5237\u65B0\u3002",
+  unauthorized: "\u8BBE\u5907\u4E91\u7AEF\u6388\u6743\u5DF2\u5931\u6548\uFF0C\u8BF7\u91CD\u65B0\u8FDE\u63A5\u540E\u518D\u8BD5\u3002"
+};
+function malaysiaTermEnd(expiresAt) {
+  const expiry = Date.parse(expiresAt);
+  if (!Number.isFinite(expiry)) return "";
+  return new Intl.DateTimeFormat("zh-CN", { dateStyle: "long", timeZone: "Asia/Kuala_Lumpur" }).format(new Date(expiry - 1));
+}
+async function refreshEntitlementStatus() {
+  const status = $("entitlement-status"), button = $("refresh-entitlement");
+  if (button) button.disabled = true;
+  status.textContent = "\u6B63\u5728\u67E5\u8BE2\u624B\u673A\u63D0\u9192\u6388\u6743\u2026";
+  status.className = "status";
+  try {
+    const result = await getEntitlementStatus(), entitlement = result.entitlement;
+    if (!entitlement) {
+      status.textContent = "\u5F53\u524D\u6CA1\u6709\u624B\u673A\u63D0\u9192\u6388\u6743\u3002\u8D2D\u4E70\u5957\u9910\u540E\uFF0C\u5728\u4E0B\u65B9\u8F93\u5165\u5BC6\u94A5\u6FC0\u6D3B\u3002";
+      status.className = "status";
+      return;
+    }
+    const labels = { active: "\u6388\u6743\u6709\u6548", pending: "\u6388\u6743\u5C1A\u672A\u5F00\u59CB", expired: "\u6388\u6743\u5DF2\u5230\u671F", revoked: "\u6388\u6743\u5DF2\u64A4\u9500" };
+    const plans = { bundle: "\u9996\u5B66\u671F\u5957\u9910", phone_notifications: "\u624B\u673A\u63D0\u9192\u7EED\u671F" };
+    const end = malaysiaTermEnd(entitlement.expiresAt);
+    const expiryText = end ? ` \xB7 \u5B66\u671F\u622A\u6B62\uFF1A${end}` : "";
+    const permissionText = entitlement.phoneNotifications ? "" : " \xB7 \u624B\u673A\u63D0\u9192\u6743\u9650\u672A\u5F00\u542F";
+    status.textContent = `${plans[entitlement.plan] || "\u624B\u673A\u63D0\u9192"} \xB7 ${labels[entitlement.status] || "\u72B6\u6001\u672A\u77E5"}${expiryText}${permissionText}`;
+    status.className = `status${entitlement.status === "active" && entitlement.phoneNotifications ? " success" : ["expired", "revoked"].includes(entitlement.status) ? " error" : ""}`;
+  } catch (error) {
+    const code = error instanceof Error ? error.message : "";
+    status.textContent = activationErrors[code] || "\u6682\u65F6\u65E0\u6CD5\u8BFB\u53D6\u624B\u673A\u63D0\u9192\u6388\u6743\uFF0C\u8BF7\u68C0\u67E5\u7F51\u7EDC\u540E\u91CD\u8BD5\u3002";
+    status.className = "status error";
+  } finally {
+    if (button) button.disabled = false;
+  }
+}
+var activationForm = $("activation-form");
+activationForm?.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const input = $("activation-key"), button = $("activate-key"), message = $("activation-message");
+  if (!input.value) {
+    message.textContent = "\u8BF7\u8F93\u5165\u8D2D\u4E70\u540E\u6536\u5230\u7684\u5BC6\u94A5\u3002";
+    message.className = "status error";
+    input.focus();
+    return;
+  }
+  button.disabled = true;
+  message.textContent = "\u6B63\u5728\u9A8C\u8BC1\u5E76\u6FC0\u6D3B\u5BC6\u94A5\u2026";
+  message.className = "status";
+  try {
+    await redeemActivationKey(input.value);
+    message.textContent = "\u5BC6\u94A5\u5DF2\u6FC0\u6D3B\uFF0C\u6B63\u5728\u5237\u65B0\u6388\u6743\u72B6\u6001\u3002";
+    message.className = "status success";
+    await refreshEntitlementStatus();
+  } catch (error) {
+    const code = error instanceof Error ? error.message : "";
+    message.textContent = activationErrors[code] || "\u6FC0\u6D3B\u5931\u8D25\uFF0C\u8BF7\u68C0\u67E5\u5BC6\u94A5\u548C\u7F51\u7EDC\u540E\u91CD\u8BD5\u3002";
+    message.className = "status error";
+  } finally {
+    input.value = "";
+    button.disabled = false;
+  }
+});
+$("refresh-entitlement")?.addEventListener("click", refreshEntitlementStatus);
 var weekdays = ["\u5468\u65E5", "\u5468\u4E00", "\u5468\u4E8C", "\u5468\u4E09", "\u5468\u56DB", "\u5468\u4E94", "\u5468\u516D"];
 var lessonType = (course) => /(?:^|\W)lab\b/i.test(course || "") ? "Lab" : /(?:^|\W)(?:lec|lecture)\b/i.test(course || "") ? "Lecture" : /(?:^|\W)tut\b/i.test(course || "") ? "Tutorial" : "\u8BFE\u7A0B";
 var field = (label, input) => {
@@ -40066,4 +40143,5 @@ chrome.storage.onChanged.addListener((changes, area) => {
   await renderBindings();
   await renderSaved();
   await showCloudStatus();
+  await refreshEntitlementStatus();
 })().catch((error) => toast(error.message, true));

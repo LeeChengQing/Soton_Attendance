@@ -1,4 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { gatePhoneNotification } from "../_shared/entitlement.ts";
 
 const db = createClient(
   Deno.env.get("SUPABASE_URL")!,
@@ -23,6 +24,24 @@ Deno.serve(async (request) => {
   let sent = 0;
   let failed = 0;
   for (const item of pending ?? []) {
+    const { data: entitlement, error: entitlementError } = await db.from("entitlements")
+      .select("status,phone_notifications,starts_at,expires_at")
+      .eq("device_id", item.device_id)
+      .maybeSingle();
+    if (entitlementError) {
+      await db.from("notification_outbox").update({ last_error: "entitlement_check_failed" }).eq("id", item.id);
+      failed += 1;
+      continue;
+    }
+
+    const authorized = await gatePhoneNotification(entitlement, Date.now(), async () => {
+      await db.from("notification_outbox").update({ last_error: "subscription_required" }).eq("id", item.id);
+    });
+    if (!authorized) {
+      failed += 1;
+      continue;
+    }
+
     const { data: subscriptions } = await db.from("push_subscriptions")
       .select("provider_token")
       .eq("device_id", item.device_id).eq("provider", "ntfy").eq("enabled", true);

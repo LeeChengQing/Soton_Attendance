@@ -52,3 +52,13 @@ export async function reportCloud({record,status,detail}={}) {
 export async function cloudStatus() {
   return chrome.storage.local.get(['attendanceCloudDeviceId','attendanceNtfyTopic']);
 }
+
+export async function getEntitlementStatus() {
+  const cloud=await ensureCloudDevice();
+  return call('entitlement-status',{},cloud.attendanceCloudToken);
+}
+
+export async function redeemActivationKey(activationKey) {
+  const cloud=await ensureCloudDevice();
+  return call('redeem-activation-key',{activationKey},cloud.attendanceCloudToken);
+}

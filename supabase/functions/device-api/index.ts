@@ -1,4 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { hashActivationKey, normalizeActivationKey } from "../_shared/activation.ts";
 
 const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
 const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -91,6 +92,74 @@ async function getNtfyTopic(request: Request) {
   const device = await authenticatedDevice(request);
   if (!device) return response({ error: "unauthorized" }, 401);
   return response({ ntfyTopic: await ensureNtfyTopic(device.id) });
+}
+
+async function entitlementStatus(request: Request) {
+  const device = await authenticatedDevice(request);
+  if (!device) return response({ error: "unauthorized" }, 401);
+
+  const { data, error } = await db.from("entitlements")
+    .select("plan,status,phone_notifications,starts_at,expires_at")
+    .eq("device_id", device.id)
+    .maybeSingle();
+  if (error) return response({ error: "entitlement_status_failed" }, 500);
+  if (!data) return response({ entitlement: null });
+
+  let status = data.status;
+  if (status === "active") {
+    const now = Date.now();
+    const startsAt = Date.parse(data.starts_at);
+    const expiresAt = Date.parse(data.expires_at);
+    if (Number.isFinite(expiresAt) && expiresAt <= now) status = "expired";
+    else if (Number.isFinite(startsAt) && startsAt > now) status = "pending";
+  }
+
+  return response({
+    entitlement: {
+      plan: data.plan,
+      status,
+      phoneNotifications: data.phone_notifications === true,
+      startsAt: data.starts_at,
+      expiresAt: data.expires_at,
+    },
+  });
+}
+
+async function redeemActivationKey(request: Request, input: Record<string, unknown>) {
+  const device = await authenticatedDevice(request);
+  if (!device) return response({ error: "unauthorized" }, 401);
+
+  let normalized: string;
+  try {
+    normalized = normalizeActivationKey(input.activationKey);
+  } catch {
+    return response({ error: "invalid_activation_key" }, 400);
+  }
+
+  const keyHash = await hashActivationKey(normalized);
+  const { data, error } = await db.rpc("redeem_activation_key", {
+    p_key_hash: keyHash,
+    p_device_id: device.id,
+  });
+  if (error) {
+    console.error("activation redemption RPC failed", error);
+    return response({ error: "activation_redemption_failed" }, 500);
+  }
+  if (!data || typeof data !== "object") return response({ error: "activation_redemption_failed" }, 500);
+
+  const result = data as Record<string, unknown>;
+  if (result.ok === true) return response(result);
+  const code = result.error;
+  const statusCode: Record<string, number> = {
+    invalid_activation_key: 400,
+    activation_key_used: 409,
+    activation_key_revoked: 410,
+    activation_key_expired: 410,
+  };
+  if (typeof code !== "string" || !statusCode[code]) {
+    return response({ error: "activation_redemption_failed" }, 500);
+  }
+  return response({ error: code }, statusCode[code]);
 }
 
 async function authenticatedDevice(request: Request) {
@@ -232,6 +301,8 @@ Deno.serve(async (request) => {
     switch (input.action) {
       case "register": return await registerDevice(input);
       case "ntfy-topic": return await getNtfyTopic(request);
+      case "entitlement-status": return await entitlementStatus(request);
+      case "redeem-activation-key": return await redeemActivationKey(request, input);
       case "sync": return await syncDevice(request, input);
       case "event": return await reportEvent(request, input);
       case "logs": return await readLogs(request);

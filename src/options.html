@@ -12,7 +12,21 @@
     <section class="card" aria-labelledby="profile-heading"><div class="section-head"><span class="step">01</span><div><h2 id="profile-heading">学生资料</h2><p>使用学校账号登录 Microsoft Forms 的同一个 Chrome 用户。</p></div></div>
       <form id="profile-form" class="form-grid"><label>学号<input name="student" maxlength="50" required></label><label>姓名<input name="name" maxlength="100" required></label><label>学生身份<select name="studentType"><option value="local">Local Student</option><option value="international">International Student</option></select></label><button type="submit">保存资料</button></form>
       <div class="cloud-row"><p id="cloud-status" class="status" role="status" aria-live="polite">正在连接云端提醒…</p></div>
-      <p id="ntfy-status" class="status" role="status" aria-live="polite">正在准备 ntfy 手机提醒主题…</p>
+      <p id="ntfy-status" class="status" role="status" aria-live="polite">正在准备 ntfy 手机提醒主题；主题本身不包含订阅授权…</p>
+      <section class="reminder-access" aria-labelledby="reminder-heading">
+        <div class="reminder-heading"><div><h3 id="reminder-heading">手机提醒订阅</h3><p>购买后使用自动发货密钥激活当前设备。授权仅控制手机推送，不影响本机自动打卡。</p></div></div>
+        <div class="reminder-plans">
+          <article class="reminder-plan"><p class="plan-kicker">新用户 · 首学期</p><h4>首学期套餐</h4><p class="plan-price"><strong>¥12</strong><span>首学期</span></p><p class="plan-copy">包含插件使用与首学期手机提醒。</p><a class="button" href="https://shop.368fk.cn/shop/CFI5VKXO" target="_blank" rel="noreferrer">购买首学期套餐</a></article>
+          <article class="reminder-plan"><p class="plan-kicker">已有用户 · 按学期续期</p><h4>手机提醒续期</h4><p class="plan-price"><strong>¥5</strong><span>每学期</span></p><p class="plan-copy">只延长手机提醒授权，续期密钥可叠加有效期。</p><a class="button secondary" href="https://shop.368fk.cn/shop/CFI5VKXO" target="_blank" rel="noreferrer">购买手机提醒续期</a></article>
+        </div>
+        <p id="entitlement-status" class="status" role="status" aria-live="polite">正在查询手机提醒授权…</p>
+        <form id="activation-form" class="activation-form">
+          <label for="activation-key">购买后输入激活密钥</label>
+          <div class="activation-row"><input id="activation-key" name="activationKey" type="text" maxlength="35" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="XXXXXXXX-XXXXXXXX-XXXXXXXX-XXXXXXXX"><button id="activate-key" type="submit">激活手机提醒</button><button id="refresh-entitlement" type="button" class="secondary">刷新授权</button></div>
+        </form>
+        <p id="activation-message" class="status" role="status" aria-live="polite"></p>
+        <p class="access-note">每把密钥只能绑定一台设备。学期截止日按马来西亚时间当天结束计算；ntfy 主题不能代替有效授权。</p>
+      </section>
     </section>
       <section class="card" aria-labelledby="import-heading"><div class="section-head"><span class="step">02</span><div><h2 id="import-heading">导入并核对课表</h2><p>按星期浏览课程；点开任意一节即可修改。</p></div><button id="clear-preview" type="button" class="quiet clear-section">清空本区</button></div>
         <div class="toolbar"><label class="file-button">选择课表文件<input id="timetable-file" type="file" accept=".jpg,.jpeg,.png,.pdf,image/jpeg,image/png,application/pdf"></label><button id="add-row" type="button" class="secondary">手动添加课程</button></div>

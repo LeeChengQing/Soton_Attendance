@@ -3,7 +3,7 @@ import {validateFormsUrl} from './forms.js';
 import {fieldMappingForQuestion} from './mapping.js';
 import {moduleKey,bindingForCourse,legacyLinkSuggestion,validateBindingForCourse} from './bindings.js';
 import {mergeSessions,normalizeDate,todayMalaysia,toWeeklySession} from './schedule.js';
-import {ensureCloudDevice,syncCloud} from './cloud.js';
+import {ensureCloudDevice,syncCloud,getEntitlementStatus,redeemActivationKey} from './cloud.js';
 
 const $=id=>document.getElementById(id);
 const preview=[],cards=new Map();
@@ -30,9 +30,72 @@ async function showCloudStatus() {
     status.textContent='云端提醒已连接';
     status.className='status success';
     const ntfy=$('ntfy-status');
-    if(ntfy&&data.attendanceNtfyTopic) ntfy.textContent=`手机提醒：在 ntfy 订阅 https://ntfy.sh/${data.attendanceNtfyTopic}`;
+    if(ntfy&&data.attendanceNtfyTopic) ntfy.textContent=`手机主题已准备（主题本身不包含授权）。在 ntfy 订阅 https://ntfy.sh/${data.attendanceNtfyTopic}`;
   } catch(error) {status.textContent='云端提醒尚未连接；本机自动打卡仍可使用。';status.className='status';console.warn(error);}
 }
+
+const activationErrors={
+  invalid_activation_key:'密钥无效，请检查后重试。',
+  activation_key_used:'这把密钥已经兑换过。',
+  activation_key_revoked:'这把密钥已撤销，请联系店铺处理。',
+  activation_key_expired:'这把密钥对应的学期已截止，无法激活。',
+  activation_redemption_failed:'激活服务暂时不可用，请稍后重试。',
+  entitlement_status_failed:'暂时无法读取手机提醒授权，请稍后刷新。',
+  unauthorized:'设备云端授权已失效，请重新连接后再试。',
+};
+
+function malaysiaTermEnd(expiresAt) {
+  const expiry=Date.parse(expiresAt);
+  if(!Number.isFinite(expiry)) return '';
+  return new Intl.DateTimeFormat('zh-CN',{dateStyle:'long',timeZone:'Asia/Kuala_Lumpur'}).format(new Date(expiry-1));
+}
+
+async function refreshEntitlementStatus() {
+  const status=$('entitlement-status'),button=$('refresh-entitlement');
+  if(button) button.disabled=true;
+  status.textContent='正在查询手机提醒授权…';status.className='status';
+  try {
+    const result=await getEntitlementStatus(),entitlement=result.entitlement;
+    if(!entitlement) {
+      status.textContent='当前没有手机提醒授权。购买套餐后，在下方输入密钥激活。';
+      status.className='status';
+      return;
+    }
+    const labels={active:'授权有效',pending:'授权尚未开始',expired:'授权已到期',revoked:'授权已撤销'};
+    const plans={bundle:'首学期套餐',phone_notifications:'手机提醒续期'};
+    const end=malaysiaTermEnd(entitlement.expiresAt);
+    const expiryText=end?` · 学期截止：${end}`:'';
+    const permissionText=entitlement.phoneNotifications?'':' · 手机提醒权限未开启';
+    status.textContent=`${plans[entitlement.plan]||'手机提醒'} · ${labels[entitlement.status]||'状态未知'}${expiryText}${permissionText}`;
+    status.className=`status${entitlement.status==='active'&&entitlement.phoneNotifications?' success':['expired','revoked'].includes(entitlement.status)?' error':''}`;
+  } catch(error) {
+    const code=error instanceof Error?error.message:'';
+    status.textContent=activationErrors[code]||'暂时无法读取手机提醒授权，请检查网络后重试。';
+    status.className='status error';
+  } finally {
+    if(button) button.disabled=false;
+  }
+}
+
+const activationForm=$('activation-form');
+activationForm?.addEventListener('submit',async event=>{
+  event.preventDefault();
+  const input=$('activation-key'),button=$('activate-key'),message=$('activation-message');
+  if(!input.value) {message.textContent='请输入购买后收到的密钥。';message.className='status error';input.focus();return;}
+  button.disabled=true;message.textContent='正在验证并激活密钥…';message.className='status';
+  try {
+    await redeemActivationKey(input.value);
+    message.textContent='密钥已激活，正在刷新授权状态。';message.className='status success';
+    await refreshEntitlementStatus();
+  } catch(error) {
+    const code=error instanceof Error?error.message:'';
+    message.textContent=activationErrors[code]||'激活失败，请检查密钥和网络后重试。';
+    message.className='status error';
+  } finally {
+    input.value='';button.disabled=false;
+  }
+});
+$('refresh-entitlement')?.addEventListener('click',refreshEntitlementStatus);
 
 const weekdays=['周日','周一','周二','周三','周四','周五','周六'];
 const lessonType=course=>/(?:^|\W)lab\b/i.test(course||'')?'Lab':/(?:^|\W)(?:lec|lecture)\b/i.test(course||'')?'Lecture':/(?:^|\W)tut\b/i.test(course||'')?'Tutorial':'课程';
@@ -291,5 +354,5 @@ chrome.storage.onChanged.addListener((changes,area)=>{if(area==='local'&&'attend
   profileForm.elements.student.value=p.student||'';profileForm.elements.name.value=p.name||'';profileForm.elements.studentType.value=p.studentType||'local';
   renderPreview();
   await renderBindings();await renderSaved();
-  await showCloudStatus();
+  await showCloudStatus();await refreshEntitlementStatus();
 })().catch(error=>toast(error.message,true));

@@ -88,7 +88,7 @@ input:focus-visible, select:focus-visible, button:focus-visible, summary:focus-v
   outline: 2px solid var(--silver);
   outline-offset: 3px;
 }
-button, .file-button {
+button, .file-button, a.button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -103,14 +103,18 @@ button, .file-button {
   font-size: 14px;
   font-weight: 700;
   text-align: center;
+  text-decoration: none;
   transition: background-color .15s ease, border-color .15s ease, transform .15s ease;
 }
-button:hover, .file-button:hover { background: var(--fog); border-color: var(--fog); }
-button:active, .file-button:active { transform: translateY(1px); }
+button:hover, .file-button:hover, a.button:hover { background: var(--fog); border-color: var(--fog); }
+button:active, .file-button:active, a.button:active { transform: translateY(1px); }
 button.secondary, .binding .file-button { color: var(--text); background: var(--slate); border-color: var(--steel); }
 button.secondary:hover, .binding .file-button:hover { background: var(--steel); }
+a.button.secondary { color: var(--text); background: var(--slate); border-color: var(--steel); }
+a.button.secondary:hover { background: var(--steel); }
 button.quiet { color: var(--silver); background: transparent; border-color: var(--steel); }
 button.quiet:hover { background: var(--slate); }
+button:disabled { cursor: wait; opacity: .65; }
 .file-button { position: relative; overflow: hidden; }
 .file-button input { position: absolute; opacity: 0; width: 1px; height: 1px; min-height: 0; }
 .toolbar { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
@@ -121,6 +125,27 @@ button.quiet:hover { background: var(--slate); }
 .cloud-row .status { flex: 1; min-width: 240px; margin: 0; }
 .status.success { color: #a7d7c1; }
 .status.error { color: var(--danger); }
+
+.reminder-access { margin-top: 24px; padding-top: 22px; border-top: 1px solid var(--slate); }
+.reminder-heading h3 { margin: 0; color: var(--text); font-size: 18px; }
+.reminder-heading p { max-width: 720px; margin: 6px 0 0; color: var(--fog); font-size: 13px; line-height: 1.55; }
+.reminder-plans { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 18px; }
+.reminder-plan { display: grid; align-content: start; gap: 8px; padding: 18px; background: var(--midnight); border: 1px solid var(--slate); border-radius: 12px; }
+.plan-kicker { margin: 0; color: var(--fog); font-size: 11px; font-weight: 700; letter-spacing: .06em; }
+.reminder-plan h4 { margin: 0; color: var(--text); font-size: 16px; }
+.plan-price { display: flex; align-items: baseline; gap: 8px; margin: 0; }
+.plan-price strong { color: var(--text); font-size: 25px; font-variant-numeric: tabular-nums; }
+.plan-price span, .plan-copy { color: var(--fog); font-size: 12px; }
+.plan-copy { min-height: 36px; margin: 0; line-height: 1.5; }
+.reminder-plan a.button { justify-self: start; margin-top: 4px; }
+.reminder-access > #entitlement-status { margin: 18px 0 10px; }
+.activation-form { display: grid; gap: 8px; }
+.activation-form > label { color: var(--silver); font-size: 13px; font-weight: 650; }
+.activation-row { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 10px; }
+#activation-key { width: 100%; font-family: ui-monospace, Consolas, monospace; letter-spacing: .035em; }
+.activation-row button { white-space: nowrap; }
+.reminder-access > #activation-message { min-height: 0; margin: 10px 0 0; }
+.access-note { margin: 12px 0 0; color: var(--fog); font-size: 12px; line-height: 1.55; }
 
 .agenda-overview {
   display: flex;
@@ -212,6 +237,9 @@ button.quiet:hover { background: var(--slate); }
   .wrap { width: min(100% - 28px, 1160px); }
   .hero { padding-block: 36px 40px; }
   .form-grid { grid-template-columns: 1fr; }
+  .reminder-plans { grid-template-columns: 1fr; }
+  .activation-row { grid-template-columns: 1fr; }
+  .activation-row button { width: 100%; }
   .card { padding: 18px; }
   .session-summary { grid-template-columns: 78px minmax(0, 1fr) 12px; gap: 10px; padding-inline: 12px; }
   .session-time strong { font-size: 16px; }

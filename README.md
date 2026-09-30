@@ -23,7 +23,11 @@
 
 ### ntfy 手机提醒
 
-设置页“学生资料”下方会显示专属 ntfy 主题。手机安装 ntfy 后，订阅这个 `https://ntfy.sh/...` 地址即可接收“明日是否打卡”和“打卡结果”提醒；不再需要手机配对码。扩展只同步课程代码、星期、时间、已核对的 Forms 链接和打卡结果，不上传课表原文件、学号、姓名或学校登录会话。
+设置页“学生资料”下方会显示专属 ntfy 主题。手机安装 ntfy 后，订阅这个 `https://ntfy.sh/...` 地址即可接收“明日是否打卡”和“打卡结果”提醒；不再需要手机配对码。主题本身不包含推送授权：需购买首学期套餐或续期商品，并在设置页输入收到的密钥激活当前设备。首学期套餐为 ¥12，手机提醒续期为 ¥5/学期；新商品详情页创建前，购买按钮会先打开 368FK 店铺页。现有 ¥10 插件商品保持不变。
+
+密钥只能兑换一次并绑定到当前设备。有效期按密钥批次指定的学期截止日计算，截止日当天按马来西亚时间结束；续期会延长当前授权。授权只控制手机通知，本机自动打卡不受影响。
+
+扩展只同步课程代码、星期、时间、已核对的 Forms 链接和打卡结果，不上传课表原文件、学号、姓名或学校登录会话。
 
 Supabase 项目已经配置好：`device-api` 负责设备注册、同步和日志；`send-reminders` 每天 UTC 11:30（马来西亚 19:30）把明日课程提醒写入通知队列；`notification-worker` 每分钟通过 ntfy HTTP 推送到手机。随机主题相当于频道凭证，请不要公开分享。
 
@@ -43,6 +47,9 @@ Supabase 项目已经配置好：`device-api` 负责设备注册、同步和日�
 ## 开发验证
 
 - `npm test`：课程识别、每周循环、旧任务转换、重复导入、日期核对、二维码解码、表单映射和状态逻辑。
+- `deno test supabase/functions/_shared/activation.deno.ts supabase/functions/_shared/entitlement.deno.ts`：密钥规范化、哈希和手机提醒授权边界。
+- `supabase test db`：数据库密钥兑换与权限测试；需要本地 Supabase 数据库运行。
+- `npm run keys:generate -- --count 100 --plan bundle --term-end 2027-01-31`：生成店铺明文库存与 Supabase 哈希导入 CSV。文件写入被 Git 忽略的 `activation-key-batches/`；不要提交或公开明文库存。
 - 开发者首次构建前运行 `npm install`；`npm run build` 生成可安装的 `extension`。学生安装 ZIP 时不需要这些命令。
 - `npm run smoke`：用本地模拟页面验证二维码、文字 PDF、JPG/PNG OCR、扫描 PDF OCR、同课程代码共用链接、逐题选项、Lab/Tutorial 单选题、日期选择及表单提交成功反馈；不会访问或提交学校表单。
 

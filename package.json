@@ -6,7 +6,8 @@
   "scripts": {
     "test": "node --test",
     "build": "node scripts/build.mjs",
-    "smoke": "node scripts/smoke.mjs"
+    "smoke": "node scripts/smoke.mjs",
+    "keys:generate": "node scripts/generate-activation-keys.mjs"
   },
   "dependencies": {
     "@tesseract.js-data/eng": "^1.0.0",

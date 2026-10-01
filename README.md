@@ -1,10 +1,12 @@
-# Soton Auto-Check 自动打卡扩展 v2.3.0
+# Soton Auto-Check 自动打卡扩展 v1.0.0
+
+本次是手机提醒付费授权功能的正式首发版本（v1.0.0）；Chrome 扩展内部更新版本为 2.4.0。
 
 本项目从现有 v1.0.3 Microsoft Forms 自动填写流程升级而来。学生在自己的 Chrome 用户中导入课表、绑定各课程二维码或链接，一键创建每周任务，扩展按马来西亚时间自动尝试打卡，并将提醒与打卡日志同步到 Supabase。
 
 ## 安装（Windows 和 macOS 共用一个 ZIP）
 
-接收安装包的学生无需运行 `npm install`，也无需安装 Node.js。两种系统使用同一个 `Attendance-extension-Windows-macOS-v2.3.0.zip`。
+接收安装包的学生无需运行 `npm install`，也无需安装 Node.js。两种系统使用同一个 `Soton-Auto-Check-v1.0.0-Windows-macOS.zip`。
 
 1. **Windows**：右键 ZIP，选“全部解压缩”。**macOS**：在 Finder 中双击 ZIP 解压。把解压后的文件夹放在一个不会随手删除或移动的位置。
 2. 在 **Google Chrome** 地址栏输入 `chrome://extensions`，打开“开发者模式”，点击“加载已解压的扩展程序”（Load unpacked）。选择刚才解压出的、直接包含 `manifest.json` 的文件夹；不要选 ZIP 文件本身。

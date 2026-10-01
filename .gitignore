@@ -1,5 +1,6 @@
 node_modules/
 Attendance-extension-Windows-macOS-v2.3.0-ntfy/
+Soton-Auto-Check-v1.0.0-Windows-macOS-expanded/
 *.zip
 test-results/
 .env

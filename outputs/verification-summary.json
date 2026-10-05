@@ -1,0 +1,157 @@
+{
+  "dateMalaysia": "2026-10-02",
+  "candidateVersion": "2.5.4",
+  "branch": "codex/attendance-upgrade",
+  "baseRevision": "c54421d079b4e0a4426358be6836205fdf29d192",
+  "sourceTreeSha256": "40259c2b5e9ea283d946eebf9312590d6c1b985f989afeb3a33bc0eee89c22d2",
+  "zipSha256": "bfd25a13e81c777490ad0ed13a6c0d29be2421be1406944a6c40ee78f4881e1a",
+  "node": {
+    "tests": 76,
+    "passed": 75,
+    "failed": 0,
+    "skipped": 1,
+    "skipReason": "Optional supplied phone-photo QR samples unavailable",
+    "command": "npm run candidate (node --test)",
+    "log": "outputs/verification-2.5.2.txt",
+    "lastRunVersion": "2.5.2",
+    "currentFollowUp": "Tests not rerun for 2.5.4; 2.5.2 is last full suite run"
+  },
+  "deno": {
+    "passed": 11,
+    "failed": 0,
+    "typeChecks": [
+      "device-api",
+      "send-reminders",
+      "notification-worker",
+      "concurrency harness"
+    ],
+    "command": "npm run test:backend",
+    "followUpScope": "Backend unchanged by 2.5.2 UI follow-up; prior native Deno verification retained"
+  },
+  "simulatedBrowser": {
+    "passed": true,
+    "checks": [
+      "QR upload",
+      "text PDF",
+      "JPG/PNG OCR",
+      "scanned PDF OCR",
+      "mapping categories",
+      "Lab/Tutorial selection",
+      "date guards",
+      "local simulated submission feedback",
+      "no setup submit clicks",
+      "explicit setup confirmation",
+      "activation coverage gate",
+      "draft autosave and reload",
+      "independent section clearing",
+      "desktop/narrow overflow and control names",
+      "previous-month Go to today before selection",
+      "current-month disabled Go to today",
+      "readonly picker date selection",
+      "three concurrent Lecture/Laboratory/Tutorial course pages using real coordinator/content",
+      "independent out-of-order confirmations and one summary",
+      "tabbed settings cloud operations reach mocked networking",
+      "removed comparison/course selector",
+      "no-delivery forms retain separate course coverage",
+      "expired course tab does not block remaining checks",
+      "grouped mapping actions and minimal expandable workflow navigation",
+      "removed readiness, backup and setup cards",
+      "last collapsed phone subscription and shortcut",
+      "direct deletion of collapsed draft rows resets review",
+      "normalized profile equality survives reordered Chrome storage fields",
+      "draft edit during activation read blocks stale activation",
+      "hover, click/tap, keyboard Tab/Enter and Escape with inert collapsed controls",
+      "1360/390/320px expanded navigation overflow and toast/button hit testing"
+    ],
+    "realSchoolSubmissions": 0
+  },
+  "package": {
+    "files": 21,
+    "bundleSourceConsistency": true,
+    "manifestVersion": "2.5.3",
+    "deterministicZip": true,
+    "checksums": true
+  },
+  "review": {
+    "freshReviewer": true,
+    "importantFindingsFixed": [
+      "durable ownership-proof registration replay",
+      "serialized backup restore preserves newer terminal reports",
+      "strict original weekday/kind validation"
+    ],
+    "deliveryHistoryCorrection": "Legacy sent_at does not prove ntfy acceptance; backfill uncertain/discarded states",
+    "deferredCodeFindings": []
+  },
+  "unverified": [
+    {
+      "boundary": "PostgreSQL/Supabase migrations, transaction rollback, permissions and concurrent claims",
+      "reason": "No isolated database/Docker service available",
+      "tests": [
+        "supabase/tests/attendance_reliability_test.sql",
+        "supabase/tests/concurrency.deno.ts"
+      ]
+    },
+    {
+      "boundary": "Installed Windows Chrome MV3",
+      "reason": "Bundled Chromium spawn UNKNOWN; Chrome154 command-line sideload did not create extension worker",
+      "test": "scripts/extension-smoke.mjs"
+    },
+    {
+      "boundary": "Installed macOS Chrome",
+      "reason": "No macOS host available"
+    },
+    {
+      "boundary": "Staging phone latency and student-confirmed receipt",
+      "reason": "Requires explicitly approved isolated test device/topic"
+    },
+    {
+      "boundary": "Novice 10-student trial and complete keyboard flow",
+      "reason": "Needs independent observations from scorecard"
+    },
+    {
+      "boundary": "Computed UI contrast detector",
+      "reason": "Impeccable detector ran degraded; parser libraries unavailable. Actual screenshots and responsive/control-name checks ran."
+    }
+  ],
+  "productionDeployment": false,
+  "studentRollout": false,
+  "originalZipsPreserved": true,
+  "score9of10Claimed": false,
+  "packaging": {
+    "manifestVersion": "2.5.4",
+    "files": 21,
+    "zip": "outputs/Soton-Auto-Check-v2.5.4-candidate-Windows-macOS.zip",
+    "sha256": "bfd25a13e81c777490ad0ed13a6c0d29be2421be1406944a6c40ee78f4881e1a",
+    "readmeUpdatedAndRepackaged": true
+  },
+  "followUpReview": {
+    "findingsFixed": [
+      "distinct named course identity even without delivery question",
+      "conflicting START_SETUP rejected; module buttons disabled during active session"
+    ],
+    "deferred": []
+  },
+  "liveCloudConnectivityVerified": false,
+  "diffCheck": {
+    "passed": true,
+    "windowsCrLfAccepted": true
+  },
+  "uiFollowUpReview": {
+    "findingsFixed": [
+      "draft activation raced with a newer unreviewed edit",
+      "narrow-screen toast intercepted expanded navigation actions"
+    ],
+    "deferred": [],
+    "profileBugReproducedBeforeFix": true
+  },
+  "followUpBuild": {
+    "feature": "Consolidated form verification and all-variant test actions in bottom navbar",
+    "built": true,
+    "packageBundleSourceConsistency": true,
+    "zipFiles": 21,
+    "deterministicZip": true,
+    "testsRun": false,
+    "reason": "The user requested implementation; no test run was requested.",
+    "behavioralVerification": "Not performed in 2.5.4"
+  }
+}

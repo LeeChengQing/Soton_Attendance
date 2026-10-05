@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title data-i18n="documentTitle">Attendance · 自动打卡设置</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <header class="hero"><div class="wrap hero-inner"><div><h1><span data-i18n="appTitle">自动打卡</span> <span class="version">V1.0 Release</span></h1><p data-i18n="heroDescription">保存资料，导入课表，绑定后测试并启用。</p></div><div class="language-switch" role="group" aria-label="Language"><button id="language-en" type="button" class="quiet" aria-pressed="false">EN</button><span aria-hidden="true">/</span><button id="language-zh" type="button" class="quiet selected" aria-pressed="true">中文</button></div></div></header>
+  <main class="wrap">
+    <p id="persistent-error" class="status error inline-error" role="alert"></p>
+    <section class="card" aria-labelledby="profile-heading">
+      <div class="section-head"><span class="step">01</span><div><h2 id="profile-heading" data-i18n="profileHeading">学生资料</h2></div><a id="open-subscription" class="button secondary subscription-link" href="#phone-subscription" data-i18n="openSubscription">订阅手机提醒</a></div>
+      <details id="profile-details" open><summary id="profile-summary" data-i18n="profileSummaryEmpty">填写学号与姓名</summary>
+        <form id="profile-form" class="form-grid"><label><span data-i18n="studentId">学号</span><input name="student" maxlength="50" required></label><label><span data-i18n="studentName">姓名</span><input name="name" maxlength="100" required></label><label><span data-i18n="studentType">学生身份</span><select name="studentType"><option value="local" data-i18n="localStudent">本地学生</option><option value="international" data-i18n="internationalStudent">国际学生</option></select></label><button type="submit" data-i18n="saveProfile">保存资料</button></form>
+        <p class="upload-hint" data-i18n="chromeLoginHint">请在当前 Chrome 用户中登录学校 Microsoft 账号。</p>
+      </details>
+    </section>
+    <section class="card" aria-labelledby="import-heading">
+      <div class="section-head"><span class="step">02</span><div><h2 id="import-heading" data-i18n="timetableHeading">课表</h2><p data-i18n="timetableDescription">直接删除不需要的课程；展开可修改。</p></div><button id="clear-preview" type="button" class="quiet clear-section" data-i18n="clearDraft">清空草稿</button></div>
+      <div class="toolbar"><label class="file-button"><span data-i18n="importTimetable">导入课表</span><input id="timetable-file" type="file" accept=".jpg,.jpeg,.png,.pdf,image/jpeg,image/png,application/pdf"></label><button id="add-row" type="button" class="secondary" data-i18n="addCourse">添加课程</button></div>
+      <p class="upload-hint" data-i18n="timetableHint">支持 JPG、PNG、PDF。Group 1／2 只保留自己的组别。</p>
+      <p id="import-status" class="status" role="status" aria-live="polite" data-i18n="noTimetable">还没有导入课表。</p>
+      <div id="preview-summary" class="agenda-overview" aria-live="polite"></div><div id="preview-rows" class="agenda"></div>
+      <p id="draft-status" class="status" data-i18n="draftAutoSave">草稿自动保存，启用后才会执行。</p>
+    </section>
+    <section class="card" aria-labelledby="binding-heading">
+      <div class="section-head"><span class="step">03</span><div><h2 id="binding-heading" data-i18n="bindingHeading">绑定与测试</h2><p data-i18n="bindingDescription">每门课程绑定一次；自动测试全部课型，不提交。</p></div><button id="clear-bindings" type="button" class="quiet clear-section" data-i18n="clearBindings">清空绑定</button></div>
+      <div id="bindings" class="binding-list"><p class="muted" data-i18n="emptyBindings">先导入或添加课程。</p></div>
+    </section>
+    <section class="card" aria-labelledby="tasks-heading"><div class="section-head"><div><h2 id="tasks-heading" data-i18n="tasksHeading">每周任务</h2><p data-i18n="tasksDescription">结束前 5 分钟自动执行。请保持 Chrome 运行、电脑清醒且学校账号已登录。</p></div><button id="clear-sessions" type="button" class="quiet clear-section" data-i18n="clearTasks">删除全部任务</button></div><div id="sessions" class="list"></div></section>
+    <details class="card utility-section" id="record-section"><summary><h2 id="records-heading" data-i18n="recordsHeading">打卡记录</h2><span id="record-count" class="summary-meta" data-i18n="recordsMeta">查看结果与导出</span></summary><div class="toolbar"><label><span data-i18n="filterRecords">筛选结果</span><select id="record-filter"><option value="all" data-i18n="filterAll">全部结果</option><option value="unknown" data-i18n="filterUnknown">结果不明</option><option value="failed" data-i18n="filterFailed">失败</option><option value="missed" data-i18n="filterMissed">未自动提交</option><option value="success" data-i18n="filterSuccess">成功</option></select></label><button id="export-records" type="button" class="secondary" data-i18n="exportRecords">导出记录</button></div><div id="records" class="list"></div><div class="toolbar"><button id="records-prev" type="button" class="quiet" data-i18n="previousPage">上一页</button><span id="records-page" role="status"></span><button id="records-next" type="button" class="quiet" data-i18n="nextPage">下一页</button></div></details>
+    <details class="card utility-section" id="phone-subscription">
+      <summary><h2 id="reminder-heading" data-i18n="subscriptionTitle">手机提醒订阅</h2><span class="summary-meta" data-i18n="subscriptionMeta">可选 · 展开购买或激活</span></summary>
+      <p class="upload-hint" data-i18n="subscriptionIntro">购买后用密钥激活；本机自动打卡无需手机提醒授权。</p>
+      <div class="reminder-plans">
+        <article class="reminder-plan">
+          <div class="plan-details"><h3 data-i18n="planName">手机提醒续订</h3><p class="plan-copy" data-i18n="planDescription">续订后，服务有效期至密钥对应的学期截止日。</p></div>
+          <div class="plan-purchase"><div class="currency-switch" role="group" data-i18n-aria-label="chooseCurrency"><button id="currency-rm" type="button" class="quiet" aria-pressed="true">RM</button><span aria-hidden="true">/</span><button id="currency-rmb" type="button" class="quiet" aria-pressed="false">RMB ¥</button></div><p class="plan-price"><strong id="subscription-price">RM 11.99</strong><span data-i18n="pricePeriod">/ 学期</span></p><a id="purchase-subscription" class="button" href="https://vf-auto-check.vercel.app/" target="_blank" rel="noopener noreferrer" data-i18n="purchaseRm">获取授权密钥</a></div>
+        </article>
+      </div>
+      <p id="entitlement-status" class="status" role="status" aria-live="polite" data-i18n="entitlementLoading">展开后查询手机提醒授权。</p>
+      <h3 class="activation-heading" data-i18n="activationHeading">首次激活新密钥或续期</h3>
+      <form id="activation-form" class="activation-form"><label for="activation-key" data-i18n="newKey">新密钥</label><div class="activation-row"><input id="activation-key" name="activationKey" type="text" maxlength="35" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="XXXXXXXX-XXXXXXXX-XXXXXXXX-XXXXXXXX"><button id="activate-key" type="submit" data-i18n="activate">激活手机提醒</button><button id="refresh-entitlement" type="button" class="secondary" data-i18n="refresh">刷新授权</button></div></form>
+      <p id="activation-message" class="status" role="status" aria-live="polite"></p>
+      <details class="phone-recovery" id="phone-recovery" aria-labelledby="recovery-heading">
+        <summary><h3 id="recovery-heading" data-i18n="recoveryTitle">已兑换过密钥？恢复手机提醒</h3></summary>
+        <p data-i18n="recoveryDescription">输入之前兑换过的原密钥，验证码会发送到原来接收提醒的手机。恢复不会再次兑换密钥；如果电脑上的本地资料也已清除，请重新导入课表并填写学生资料。</p>
+        <form id="phone-recovery-form" class="phone-recovery-form">
+          <div class="phone-recovery-field"><label for="recovery-key" data-i18n="oldKey">已兑换的原密钥</label><div class="phone-recovery-row"><input id="recovery-key" type="text" maxlength="35" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="XXXXXXXX-XXXXXXXX-XXXXXXXX-XXXXXXXX"><button id="send-recovery-code" type="button" data-i18n="sendCode">发送验证码</button></div></div>
+          <div class="phone-recovery-field"><label for="recovery-code" data-i18n="receivedCode">手机收到的 6 位验证码</label><div class="phone-recovery-row"><input id="recovery-code" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" placeholder="000000" disabled><button id="verify-recovery-code" type="button" class="primary" disabled data-i18n="verifyRecover">验证并恢复</button></div></div>
+        </form>
+        <p id="recovery-message" class="status" role="status" aria-live="polite"></p>
+        <button id="cancel-recovery" type="button" class="quiet" hidden data-i18n="cancelRecovery">取消恢复</button>
+      </details>
+      <details class="support-details" id="phone-status-card" hidden><summary data-i18n="phoneStatusTitle">连接手机与通知状态</summary>
+        <p id="cloud-status" class="status" role="status" aria-live="polite" data-i18n="cloudStarting">正在准备云端连接…</p><p id="ntfy-status" class="status" role="status" aria-live="polite" data-i18n="topicStarting">手机主题尚未准备。</p><p id="cloud-queue-status" class="status"></p>
+        <div class="toolbar"><button id="retry-cloud" type="button" class="secondary" data-i18n="retryConnection">重试连接</button><button id="copy-topic" type="button" class="secondary" data-i18n="copyTopic">复制 ntfy 地址</button><button id="show-topic-qr" type="button" class="secondary" aria-expanded="false" aria-controls="topic-qr-panel" data-i18n="topicQr">订阅二维码</button></div>
+        <div id="topic-qr-panel" class="topic-qr-panel" hidden><div class="toolbar" role="group" data-i18n-aria-label="choosePhoneSystem"><button id="topic-qr-android" type="button" class="secondary" aria-pressed="true" data-i18n="androidSubscribe">Android · 自动订阅</button><button id="topic-qr-ios" type="button" class="secondary" aria-pressed="false" data-i18n="iosSubscribe">iPhone / iPad</button></div><p id="topic-qr-help" class="access-note" role="status" aria-live="polite"></p><canvas id="topic-qr" aria-label="ntfy 订阅二维码" data-i18n-aria-label="topicQrAccessible" hidden></canvas></div>
+        <p id="delivery-status" class="status" role="status"></p><button id="refresh-delivery" type="button" class="quiet" data-i18n="refreshDelivery">刷新通知状态</button><div id="phone-notifications" class="list"></div>
+      </details>
+      <details class="support-details"><summary data-i18n="subscriptionHelp">订阅说明</summary><p class="access-note" data-i18n="subscriptionTerms">每把密钥只能绑定一台设备。同一学期的密钥不叠加时长；学期截止日按马来西亚时间当天结束计算。ntfy 主题不能代替有效授权。</p></details>
+    </details>
+  </main>
+  <aside id="workflow-dock" class="workflow-dock" data-i18n-aria-label="workflowLabel"><button id="dock-toggle" type="button" aria-expanded="false" aria-controls="workflow-panel" data-i18n="workflowToggle">操作</button><div id="workflow-panel" class="workflow-panel" inert><nav data-i18n-aria-label="pageNavigation"><a href="#import-heading" data-i18n="navTimetable">课表</a><a href="#binding-heading" data-i18n="navBindings">表单绑定</a><a href="#tasks-heading" data-i18n="navTasks">每周任务</a><a href="#profile-heading" data-i18n="navProfile">学生资料</a></nav><div class="workflow-controls"><label class="checkbox"><input id="review-draft" type="checkbox"><span data-i18n="reviewDraft">我已核对课表与组别。</span></label><div class="toolbar"><button id="verify-all-bindings" type="button" data-i18n="verifyAllForms">一键打开全部并核对</button><button id="check-setup" type="button" class="secondary" data-i18n="testAllForms">测试全部课型 · 不提交</button><button id="confirm-all-setup" type="button" class="secondary" hidden disabled data-i18n="confirmAllForms">一键确认全部课型</button><button id="create-tasks" type="button" class="primary" data-i18n="enableTasks">启用每周任务</button><button id="cancel-setup" type="button" class="quiet" hidden data-i18n="cancelChecks">取消检查</button></div></div></div></aside>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script type="module" src="options.js"></script>
+</body>
+</html>

@@ -8,20 +8,37 @@ const centerY=t=>t.y+t.height/2;
 const pad=n=>String(n).padStart(2,'0');
 const clock=(hour,minute)=>`${pad(hour)}:${minute}`;
 
-function weekDates(text) {
-  const match=String(text).match(/(\d{1,2})[/.](\d{1,2})\s*[-–—]\s*(\d{1,2})[/.](\d{1,2})[/.](\d{2,4})/);
-  if(!match) return null;
-  const year=+match[5]<100?2000+(+match[5]):+match[5];
-  const startYear=+match[2]>+match[4]?year-1:year;
-  const start=new Date(Date.UTC(startYear,+match[2]-1,+match[1]));
-  const end=new Date(Date.UTC(year,+match[4]-1,+match[3]));
-  if(start.getUTCDate()!==+match[1] || end.getUTCDate()!==+match[3] || end-start<0 || end-start>7*86400000) return null;
+export function weekDates(text) {
+  const normalized=String(text).replace(/[／]/g,'/').replace(/[．。]/g,'.').replace(/[－–—]/g,'-');
+  const full=/((\d{1,2})[/.](\d{1,2})\s*-\s*(\d{1,2})[/.](\d{1,2})[/.](\d{2,4}))/;
+  const compact=/((\d{1,2})\s*-\s*(\d{1,2})[/.](\d{1,2})[/.](\d{2,4}))/;
+  const bothFull=/((\d{1,2})[/.](\d{1,2})[/.](\d{2,4})\s*-\s*(\d{1,2})[/.](\d{1,2})[/.](\d{2,4}))/;
+  let match, startDay, startMonth, startYear, endDay, endMonth, endYear;
+  if((match=normalized.match(bothFull))) {
+    startDay=+match[2];startMonth=+match[3];startYear=toFullYear(+match[4]);
+    endDay=+match[5];endMonth=+match[6];endYear=toFullYear(+match[7]);
+  } else if((match=normalized.match(full))) {
+    startDay=+match[2];startMonth=+match[3];endDay=+match[4];endMonth=+match[5];endYear=toFullYear(+match[6]);
+    startYear=endYear-(startMonth>endMonth?1:0);
+  } else if((match=normalized.match(compact))) {
+    startDay=+match[2];endDay=+match[3];endMonth=+match[4];endYear=toFullYear(+match[5]);
+    startMonth=endMonth-(startDay>endDay?1:0);
+    startYear=endYear-(startMonth<1?1:0);
+    if(startMonth<1) startMonth=12;
+  } else return null;
+  const start=new Date(Date.UTC(startYear,startMonth-1,startDay));
+  const end=new Date(Date.UTC(endYear,endMonth-1,endDay));
+  if(start.getUTCDate()!==startDay || start.getUTCMonth()!==startMonth-1
+    || end.getUTCDate()!==endDay || end.getUTCMonth()!==endMonth-1
+    || end-start<0 || end-start>7*86400000) return null;
   const dates=new Map();
   for(let day=new Date(start);day<=end;day.setUTCDate(day.getUTCDate()+1)) {
     dates.set(day.getUTCDay(),`${day.getUTCFullYear()}-${pad(day.getUTCMonth()+1)}-${pad(day.getUTCDate())}`);
   }
   return dates;
 }
+
+const toFullYear=year=>year<100?2000+year:year;
 
 function hourColumns(tokens,firstCourseY) {
   const headerRow=tokens.filter(t=>t.y<firstCourseY);

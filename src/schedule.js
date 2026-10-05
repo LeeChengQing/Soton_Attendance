@@ -5,11 +5,12 @@ const iso=d=>`${d.getUTCFullYear()}-${pad(d.getUTCMonth()+1)}-${pad(d.getUTCDate
 export function normalizeDate(value) {
   const text=String(value||'').trim();
   let m=text.match(/^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})$/);
-  if (m) return `${m[1]}-${pad(m[2])}-${pad(m[3])}`;
+  if (m) return calendarDate(`${m[1]}-${pad(m[2])}-${pad(m[3])}`);
   m=text.match(/^(\d{1,2})[-/.](\d{1,2})[-/.](\d{4})$/);
-  if (m) return `${m[3]}-${pad(m[2])}-${pad(m[1])}`;
+  if (m) return calendarDate(`${m[3]}-${pad(m[2])}-${pad(m[1])}`);
   return null;
 }
+function calendarDate(value) {const d=new Date(`${value}T00:00:00Z`);return Number.isFinite(d.getTime())&&iso(d)===value?value:null;}
 
 export function parseScheduleText(text) {
   const rows=[];
@@ -64,6 +65,7 @@ export function occurrencesBetween(sessions,startDate,endDate) {
   for(let d=new Date(`${startDate}T00:00:00Z`);d<=new Date(`${endDate}T00:00:00Z`);d.setUTCDate(d.getUTCDate()+1)) {
     const date=iso(d);
     for(const s of sessions) {
+      if(s.enabled===false) continue;
       if(s.kind==='dated' ? s.date!==date : s.weekday!==d.getUTCDay() || date<s.startDate || date>s.endDate || (s.exceptions||[]).includes(date)) continue;
       result.push({...s,date,key:`${encodeURIComponent(s.course.trim().toLowerCase())}:${date}:${s.time}`});
     }

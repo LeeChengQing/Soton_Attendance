@@ -11,7 +11,7 @@ export function sameDateValue(actual,expected) {
 export function validateFormsUrl(value) {
   let url;
   try {url=new URL(String(value).trim());} catch {throw Error('二维码或链接不是有效网址。');}
-  if(url.protocol!=='https:' || !HOSTS.has(url.hostname.toLowerCase()) || !(/^\/r\/[\w-]+\/?$/.test(url.pathname) || /^\/Pages\/ResponsePage\.aspx$/i.test(url.pathname))) throw Error('只接受 Microsoft Forms 的填写链接。');
+  if(url.protocol!=='https:' || url.username || url.password || url.port || !HOSTS.has(url.hostname.toLowerCase()) || !(/^\/r\/[\w-]+\/?$/.test(url.pathname) || /^\/Pages\/ResponsePage\.aspx$/i.test(url.pathname))) throw Error('只接受 Microsoft Forms 的填写链接。');
   if(/^\/Pages\//i.test(url.pathname) && !url.searchParams.get('id')) throw Error('表单链接缺少 ID。');
   url.hash='';
   return url;
@@ -47,11 +47,13 @@ export function buildFillPlan(questions,mapping,profile,date,course) {
   if(!verifyQuestions(questions,mapping)) throw Error('表单题目发生变化，已停止。');
   return mapping.map((entry,i)=>{
     const q=questions[i];let value;
+    // An optional calendar is left untouched, including its format and value.
+    if(q.type==='date'&&q.required===false) return {type:'date',field:entry.field,skip:true};
     const expectedType=['student','name'].includes(entry.field)?'text':entry.field==='date'?'date':/^(?:delivery|local)(?::|$)/.test(entry.field)?'radio':null;
     if(expectedType && q.type!==expectedType) throw Error(`第 ${i+1} 题映射与题型不一致，未提交。`);
     if(entry.field==='student') value=profile.student;
     else if(entry.field==='name') value=profile.name;
-    else if(entry.field==='date') value=formatDate(q.placeholder,date);
+    else if(entry.field==='date') value=q.nativeDate?date:formatDate(q.placeholder,date);
     else if(entry.field==='delivery' || ['delivery:lecture','delivery:tutorial','delivery:lab','delivery:laboratory'].includes(entry.field)) {
       const target=entry.field==='delivery'?deliveryFromCourse(course):entry.field.split(':')[1];
       value=deliveryOption(q.options||[],target==='laboratory'?'lab':target);

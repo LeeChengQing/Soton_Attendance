@@ -1,7 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Attendance 自动打卡",
-  "version": "2.4.0",
+  "version": "1.0.0",
+  "version_name": "V1.0 Release",
   "description": "本机识别课表与二维码，按每周课程结束前五分钟自动填写 Microsoft Forms，并同步手机提醒。",
   "minimum_chrome_version": "120",
   "permissions": [

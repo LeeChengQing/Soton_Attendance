@@ -1,0 +1,13 @@
+Recorded after successful npm run candidate.
+Version: 2.5.1
+Node: 74 tests, 73 passed, 0 failed, 1 optional supplied phone-photo QR sample skipped.
+Build: passed.
+Simulated Chrome settings/OCR/form workflow: passed.
+Actual background/content across 3 simulated Forms pages: passed; Lecture/Laboratory/Tutorial correctly selected, zero submit clicks, independent confirmation order, one summary.
+Settings cloud authorization: tabbed own settings allowed, school content denied; mocked networking reached. Live service connectivity was not tested.
+Desktop and narrow settings screenshots inspected; no page overflow or unnamed controls.
+Packaging: 21 files, source/bundle agreement, deterministic ZIP roundtrip passed.
+ZIP SHA-256: e3ac8262b9046e37382825d301f76a24ce4c7e0ba40041c54662cdaacd3569e1
+Fresh reviewer: findings fixed, no actionable follow-up findings.
+Native installed extension, isolated database/concurrency, macOS and live phone checks remain unverified as described in the release notes.
+Installation README updated after the candidate flow; build and source/ZIP verification rerun successfully.

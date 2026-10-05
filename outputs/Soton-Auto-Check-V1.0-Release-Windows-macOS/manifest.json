@@ -1,0 +1,46 @@
+{
+  "manifest_version": 3,
+  "name": "Attendance 自动打卡",
+  "version": "1.0.0",
+  "version_name": "V1.0 Release",
+  "description": "本机识别课表与二维码，按每周课程结束前五分钟自动填写 Microsoft Forms，并同步手机提醒。",
+  "minimum_chrome_version": "120",
+  "permissions": [
+    "storage",
+    "alarms",
+    "notifications",
+    "tabs"
+  ],
+  "host_permissions": [
+    "https://forms.office.com/*",
+    "https://forms.cloud.microsoft/*",
+    "https://qckpwckfukyurkobrsig.supabase.co/*"
+  ],
+  "action": {
+    "default_title": "打开 Attendance 设置",
+    "default_icon": "icon.png"
+  },
+  "options_page": "options.html",
+  "icons": {
+    "128": "icon.png"
+  },
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://forms.office.com/*",
+        "https://forms.cloud.microsoft/*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'"
+  }
+}

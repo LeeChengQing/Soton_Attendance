@@ -1,0 +1,3 @@
+[functions.chatgpt-proxy]
+# Custom license/device credentials are verified against China on every call.
+verify_jwt = false

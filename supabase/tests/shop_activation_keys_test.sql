@@ -1,6 +1,6 @@
 begin;
 
-select plan(32);
+select plan(38);
 
 insert into public.devices (id, device_key, auth_token_hash) values
   ('00000000-0000-4000-8000-000000000001', 'test-shop-activation-device-1', repeat('1', 64)),
@@ -169,6 +169,47 @@ select is(
   (select count(*)::integer from public.entitlements where device_id = '00000000-0000-4000-8000-000000000001'),
   1,
   'renewal updates the existing entitlement row'
+);
+
+insert into public.activation_keys (key_hash, plan, term_expires_at)
+values (repeat('9', 64), 'sem_subscription', null);
+select ok(
+  (select term_expires_at is null from public.activation_keys where key_hash = repeat('9', 64)),
+  'China semester keys can omit a precomputed term expiry'
+);
+
+create temporary table china_redemption_result (result jsonb not null);
+insert into china_redemption_result (result)
+values (public.redeem_activation_key(repeat('9', 64), '00000000-0000-4000-8000-000000000001'));
+select is(
+  ((select result from china_redemption_result)->>'ok')::boolean,
+  true,
+  'a China semester key redeems successfully'
+);
+select is(
+  (select result->>'plan' from china_redemption_result),
+  'sem_subscription',
+  'China redemption returns its plan'
+);
+select ok(
+  (select e.starts_at = k.redeemed_at
+   from public.entitlements e join public.activation_keys k
+     on k.redeemed_device_id = e.device_id
+   where k.key_hash = repeat('9', 64)),
+  'China semester starts at the key redemption timestamp'
+);
+select is(
+  (select e.expires_at - k.redeemed_at
+   from public.entitlements e join public.activation_keys k
+     on k.redeemed_device_id = e.device_id
+   where k.key_hash = repeat('9', 64)),
+  interval '130 days',
+  'China semester expires exactly 130 days after redemption'
+);
+select is(
+  (select (result->>'expires_at')::timestamptz from china_redemption_result),
+  (select expires_at from public.entitlements where device_id = '00000000-0000-4000-8000-000000000001'),
+  'RPC returns the calculated expiry persisted for the extension client'
 );
 
 select ok(has_function_privilege('service_role', 'public.redeem_activation_key(text,uuid)', 'EXECUTE'), 'service role can redeem keys');

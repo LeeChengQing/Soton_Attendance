@@ -1,0 +1,3 @@
+[functions.activate-license]
+# The license credential is verified by the handler, not a Supabase user JWT.
+verify_jwt = false

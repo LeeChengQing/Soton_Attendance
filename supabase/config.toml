@@ -4,7 +4,8 @@ project_id = "qckpwckfukyurkobrsig"
 verify_jwt = false
 
 [functions.send-reminders]
-verify_jwt = true
+# Dedicated x-scheduler-secret verified by handler. Update cron only during release.
+verify_jwt = false
 
 [functions.notification-worker]
-verify_jwt = true
+verify_jwt = false

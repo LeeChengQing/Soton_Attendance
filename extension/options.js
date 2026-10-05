@@ -30,9 +30,9 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
   mod
 ));
 
-// node_modules/regenerator-runtime/runtime.js
+// node_modules/.deno/regenerator-runtime@0.13.11/node_modules/regenerator-runtime/runtime.js
 var require_runtime = __commonJS({
-  "node_modules/regenerator-runtime/runtime.js"(exports, module) {
+  "node_modules/.deno/regenerator-runtime@0.13.11/node_modules/regenerator-runtime/runtime.js"(exports, module) {
     var runtime = (function(exports2) {
       "use strict";
       var Op = Object.prototype;
@@ -547,17 +547,17 @@ var require_runtime = __commonJS({
   }
 });
 
-// node_modules/tesseract.js/src/utils/getId.js
+// node_modules/.deno/tesseract.js@7.0.0/node_modules/tesseract.js/src/utils/getId.js
 var require_getId = __commonJS({
-  "node_modules/tesseract.js/src/utils/getId.js"(exports, module) {
+  "node_modules/.deno/tesseract.js@7.0.0/node_modules/tesseract.js/src/utils/getId.js"(exports, module) {
     "use strict";
     module.exports = (prefix, cnt) => `${prefix}-${cnt}-${Math.random().toString(16).slice(3, 8)}`;
   }
 });
 
-// node_modules/tesseract.js/src/createJob.js
+// node_modules/.deno/tesseract.js@7.0.0/node_modules/tesseract.js/src/createJob.js
 var require_createJob = __commonJS({
-  "node_modules/tesseract.js/src/createJob.js"(exports, module) {
+  "node_modules/.deno/tesseract.js@7.0.0/node_modules/tesseract.js/src/createJob.js"(exports, module) {
     "use strict";
     var getId = require_getId();
     var jobCounter = 0;
@@ -580,9 +580,9 @@ var require_createJob = __commonJS({
   }
 });
 
-// node_modules/tesseract.js/src/utils/log.js
+// node_modules/.deno/tesseract.js@7.0.0/node_modules/tesseract.js/src/utils/log.js
 var require_log = __commonJS({
-  "node_modules/tesseract.js/src/utils/log.js"(exports) {
+  "node_modules/.deno/tesseract.js@7.0.0/node_modules/tesseract.js/src/utils/log.js"(exports) {
     "use strict";
     var logging = false;
     exports.logging = logging;
@@ -593,9 +593,9 @@ var require_log = __commonJS({
   }
 });
 
-// node_modules/tesseract.js/src/createScheduler.js
+// node_modules/.deno/tesseract.js@7.0.0/node_modules/tesseract.js/src/createScheduler.js
 var require_createScheduler = __commonJS({
-  "node_modules/tesseract.js/src/createScheduler.js"(exports, module) {
+  "node_modules/.deno/tesseract.js@7.0.0/node_modules/tesseract.js/src/createScheduler.js"(exports, module) {
     "use strict";
     var createJob = require_createJob();
     var { log } = require_log();
@@ -668,9 +668,9 @@ var require_createScheduler = __commonJS({
   }
 });
 
-// node_modules/tesseract.js/src/utils/getEnvironment.js
+// node_modules/.deno/tesseract.js@7.0.0/node_modules/tesseract.js/src/utils/getEnvironment.js
 var require_getEnvironment = __commonJS({
-  "node_modules/tesseract.js/src/utils/getEnvironment.js"(exports, module) {
+  "node_modules/.deno/tesseract.js@7.0.0/node_modules/tesseract.js/src/utils/getEnvironment.js"(exports, module) {
     "use strict";
     module.exports = (key) => {
       const env = {};
@@ -689,9 +689,9 @@ var require_getEnvironment = __commonJS({
   }
 });
 
-// node_modules/tesseract.js/src/utils/resolvePaths.js
+// node_modules/.deno/tesseract.js@7.0.0/node_modules/tesseract.js/src/utils/resolvePaths.js
 var require_resolvePaths = __commonJS({
-  "node_modules/tesseract.js/src/utils/resolvePaths.js"(exports, module) {
+  "node_modules/.deno/tesseract.js@7.0.0/node_modules/tesseract.js/src/utils/resolvePaths.js"(exports, module) {
     "use strict";
     var isBrowser = require_getEnvironment()("type") === "browser";
     var resolveURL = isBrowser ? (s) => new URL(s, window.location.href).href : (s) => s;
@@ -707,9 +707,9 @@ var require_resolvePaths = __commonJS({
   }
 });
 
-// node_modules/tesseract.js/src/constants/OEM.js
+// node_modules/.deno/tesseract.js@7.0.0/node_modules/tesseract.js/src/constants/OEM.js
 var require_OEM = __commonJS({
-  "node_modules/tesseract.js/src/constants/OEM.js"(exports, module) {
+  "node_modules/.deno/tesseract.js@7.0.0/node_modules/tesseract.js/src/constants/OEM.js"(exports, module) {
     "use strict";
     module.exports = {
       TESSERACT_ONLY: 0,
@@ -720,9 +720,9 @@ var require_OEM = __commonJS({
   }
 });
 
-// node_modules/tesseract.js/package.json
+// node_modules/.deno/tesseract.js@7.0.0/node_modules/tesseract.js/package.json
 var require_package = __commonJS({
-  "node_modules/tesseract.js/package.json"(exports, module) {
+  "node_modules/.deno/tesseract.js@7.0.0/node_modules/tesseract.js/package.json"(exports, module) {
     module.exports = {
       name: "tesseract.js",
       version: "7.0.0",
@@ -817,9 +817,9 @@ var require_package = __commonJS({
   }
 });
 
-// node_modules/tesseract.js/src/constants/defaultOptions.js
+// node_modules/.deno/tesseract.js@7.0.0/node_modules/tesseract.js/src/constants/defaultOptions.js
 var require_defaultOptions = __commonJS({
-  "node_modules/tesseract.js/src/constants/defaultOptions.js"(exports, module) {
+  "node_modules/.deno/tesseract.js@7.0.0/node_modules/tesseract.js/src/constants/defaultOptions.js"(exports, module) {
     "use strict";
     module.exports = {
       /*
@@ -834,9 +834,9 @@ var require_defaultOptions = __commonJS({
   }
 });
 
-// node_modules/tesseract.js/src/worker/browser/defaultOptions.js
+// node_modules/.deno/tesseract.js@7.0.0/node_modules/tesseract.js/src/worker/browser/defaultOptions.js
 var require_defaultOptions2 = __commonJS({
-  "node_modules/tesseract.js/src/worker/browser/defaultOptions.js"(exports, module) {
+  "node_modules/.deno/tesseract.js@7.0.0/node_modules/tesseract.js/src/worker/browser/defaultOptions.js"(exports, module) {
     "use strict";
     var version2 = require_package().version;
     var defaultOptions = require_defaultOptions();
@@ -847,9 +847,9 @@ var require_defaultOptions2 = __commonJS({
   }
 });
 
-// node_modules/tesseract.js/src/worker/browser/spawnWorker.js
+// node_modules/.deno/tesseract.js@7.0.0/node_modules/tesseract.js/src/worker/browser/spawnWorker.js
 var require_spawnWorker = __commonJS({
-  "node_modules/tesseract.js/src/worker/browser/spawnWorker.js"(exports, module) {
+  "node_modules/.deno/tesseract.js@7.0.0/node_modules/tesseract.js/src/worker/browser/spawnWorker.js"(exports, module) {
     "use strict";
     module.exports = ({ workerPath, workerBlobURL }) => {
       let worker;
@@ -866,9 +866,9 @@ var require_spawnWorker = __commonJS({
   }
 });
 
-// node_modules/tesseract.js/src/worker/browser/terminateWorker.js
+// node_modules/.deno/tesseract.js@7.0.0/node_modules/tesseract.js/src/worker/browser/terminateWorker.js
 var require_terminateWorker = __commonJS({
-  "node_modules/tesseract.js/src/worker/browser/terminateWorker.js"(exports, module) {
+  "node_modules/.deno/tesseract.js@7.0.0/node_modules/tesseract.js/src/worker/browser/terminateWorker.js"(exports, module) {
     "use strict";
     module.exports = (worker) => {
       worker.terminate();
@@ -876,9 +876,9 @@ var require_terminateWorker = __commonJS({
   }
 });
 
-// node_modules/tesseract.js/src/worker/browser/onMessage.js
+// node_modules/.deno/tesseract.js@7.0.0/node_modules/tesseract.js/src/worker/browser/onMessage.js
 var require_onMessage = __commonJS({
-  "node_modules/tesseract.js/src/worker/browser/onMessage.js"(exports, module) {
+  "node_modules/.deno/tesseract.js@7.0.0/node_modules/tesseract.js/src/worker/browser/onMessage.js"(exports, module) {
     "use strict";
     module.exports = (worker, handler) => {
       worker.onmessage = ({ data }) => {
@@ -888,9 +888,9 @@ var require_onMessage = __commonJS({
   }
 });
 
-// node_modules/tesseract.js/src/worker/browser/send.js
+// node_modules/.deno/tesseract.js@7.0.0/node_modules/tesseract.js/src/worker/browser/send.js
 var require_send = __commonJS({
-  "node_modules/tesseract.js/src/worker/browser/send.js"(exports, module) {
+  "node_modules/.deno/tesseract.js@7.0.0/node_modules/tesseract.js/src/worker/browser/send.js"(exports, module) {
     "use strict";
     module.exports = async (worker, packet) => {
       worker.postMessage(packet);
@@ -898,9 +898,9 @@ var require_send = __commonJS({
   }
 });
 
-// node_modules/tesseract.js/src/worker/browser/loadImage.js
+// node_modules/.deno/tesseract.js@7.0.0/node_modules/tesseract.js/src/worker/browser/loadImage.js
 var require_loadImage = __commonJS({
-  "node_modules/tesseract.js/src/worker/browser/loadImage.js"(exports, module) {
+  "node_modules/.deno/tesseract.js@7.0.0/node_modules/tesseract.js/src/worker/browser/loadImage.js"(exports, module) {
     "use strict";
     var readFromBlobOrFile = (blob) => new Promise((resolve, reject) => {
       const fileReader = new FileReader();
@@ -951,9 +951,9 @@ var require_loadImage = __commonJS({
   }
 });
 
-// node_modules/tesseract.js/src/worker/browser/index.js
+// node_modules/.deno/tesseract.js@7.0.0/node_modules/tesseract.js/src/worker/browser/index.js
 var require_browser = __commonJS({
-  "node_modules/tesseract.js/src/worker/browser/index.js"(exports, module) {
+  "node_modules/.deno/tesseract.js@7.0.0/node_modules/tesseract.js/src/worker/browser/index.js"(exports, module) {
     "use strict";
     var defaultOptions = require_defaultOptions2();
     var spawnWorker = require_spawnWorker();
@@ -972,9 +972,9 @@ var require_browser = __commonJS({
   }
 });
 
-// node_modules/tesseract.js/src/createWorker.js
+// node_modules/.deno/tesseract.js@7.0.0/node_modules/tesseract.js/src/createWorker.js
 var require_createWorker = __commonJS({
-  "node_modules/tesseract.js/src/createWorker.js"(exports, module) {
+  "node_modules/.deno/tesseract.js@7.0.0/node_modules/tesseract.js/src/createWorker.js"(exports, module) {
     "use strict";
     var resolvePaths = require_resolvePaths();
     var createJob = require_createJob();
@@ -1161,9 +1161,9 @@ var require_createWorker = __commonJS({
   }
 });
 
-// node_modules/tesseract.js/src/Tesseract.js
+// node_modules/.deno/tesseract.js@7.0.0/node_modules/tesseract.js/src/Tesseract.js
 var require_Tesseract = __commonJS({
-  "node_modules/tesseract.js/src/Tesseract.js"(exports, module) {
+  "node_modules/.deno/tesseract.js@7.0.0/node_modules/tesseract.js/src/Tesseract.js"(exports, module) {
     "use strict";
     var createWorker2 = require_createWorker();
     var recognize = async (image, langs, options) => {
@@ -1185,9 +1185,9 @@ var require_Tesseract = __commonJS({
   }
 });
 
-// node_modules/tesseract.js/src/constants/languages.js
+// node_modules/.deno/tesseract.js@7.0.0/node_modules/tesseract.js/src/constants/languages.js
 var require_languages = __commonJS({
-  "node_modules/tesseract.js/src/constants/languages.js"(exports, module) {
+  "node_modules/.deno/tesseract.js@7.0.0/node_modules/tesseract.js/src/constants/languages.js"(exports, module) {
     "use strict";
     module.exports = {
       AFR: "afr",
@@ -1296,9 +1296,9 @@ var require_languages = __commonJS({
   }
 });
 
-// node_modules/tesseract.js/src/constants/PSM.js
+// node_modules/.deno/tesseract.js@7.0.0/node_modules/tesseract.js/src/constants/PSM.js
 var require_PSM = __commonJS({
-  "node_modules/tesseract.js/src/constants/PSM.js"(exports, module) {
+  "node_modules/.deno/tesseract.js@7.0.0/node_modules/tesseract.js/src/constants/PSM.js"(exports, module) {
     "use strict";
     module.exports = {
       OSD_ONLY: "0",
@@ -1319,9 +1319,9 @@ var require_PSM = __commonJS({
   }
 });
 
-// node_modules/tesseract.js/src/index.js
+// node_modules/.deno/tesseract.js@7.0.0/node_modules/tesseract.js/src/index.js
 var require_src = __commonJS({
-  "node_modules/tesseract.js/src/index.js"(exports, module) {
+  "node_modules/.deno/tesseract.js@7.0.0/node_modules/tesseract.js/src/index.js"(exports, module) {
     "use strict";
     require_runtime();
     var createScheduler = require_createScheduler();
@@ -1343,9 +1343,9 @@ var require_src = __commonJS({
   }
 });
 
-// node_modules/jsqr/dist/jsQR.js
+// node_modules/.deno/jsqr@1.4.0/node_modules/jsqr/dist/jsQR.js
 var require_jsQR = __commonJS({
-  "node_modules/jsqr/dist/jsQR.js"(exports, module) {
+  "node_modules/.deno/jsqr@1.4.0/node_modules/jsqr/dist/jsQR.js"(exports, module) {
     (function webpackUniversalModuleDefinition(root, factory) {
       if (typeof exports === "object" && typeof module === "object")
         module.exports = factory();
@@ -9488,12 +9488,12 @@ var require_jsQR = __commonJS({
               var rLast = a;
               var r = b;
               var tLast = field2.zero;
-              var t = field2.one;
+              var t2 = field2.one;
               while (r.degree() >= R / 2) {
                 var rLastLast = rLast;
                 var tLastLast = tLast;
                 rLast = r;
-                tLast = t;
+                tLast = t2;
                 if (rLast.isZero()) {
                   return null;
                 }
@@ -9507,17 +9507,17 @@ var require_jsQR = __commonJS({
                   q = q.addOrSubtract(field2.buildMonomial(degreeDiff, scale));
                   r = r.addOrSubtract(rLast.multiplyByMonomial(degreeDiff, scale));
                 }
-                t = q.multiplyPoly(tLast).addOrSubtract(tLastLast);
+                t2 = q.multiplyPoly(tLast).addOrSubtract(tLastLast);
                 if (r.degree() >= rLast.degree()) {
                   return null;
                 }
               }
-              var sigmaTildeAtZero = t.getCoefficient(0);
+              var sigmaTildeAtZero = t2.getCoefficient(0);
               if (sigmaTildeAtZero === 0) {
                 return null;
               }
               var inverse = field2.inverse(sigmaTildeAtZero);
-              return [t.multiply(inverse), r.multiply(inverse)];
+              return [t2.multiply(inverse), r.multiply(inverse)];
             }
             function findErrorLocations(field2, errorLocator) {
               var numErrors = errorLocator.degree();
@@ -11362,7 +11362,2125 @@ var require_jsQR = __commonJS({
   }
 });
 
-// node_modules/pdfjs-dist/build/pdf.mjs
+// node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/can-promise.js
+var require_can_promise = __commonJS({
+  "node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/can-promise.js"(exports, module) {
+    module.exports = function() {
+      return typeof Promise === "function" && Promise.prototype && Promise.prototype.then;
+    };
+  }
+});
+
+// node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/core/utils.js
+var require_utils = __commonJS({
+  "node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/core/utils.js"(exports) {
+    var toSJISFunction;
+    var CODEWORDS_COUNT = [
+      0,
+      // Not used
+      26,
+      44,
+      70,
+      100,
+      134,
+      172,
+      196,
+      242,
+      292,
+      346,
+      404,
+      466,
+      532,
+      581,
+      655,
+      733,
+      815,
+      901,
+      991,
+      1085,
+      1156,
+      1258,
+      1364,
+      1474,
+      1588,
+      1706,
+      1828,
+      1921,
+      2051,
+      2185,
+      2323,
+      2465,
+      2611,
+      2761,
+      2876,
+      3034,
+      3196,
+      3362,
+      3532,
+      3706
+    ];
+    exports.getSymbolSize = function getSymbolSize(version2) {
+      if (!version2) throw new Error('"version" cannot be null or undefined');
+      if (version2 < 1 || version2 > 40) throw new Error('"version" should be in range from 1 to 40');
+      return version2 * 4 + 17;
+    };
+    exports.getSymbolTotalCodewords = function getSymbolTotalCodewords(version2) {
+      return CODEWORDS_COUNT[version2];
+    };
+    exports.getBCHDigit = function(data) {
+      let digit = 0;
+      while (data !== 0) {
+        digit++;
+        data >>>= 1;
+      }
+      return digit;
+    };
+    exports.setToSJISFunction = function setToSJISFunction(f) {
+      if (typeof f !== "function") {
+        throw new Error('"toSJISFunc" is not a valid function.');
+      }
+      toSJISFunction = f;
+    };
+    exports.isKanjiModeEnabled = function() {
+      return typeof toSJISFunction !== "undefined";
+    };
+    exports.toSJIS = function toSJIS(kanji) {
+      return toSJISFunction(kanji);
+    };
+  }
+});
+
+// node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/core/error-correction-level.js
+var require_error_correction_level = __commonJS({
+  "node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/core/error-correction-level.js"(exports) {
+    exports.L = { bit: 1 };
+    exports.M = { bit: 0 };
+    exports.Q = { bit: 3 };
+    exports.H = { bit: 2 };
+    function fromString(string) {
+      if (typeof string !== "string") {
+        throw new Error("Param is not a string");
+      }
+      const lcStr = string.toLowerCase();
+      switch (lcStr) {
+        case "l":
+        case "low":
+          return exports.L;
+        case "m":
+        case "medium":
+          return exports.M;
+        case "q":
+        case "quartile":
+          return exports.Q;
+        case "h":
+        case "high":
+          return exports.H;
+        default:
+          throw new Error("Unknown EC Level: " + string);
+      }
+    }
+    exports.isValid = function isValid(level) {
+      return level && typeof level.bit !== "undefined" && level.bit >= 0 && level.bit < 4;
+    };
+    exports.from = function from(value, defaultValue) {
+      if (exports.isValid(value)) {
+        return value;
+      }
+      try {
+        return fromString(value);
+      } catch (e) {
+        return defaultValue;
+      }
+    };
+  }
+});
+
+// node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/core/bit-buffer.js
+var require_bit_buffer = __commonJS({
+  "node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/core/bit-buffer.js"(exports, module) {
+    function BitBuffer() {
+      this.buffer = [];
+      this.length = 0;
+    }
+    BitBuffer.prototype = {
+      get: function(index) {
+        const bufIndex = Math.floor(index / 8);
+        return (this.buffer[bufIndex] >>> 7 - index % 8 & 1) === 1;
+      },
+      put: function(num, length) {
+        for (let i = 0; i < length; i++) {
+          this.putBit((num >>> length - i - 1 & 1) === 1);
+        }
+      },
+      getLengthInBits: function() {
+        return this.length;
+      },
+      putBit: function(bit) {
+        const bufIndex = Math.floor(this.length / 8);
+        if (this.buffer.length <= bufIndex) {
+          this.buffer.push(0);
+        }
+        if (bit) {
+          this.buffer[bufIndex] |= 128 >>> this.length % 8;
+        }
+        this.length++;
+      }
+    };
+    module.exports = BitBuffer;
+  }
+});
+
+// node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/core/bit-matrix.js
+var require_bit_matrix = __commonJS({
+  "node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/core/bit-matrix.js"(exports, module) {
+    function BitMatrix(size) {
+      if (!size || size < 1) {
+        throw new Error("BitMatrix size must be defined and greater than 0");
+      }
+      this.size = size;
+      this.data = new Uint8Array(size * size);
+      this.reservedBit = new Uint8Array(size * size);
+    }
+    BitMatrix.prototype.set = function(row, col, value, reserved) {
+      const index = row * this.size + col;
+      this.data[index] = value;
+      if (reserved) this.reservedBit[index] = true;
+    };
+    BitMatrix.prototype.get = function(row, col) {
+      return this.data[row * this.size + col];
+    };
+    BitMatrix.prototype.xor = function(row, col, value) {
+      this.data[row * this.size + col] ^= value;
+    };
+    BitMatrix.prototype.isReserved = function(row, col) {
+      return this.reservedBit[row * this.size + col];
+    };
+    module.exports = BitMatrix;
+  }
+});
+
+// node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/core/alignment-pattern.js
+var require_alignment_pattern = __commonJS({
+  "node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/core/alignment-pattern.js"(exports) {
+    var getSymbolSize = require_utils().getSymbolSize;
+    exports.getRowColCoords = function getRowColCoords(version2) {
+      if (version2 === 1) return [];
+      const posCount = Math.floor(version2 / 7) + 2;
+      const size = getSymbolSize(version2);
+      const intervals = size === 145 ? 26 : Math.ceil((size - 13) / (2 * posCount - 2)) * 2;
+      const positions = [size - 7];
+      for (let i = 1; i < posCount - 1; i++) {
+        positions[i] = positions[i - 1] - intervals;
+      }
+      positions.push(6);
+      return positions.reverse();
+    };
+    exports.getPositions = function getPositions(version2) {
+      const coords = [];
+      const pos = exports.getRowColCoords(version2);
+      const posLength = pos.length;
+      for (let i = 0; i < posLength; i++) {
+        for (let j = 0; j < posLength; j++) {
+          if (i === 0 && j === 0 || // top-left
+          i === 0 && j === posLength - 1 || // bottom-left
+          i === posLength - 1 && j === 0) {
+            continue;
+          }
+          coords.push([pos[i], pos[j]]);
+        }
+      }
+      return coords;
+    };
+  }
+});
+
+// node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/core/finder-pattern.js
+var require_finder_pattern = __commonJS({
+  "node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/core/finder-pattern.js"(exports) {
+    var getSymbolSize = require_utils().getSymbolSize;
+    var FINDER_PATTERN_SIZE = 7;
+    exports.getPositions = function getPositions(version2) {
+      const size = getSymbolSize(version2);
+      return [
+        // top-left
+        [0, 0],
+        // top-right
+        [size - FINDER_PATTERN_SIZE, 0],
+        // bottom-left
+        [0, size - FINDER_PATTERN_SIZE]
+      ];
+    };
+  }
+});
+
+// node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/core/mask-pattern.js
+var require_mask_pattern = __commonJS({
+  "node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/core/mask-pattern.js"(exports) {
+    exports.Patterns = {
+      PATTERN000: 0,
+      PATTERN001: 1,
+      PATTERN010: 2,
+      PATTERN011: 3,
+      PATTERN100: 4,
+      PATTERN101: 5,
+      PATTERN110: 6,
+      PATTERN111: 7
+    };
+    var PenaltyScores = {
+      N1: 3,
+      N2: 3,
+      N3: 40,
+      N4: 10
+    };
+    exports.isValid = function isValid(mask) {
+      return mask != null && mask !== "" && !isNaN(mask) && mask >= 0 && mask <= 7;
+    };
+    exports.from = function from(value) {
+      return exports.isValid(value) ? parseInt(value, 10) : void 0;
+    };
+    exports.getPenaltyN1 = function getPenaltyN1(data) {
+      const size = data.size;
+      let points = 0;
+      let sameCountCol = 0;
+      let sameCountRow = 0;
+      let lastCol = null;
+      let lastRow = null;
+      for (let row = 0; row < size; row++) {
+        sameCountCol = sameCountRow = 0;
+        lastCol = lastRow = null;
+        for (let col = 0; col < size; col++) {
+          let module2 = data.get(row, col);
+          if (module2 === lastCol) {
+            sameCountCol++;
+          } else {
+            if (sameCountCol >= 5) points += PenaltyScores.N1 + (sameCountCol - 5);
+            lastCol = module2;
+            sameCountCol = 1;
+          }
+          module2 = data.get(col, row);
+          if (module2 === lastRow) {
+            sameCountRow++;
+          } else {
+            if (sameCountRow >= 5) points += PenaltyScores.N1 + (sameCountRow - 5);
+            lastRow = module2;
+            sameCountRow = 1;
+          }
+        }
+        if (sameCountCol >= 5) points += PenaltyScores.N1 + (sameCountCol - 5);
+        if (sameCountRow >= 5) points += PenaltyScores.N1 + (sameCountRow - 5);
+      }
+      return points;
+    };
+    exports.getPenaltyN2 = function getPenaltyN2(data) {
+      const size = data.size;
+      let points = 0;
+      for (let row = 0; row < size - 1; row++) {
+        for (let col = 0; col < size - 1; col++) {
+          const last = data.get(row, col) + data.get(row, col + 1) + data.get(row + 1, col) + data.get(row + 1, col + 1);
+          if (last === 4 || last === 0) points++;
+        }
+      }
+      return points * PenaltyScores.N2;
+    };
+    exports.getPenaltyN3 = function getPenaltyN3(data) {
+      const size = data.size;
+      let points = 0;
+      let bitsCol = 0;
+      let bitsRow = 0;
+      for (let row = 0; row < size; row++) {
+        bitsCol = bitsRow = 0;
+        for (let col = 0; col < size; col++) {
+          bitsCol = bitsCol << 1 & 2047 | data.get(row, col);
+          if (col >= 10 && (bitsCol === 1488 || bitsCol === 93)) points++;
+          bitsRow = bitsRow << 1 & 2047 | data.get(col, row);
+          if (col >= 10 && (bitsRow === 1488 || bitsRow === 93)) points++;
+        }
+      }
+      return points * PenaltyScores.N3;
+    };
+    exports.getPenaltyN4 = function getPenaltyN4(data) {
+      let darkCount = 0;
+      const modulesCount = data.data.length;
+      for (let i = 0; i < modulesCount; i++) darkCount += data.data[i];
+      const k = Math.abs(Math.ceil(darkCount * 100 / modulesCount / 5) - 10);
+      return k * PenaltyScores.N4;
+    };
+    function getMaskAt(maskPattern, i, j) {
+      switch (maskPattern) {
+        case exports.Patterns.PATTERN000:
+          return (i + j) % 2 === 0;
+        case exports.Patterns.PATTERN001:
+          return i % 2 === 0;
+        case exports.Patterns.PATTERN010:
+          return j % 3 === 0;
+        case exports.Patterns.PATTERN011:
+          return (i + j) % 3 === 0;
+        case exports.Patterns.PATTERN100:
+          return (Math.floor(i / 2) + Math.floor(j / 3)) % 2 === 0;
+        case exports.Patterns.PATTERN101:
+          return i * j % 2 + i * j % 3 === 0;
+        case exports.Patterns.PATTERN110:
+          return (i * j % 2 + i * j % 3) % 2 === 0;
+        case exports.Patterns.PATTERN111:
+          return (i * j % 3 + (i + j) % 2) % 2 === 0;
+        default:
+          throw new Error("bad maskPattern:" + maskPattern);
+      }
+    }
+    exports.applyMask = function applyMask(pattern, data) {
+      const size = data.size;
+      for (let col = 0; col < size; col++) {
+        for (let row = 0; row < size; row++) {
+          if (data.isReserved(row, col)) continue;
+          data.xor(row, col, getMaskAt(pattern, row, col));
+        }
+      }
+    };
+    exports.getBestMask = function getBestMask(data, setupFormatFunc) {
+      const numPatterns = Object.keys(exports.Patterns).length;
+      let bestPattern = 0;
+      let lowerPenalty = Infinity;
+      for (let p = 0; p < numPatterns; p++) {
+        setupFormatFunc(p);
+        exports.applyMask(p, data);
+        const penalty = exports.getPenaltyN1(data) + exports.getPenaltyN2(data) + exports.getPenaltyN3(data) + exports.getPenaltyN4(data);
+        exports.applyMask(p, data);
+        if (penalty < lowerPenalty) {
+          lowerPenalty = penalty;
+          bestPattern = p;
+        }
+      }
+      return bestPattern;
+    };
+  }
+});
+
+// node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/core/error-correction-code.js
+var require_error_correction_code = __commonJS({
+  "node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/core/error-correction-code.js"(exports) {
+    var ECLevel = require_error_correction_level();
+    var EC_BLOCKS_TABLE = [
+      // L  M  Q  H
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      2,
+      2,
+      1,
+      2,
+      2,
+      4,
+      1,
+      2,
+      4,
+      4,
+      2,
+      4,
+      4,
+      4,
+      2,
+      4,
+      6,
+      5,
+      2,
+      4,
+      6,
+      6,
+      2,
+      5,
+      8,
+      8,
+      4,
+      5,
+      8,
+      8,
+      4,
+      5,
+      8,
+      11,
+      4,
+      8,
+      10,
+      11,
+      4,
+      9,
+      12,
+      16,
+      4,
+      9,
+      16,
+      16,
+      6,
+      10,
+      12,
+      18,
+      6,
+      10,
+      17,
+      16,
+      6,
+      11,
+      16,
+      19,
+      6,
+      13,
+      18,
+      21,
+      7,
+      14,
+      21,
+      25,
+      8,
+      16,
+      20,
+      25,
+      8,
+      17,
+      23,
+      25,
+      9,
+      17,
+      23,
+      34,
+      9,
+      18,
+      25,
+      30,
+      10,
+      20,
+      27,
+      32,
+      12,
+      21,
+      29,
+      35,
+      12,
+      23,
+      34,
+      37,
+      12,
+      25,
+      34,
+      40,
+      13,
+      26,
+      35,
+      42,
+      14,
+      28,
+      38,
+      45,
+      15,
+      29,
+      40,
+      48,
+      16,
+      31,
+      43,
+      51,
+      17,
+      33,
+      45,
+      54,
+      18,
+      35,
+      48,
+      57,
+      19,
+      37,
+      51,
+      60,
+      19,
+      38,
+      53,
+      63,
+      20,
+      40,
+      56,
+      66,
+      21,
+      43,
+      59,
+      70,
+      22,
+      45,
+      62,
+      74,
+      24,
+      47,
+      65,
+      77,
+      25,
+      49,
+      68,
+      81
+    ];
+    var EC_CODEWORDS_TABLE = [
+      // L  M  Q  H
+      7,
+      10,
+      13,
+      17,
+      10,
+      16,
+      22,
+      28,
+      15,
+      26,
+      36,
+      44,
+      20,
+      36,
+      52,
+      64,
+      26,
+      48,
+      72,
+      88,
+      36,
+      64,
+      96,
+      112,
+      40,
+      72,
+      108,
+      130,
+      48,
+      88,
+      132,
+      156,
+      60,
+      110,
+      160,
+      192,
+      72,
+      130,
+      192,
+      224,
+      80,
+      150,
+      224,
+      264,
+      96,
+      176,
+      260,
+      308,
+      104,
+      198,
+      288,
+      352,
+      120,
+      216,
+      320,
+      384,
+      132,
+      240,
+      360,
+      432,
+      144,
+      280,
+      408,
+      480,
+      168,
+      308,
+      448,
+      532,
+      180,
+      338,
+      504,
+      588,
+      196,
+      364,
+      546,
+      650,
+      224,
+      416,
+      600,
+      700,
+      224,
+      442,
+      644,
+      750,
+      252,
+      476,
+      690,
+      816,
+      270,
+      504,
+      750,
+      900,
+      300,
+      560,
+      810,
+      960,
+      312,
+      588,
+      870,
+      1050,
+      336,
+      644,
+      952,
+      1110,
+      360,
+      700,
+      1020,
+      1200,
+      390,
+      728,
+      1050,
+      1260,
+      420,
+      784,
+      1140,
+      1350,
+      450,
+      812,
+      1200,
+      1440,
+      480,
+      868,
+      1290,
+      1530,
+      510,
+      924,
+      1350,
+      1620,
+      540,
+      980,
+      1440,
+      1710,
+      570,
+      1036,
+      1530,
+      1800,
+      570,
+      1064,
+      1590,
+      1890,
+      600,
+      1120,
+      1680,
+      1980,
+      630,
+      1204,
+      1770,
+      2100,
+      660,
+      1260,
+      1860,
+      2220,
+      720,
+      1316,
+      1950,
+      2310,
+      750,
+      1372,
+      2040,
+      2430
+    ];
+    exports.getBlocksCount = function getBlocksCount(version2, errorCorrectionLevel) {
+      switch (errorCorrectionLevel) {
+        case ECLevel.L:
+          return EC_BLOCKS_TABLE[(version2 - 1) * 4 + 0];
+        case ECLevel.M:
+          return EC_BLOCKS_TABLE[(version2 - 1) * 4 + 1];
+        case ECLevel.Q:
+          return EC_BLOCKS_TABLE[(version2 - 1) * 4 + 2];
+        case ECLevel.H:
+          return EC_BLOCKS_TABLE[(version2 - 1) * 4 + 3];
+        default:
+          return void 0;
+      }
+    };
+    exports.getTotalCodewordsCount = function getTotalCodewordsCount(version2, errorCorrectionLevel) {
+      switch (errorCorrectionLevel) {
+        case ECLevel.L:
+          return EC_CODEWORDS_TABLE[(version2 - 1) * 4 + 0];
+        case ECLevel.M:
+          return EC_CODEWORDS_TABLE[(version2 - 1) * 4 + 1];
+        case ECLevel.Q:
+          return EC_CODEWORDS_TABLE[(version2 - 1) * 4 + 2];
+        case ECLevel.H:
+          return EC_CODEWORDS_TABLE[(version2 - 1) * 4 + 3];
+        default:
+          return void 0;
+      }
+    };
+  }
+});
+
+// node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/core/galois-field.js
+var require_galois_field = __commonJS({
+  "node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/core/galois-field.js"(exports) {
+    var EXP_TABLE = new Uint8Array(512);
+    var LOG_TABLE = new Uint8Array(256);
+    (function initTables() {
+      let x = 1;
+      for (let i = 0; i < 255; i++) {
+        EXP_TABLE[i] = x;
+        LOG_TABLE[x] = i;
+        x <<= 1;
+        if (x & 256) {
+          x ^= 285;
+        }
+      }
+      for (let i = 255; i < 512; i++) {
+        EXP_TABLE[i] = EXP_TABLE[i - 255];
+      }
+    })();
+    exports.log = function log(n) {
+      if (n < 1) throw new Error("log(" + n + ")");
+      return LOG_TABLE[n];
+    };
+    exports.exp = function exp(n) {
+      return EXP_TABLE[n];
+    };
+    exports.mul = function mul(x, y) {
+      if (x === 0 || y === 0) return 0;
+      return EXP_TABLE[LOG_TABLE[x] + LOG_TABLE[y]];
+    };
+  }
+});
+
+// node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/core/polynomial.js
+var require_polynomial = __commonJS({
+  "node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/core/polynomial.js"(exports) {
+    var GF = require_galois_field();
+    exports.mul = function mul(p1, p2) {
+      const coeff = new Uint8Array(p1.length + p2.length - 1);
+      for (let i = 0; i < p1.length; i++) {
+        for (let j = 0; j < p2.length; j++) {
+          coeff[i + j] ^= GF.mul(p1[i], p2[j]);
+        }
+      }
+      return coeff;
+    };
+    exports.mod = function mod(divident, divisor) {
+      let result = new Uint8Array(divident);
+      while (result.length - divisor.length >= 0) {
+        const coeff = result[0];
+        for (let i = 0; i < divisor.length; i++) {
+          result[i] ^= GF.mul(divisor[i], coeff);
+        }
+        let offset = 0;
+        while (offset < result.length && result[offset] === 0) offset++;
+        result = result.slice(offset);
+      }
+      return result;
+    };
+    exports.generateECPolynomial = function generateECPolynomial(degree) {
+      let poly = new Uint8Array([1]);
+      for (let i = 0; i < degree; i++) {
+        poly = exports.mul(poly, new Uint8Array([1, GF.exp(i)]));
+      }
+      return poly;
+    };
+  }
+});
+
+// node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/core/reed-solomon-encoder.js
+var require_reed_solomon_encoder = __commonJS({
+  "node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/core/reed-solomon-encoder.js"(exports, module) {
+    var Polynomial = require_polynomial();
+    function ReedSolomonEncoder(degree) {
+      this.genPoly = void 0;
+      this.degree = degree;
+      if (this.degree) this.initialize(this.degree);
+    }
+    ReedSolomonEncoder.prototype.initialize = function initialize(degree) {
+      this.degree = degree;
+      this.genPoly = Polynomial.generateECPolynomial(this.degree);
+    };
+    ReedSolomonEncoder.prototype.encode = function encode(data) {
+      if (!this.genPoly) {
+        throw new Error("Encoder not initialized");
+      }
+      const paddedData = new Uint8Array(data.length + this.degree);
+      paddedData.set(data);
+      const remainder = Polynomial.mod(paddedData, this.genPoly);
+      const start = this.degree - remainder.length;
+      if (start > 0) {
+        const buff = new Uint8Array(this.degree);
+        buff.set(remainder, start);
+        return buff;
+      }
+      return remainder;
+    };
+    module.exports = ReedSolomonEncoder;
+  }
+});
+
+// node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/core/version-check.js
+var require_version_check = __commonJS({
+  "node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/core/version-check.js"(exports) {
+    exports.isValid = function isValid(version2) {
+      return !isNaN(version2) && version2 >= 1 && version2 <= 40;
+    };
+  }
+});
+
+// node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/core/regex.js
+var require_regex = __commonJS({
+  "node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/core/regex.js"(exports) {
+    var numeric = "[0-9]+";
+    var alphanumeric = "[A-Z $%*+\\-./:]+";
+    var kanji = "(?:[u3000-u303F]|[u3040-u309F]|[u30A0-u30FF]|[uFF00-uFFEF]|[u4E00-u9FAF]|[u2605-u2606]|[u2190-u2195]|u203B|[u2010u2015u2018u2019u2025u2026u201Cu201Du2225u2260]|[u0391-u0451]|[u00A7u00A8u00B1u00B4u00D7u00F7])+";
+    kanji = kanji.replace(/u/g, "\\u");
+    var byte = "(?:(?![A-Z0-9 $%*+\\-./:]|" + kanji + ")(?:.|[\r\n]))+";
+    exports.KANJI = new RegExp(kanji, "g");
+    exports.BYTE_KANJI = new RegExp("[^A-Z0-9 $%*+\\-./:]+", "g");
+    exports.BYTE = new RegExp(byte, "g");
+    exports.NUMERIC = new RegExp(numeric, "g");
+    exports.ALPHANUMERIC = new RegExp(alphanumeric, "g");
+    var TEST_KANJI = new RegExp("^" + kanji + "$");
+    var TEST_NUMERIC = new RegExp("^" + numeric + "$");
+    var TEST_ALPHANUMERIC = new RegExp("^[A-Z0-9 $%*+\\-./:]+$");
+    exports.testKanji = function testKanji(str) {
+      return TEST_KANJI.test(str);
+    };
+    exports.testNumeric = function testNumeric(str) {
+      return TEST_NUMERIC.test(str);
+    };
+    exports.testAlphanumeric = function testAlphanumeric(str) {
+      return TEST_ALPHANUMERIC.test(str);
+    };
+  }
+});
+
+// node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/core/mode.js
+var require_mode = __commonJS({
+  "node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/core/mode.js"(exports) {
+    var VersionCheck = require_version_check();
+    var Regex = require_regex();
+    exports.NUMERIC = {
+      id: "Numeric",
+      bit: 1 << 0,
+      ccBits: [10, 12, 14]
+    };
+    exports.ALPHANUMERIC = {
+      id: "Alphanumeric",
+      bit: 1 << 1,
+      ccBits: [9, 11, 13]
+    };
+    exports.BYTE = {
+      id: "Byte",
+      bit: 1 << 2,
+      ccBits: [8, 16, 16]
+    };
+    exports.KANJI = {
+      id: "Kanji",
+      bit: 1 << 3,
+      ccBits: [8, 10, 12]
+    };
+    exports.MIXED = {
+      bit: -1
+    };
+    exports.getCharCountIndicator = function getCharCountIndicator(mode, version2) {
+      if (!mode.ccBits) throw new Error("Invalid mode: " + mode);
+      if (!VersionCheck.isValid(version2)) {
+        throw new Error("Invalid version: " + version2);
+      }
+      if (version2 >= 1 && version2 < 10) return mode.ccBits[0];
+      else if (version2 < 27) return mode.ccBits[1];
+      return mode.ccBits[2];
+    };
+    exports.getBestModeForData = function getBestModeForData(dataStr) {
+      if (Regex.testNumeric(dataStr)) return exports.NUMERIC;
+      else if (Regex.testAlphanumeric(dataStr)) return exports.ALPHANUMERIC;
+      else if (Regex.testKanji(dataStr)) return exports.KANJI;
+      else return exports.BYTE;
+    };
+    exports.toString = function toString(mode) {
+      if (mode && mode.id) return mode.id;
+      throw new Error("Invalid mode");
+    };
+    exports.isValid = function isValid(mode) {
+      return mode && mode.bit && mode.ccBits;
+    };
+    function fromString(string) {
+      if (typeof string !== "string") {
+        throw new Error("Param is not a string");
+      }
+      const lcStr = string.toLowerCase();
+      switch (lcStr) {
+        case "numeric":
+          return exports.NUMERIC;
+        case "alphanumeric":
+          return exports.ALPHANUMERIC;
+        case "kanji":
+          return exports.KANJI;
+        case "byte":
+          return exports.BYTE;
+        default:
+          throw new Error("Unknown mode: " + string);
+      }
+    }
+    exports.from = function from(value, defaultValue) {
+      if (exports.isValid(value)) {
+        return value;
+      }
+      try {
+        return fromString(value);
+      } catch (e) {
+        return defaultValue;
+      }
+    };
+  }
+});
+
+// node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/core/version.js
+var require_version = __commonJS({
+  "node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/core/version.js"(exports) {
+    var Utils = require_utils();
+    var ECCode = require_error_correction_code();
+    var ECLevel = require_error_correction_level();
+    var Mode = require_mode();
+    var VersionCheck = require_version_check();
+    var G18 = 1 << 12 | 1 << 11 | 1 << 10 | 1 << 9 | 1 << 8 | 1 << 5 | 1 << 2 | 1 << 0;
+    var G18_BCH = Utils.getBCHDigit(G18);
+    function getBestVersionForDataLength(mode, length, errorCorrectionLevel) {
+      for (let currentVersion = 1; currentVersion <= 40; currentVersion++) {
+        if (length <= exports.getCapacity(currentVersion, errorCorrectionLevel, mode)) {
+          return currentVersion;
+        }
+      }
+      return void 0;
+    }
+    function getReservedBitsCount(mode, version2) {
+      return Mode.getCharCountIndicator(mode, version2) + 4;
+    }
+    function getTotalBitsFromDataArray(segments, version2) {
+      let totalBits = 0;
+      segments.forEach(function(data) {
+        const reservedBits = getReservedBitsCount(data.mode, version2);
+        totalBits += reservedBits + data.getBitsLength();
+      });
+      return totalBits;
+    }
+    function getBestVersionForMixedData(segments, errorCorrectionLevel) {
+      for (let currentVersion = 1; currentVersion <= 40; currentVersion++) {
+        const length = getTotalBitsFromDataArray(segments, currentVersion);
+        if (length <= exports.getCapacity(currentVersion, errorCorrectionLevel, Mode.MIXED)) {
+          return currentVersion;
+        }
+      }
+      return void 0;
+    }
+    exports.from = function from(value, defaultValue) {
+      if (VersionCheck.isValid(value)) {
+        return parseInt(value, 10);
+      }
+      return defaultValue;
+    };
+    exports.getCapacity = function getCapacity(version2, errorCorrectionLevel, mode) {
+      if (!VersionCheck.isValid(version2)) {
+        throw new Error("Invalid QR Code version");
+      }
+      if (typeof mode === "undefined") mode = Mode.BYTE;
+      const totalCodewords = Utils.getSymbolTotalCodewords(version2);
+      const ecTotalCodewords = ECCode.getTotalCodewordsCount(version2, errorCorrectionLevel);
+      const dataTotalCodewordsBits = (totalCodewords - ecTotalCodewords) * 8;
+      if (mode === Mode.MIXED) return dataTotalCodewordsBits;
+      const usableBits = dataTotalCodewordsBits - getReservedBitsCount(mode, version2);
+      switch (mode) {
+        case Mode.NUMERIC:
+          return Math.floor(usableBits / 10 * 3);
+        case Mode.ALPHANUMERIC:
+          return Math.floor(usableBits / 11 * 2);
+        case Mode.KANJI:
+          return Math.floor(usableBits / 13);
+        case Mode.BYTE:
+        default:
+          return Math.floor(usableBits / 8);
+      }
+    };
+    exports.getBestVersionForData = function getBestVersionForData(data, errorCorrectionLevel) {
+      let seg;
+      const ecl = ECLevel.from(errorCorrectionLevel, ECLevel.M);
+      if (Array.isArray(data)) {
+        if (data.length > 1) {
+          return getBestVersionForMixedData(data, ecl);
+        }
+        if (data.length === 0) {
+          return 1;
+        }
+        seg = data[0];
+      } else {
+        seg = data;
+      }
+      return getBestVersionForDataLength(seg.mode, seg.getLength(), ecl);
+    };
+    exports.getEncodedBits = function getEncodedBits(version2) {
+      if (!VersionCheck.isValid(version2) || version2 < 7) {
+        throw new Error("Invalid QR Code version");
+      }
+      let d = version2 << 12;
+      while (Utils.getBCHDigit(d) - G18_BCH >= 0) {
+        d ^= G18 << Utils.getBCHDigit(d) - G18_BCH;
+      }
+      return version2 << 12 | d;
+    };
+  }
+});
+
+// node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/core/format-info.js
+var require_format_info = __commonJS({
+  "node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/core/format-info.js"(exports) {
+    var Utils = require_utils();
+    var G15 = 1 << 10 | 1 << 8 | 1 << 5 | 1 << 4 | 1 << 2 | 1 << 1 | 1 << 0;
+    var G15_MASK = 1 << 14 | 1 << 12 | 1 << 10 | 1 << 4 | 1 << 1;
+    var G15_BCH = Utils.getBCHDigit(G15);
+    exports.getEncodedBits = function getEncodedBits(errorCorrectionLevel, mask) {
+      const data = errorCorrectionLevel.bit << 3 | mask;
+      let d = data << 10;
+      while (Utils.getBCHDigit(d) - G15_BCH >= 0) {
+        d ^= G15 << Utils.getBCHDigit(d) - G15_BCH;
+      }
+      return (data << 10 | d) ^ G15_MASK;
+    };
+  }
+});
+
+// node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/core/numeric-data.js
+var require_numeric_data = __commonJS({
+  "node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/core/numeric-data.js"(exports, module) {
+    var Mode = require_mode();
+    function NumericData(data) {
+      this.mode = Mode.NUMERIC;
+      this.data = data.toString();
+    }
+    NumericData.getBitsLength = function getBitsLength(length) {
+      return 10 * Math.floor(length / 3) + (length % 3 ? length % 3 * 3 + 1 : 0);
+    };
+    NumericData.prototype.getLength = function getLength() {
+      return this.data.length;
+    };
+    NumericData.prototype.getBitsLength = function getBitsLength() {
+      return NumericData.getBitsLength(this.data.length);
+    };
+    NumericData.prototype.write = function write(bitBuffer) {
+      let i, group, value;
+      for (i = 0; i + 3 <= this.data.length; i += 3) {
+        group = this.data.substr(i, 3);
+        value = parseInt(group, 10);
+        bitBuffer.put(value, 10);
+      }
+      const remainingNum = this.data.length - i;
+      if (remainingNum > 0) {
+        group = this.data.substr(i);
+        value = parseInt(group, 10);
+        bitBuffer.put(value, remainingNum * 3 + 1);
+      }
+    };
+    module.exports = NumericData;
+  }
+});
+
+// node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/core/alphanumeric-data.js
+var require_alphanumeric_data = __commonJS({
+  "node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/core/alphanumeric-data.js"(exports, module) {
+    var Mode = require_mode();
+    var ALPHA_NUM_CHARS = [
+      "0",
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "6",
+      "7",
+      "8",
+      "9",
+      "A",
+      "B",
+      "C",
+      "D",
+      "E",
+      "F",
+      "G",
+      "H",
+      "I",
+      "J",
+      "K",
+      "L",
+      "M",
+      "N",
+      "O",
+      "P",
+      "Q",
+      "R",
+      "S",
+      "T",
+      "U",
+      "V",
+      "W",
+      "X",
+      "Y",
+      "Z",
+      " ",
+      "$",
+      "%",
+      "*",
+      "+",
+      "-",
+      ".",
+      "/",
+      ":"
+    ];
+    function AlphanumericData(data) {
+      this.mode = Mode.ALPHANUMERIC;
+      this.data = data;
+    }
+    AlphanumericData.getBitsLength = function getBitsLength(length) {
+      return 11 * Math.floor(length / 2) + 6 * (length % 2);
+    };
+    AlphanumericData.prototype.getLength = function getLength() {
+      return this.data.length;
+    };
+    AlphanumericData.prototype.getBitsLength = function getBitsLength() {
+      return AlphanumericData.getBitsLength(this.data.length);
+    };
+    AlphanumericData.prototype.write = function write(bitBuffer) {
+      let i;
+      for (i = 0; i + 2 <= this.data.length; i += 2) {
+        let value = ALPHA_NUM_CHARS.indexOf(this.data[i]) * 45;
+        value += ALPHA_NUM_CHARS.indexOf(this.data[i + 1]);
+        bitBuffer.put(value, 11);
+      }
+      if (this.data.length % 2) {
+        bitBuffer.put(ALPHA_NUM_CHARS.indexOf(this.data[i]), 6);
+      }
+    };
+    module.exports = AlphanumericData;
+  }
+});
+
+// node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/core/byte-data.js
+var require_byte_data = __commonJS({
+  "node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/core/byte-data.js"(exports, module) {
+    var Mode = require_mode();
+    function ByteData(data) {
+      this.mode = Mode.BYTE;
+      if (typeof data === "string") {
+        this.data = new TextEncoder().encode(data);
+      } else {
+        this.data = new Uint8Array(data);
+      }
+    }
+    ByteData.getBitsLength = function getBitsLength(length) {
+      return length * 8;
+    };
+    ByteData.prototype.getLength = function getLength() {
+      return this.data.length;
+    };
+    ByteData.prototype.getBitsLength = function getBitsLength() {
+      return ByteData.getBitsLength(this.data.length);
+    };
+    ByteData.prototype.write = function(bitBuffer) {
+      for (let i = 0, l = this.data.length; i < l; i++) {
+        bitBuffer.put(this.data[i], 8);
+      }
+    };
+    module.exports = ByteData;
+  }
+});
+
+// node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/core/kanji-data.js
+var require_kanji_data = __commonJS({
+  "node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/core/kanji-data.js"(exports, module) {
+    var Mode = require_mode();
+    var Utils = require_utils();
+    function KanjiData(data) {
+      this.mode = Mode.KANJI;
+      this.data = data;
+    }
+    KanjiData.getBitsLength = function getBitsLength(length) {
+      return length * 13;
+    };
+    KanjiData.prototype.getLength = function getLength() {
+      return this.data.length;
+    };
+    KanjiData.prototype.getBitsLength = function getBitsLength() {
+      return KanjiData.getBitsLength(this.data.length);
+    };
+    KanjiData.prototype.write = function(bitBuffer) {
+      let i;
+      for (i = 0; i < this.data.length; i++) {
+        let value = Utils.toSJIS(this.data[i]);
+        if (value >= 33088 && value <= 40956) {
+          value -= 33088;
+        } else if (value >= 57408 && value <= 60351) {
+          value -= 49472;
+        } else {
+          throw new Error(
+            "Invalid SJIS character: " + this.data[i] + "\nMake sure your charset is UTF-8"
+          );
+        }
+        value = (value >>> 8 & 255) * 192 + (value & 255);
+        bitBuffer.put(value, 13);
+      }
+    };
+    module.exports = KanjiData;
+  }
+});
+
+// node_modules/.deno/dijkstrajs@1.0.3/node_modules/dijkstrajs/dijkstra.js
+var require_dijkstra = __commonJS({
+  "node_modules/.deno/dijkstrajs@1.0.3/node_modules/dijkstrajs/dijkstra.js"(exports, module) {
+    "use strict";
+    var dijkstra = {
+      single_source_shortest_paths: function(graph, s, d) {
+        var predecessors = {};
+        var costs = {};
+        costs[s] = 0;
+        var open = dijkstra.PriorityQueue.make();
+        open.push(s, 0);
+        var closest, u, v, cost_of_s_to_u, adjacent_nodes, cost_of_e, cost_of_s_to_u_plus_cost_of_e, cost_of_s_to_v, first_visit;
+        while (!open.empty()) {
+          closest = open.pop();
+          u = closest.value;
+          cost_of_s_to_u = closest.cost;
+          adjacent_nodes = graph[u] || {};
+          for (v in adjacent_nodes) {
+            if (adjacent_nodes.hasOwnProperty(v)) {
+              cost_of_e = adjacent_nodes[v];
+              cost_of_s_to_u_plus_cost_of_e = cost_of_s_to_u + cost_of_e;
+              cost_of_s_to_v = costs[v];
+              first_visit = typeof costs[v] === "undefined";
+              if (first_visit || cost_of_s_to_v > cost_of_s_to_u_plus_cost_of_e) {
+                costs[v] = cost_of_s_to_u_plus_cost_of_e;
+                open.push(v, cost_of_s_to_u_plus_cost_of_e);
+                predecessors[v] = u;
+              }
+            }
+          }
+        }
+        if (typeof d !== "undefined" && typeof costs[d] === "undefined") {
+          var msg = ["Could not find a path from ", s, " to ", d, "."].join("");
+          throw new Error(msg);
+        }
+        return predecessors;
+      },
+      extract_shortest_path_from_predecessor_list: function(predecessors, d) {
+        var nodes = [];
+        var u = d;
+        var predecessor;
+        while (u) {
+          nodes.push(u);
+          predecessor = predecessors[u];
+          u = predecessors[u];
+        }
+        nodes.reverse();
+        return nodes;
+      },
+      find_path: function(graph, s, d) {
+        var predecessors = dijkstra.single_source_shortest_paths(graph, s, d);
+        return dijkstra.extract_shortest_path_from_predecessor_list(
+          predecessors,
+          d
+        );
+      },
+      /**
+       * A very naive priority queue implementation.
+       */
+      PriorityQueue: {
+        make: function(opts) {
+          var T = dijkstra.PriorityQueue, t2 = {}, key;
+          opts = opts || {};
+          for (key in T) {
+            if (T.hasOwnProperty(key)) {
+              t2[key] = T[key];
+            }
+          }
+          t2.queue = [];
+          t2.sorter = opts.sorter || T.default_sorter;
+          return t2;
+        },
+        default_sorter: function(a, b) {
+          return a.cost - b.cost;
+        },
+        /**
+         * Add a new item to the queue and ensure the highest priority element
+         * is at the front of the queue.
+         */
+        push: function(value, cost) {
+          var item = { value, cost };
+          this.queue.push(item);
+          this.queue.sort(this.sorter);
+        },
+        /**
+         * Return the highest priority element in the queue.
+         */
+        pop: function() {
+          return this.queue.shift();
+        },
+        empty: function() {
+          return this.queue.length === 0;
+        }
+      }
+    };
+    if (typeof module !== "undefined") {
+      module.exports = dijkstra;
+    }
+  }
+});
+
+// node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/core/segments.js
+var require_segments = __commonJS({
+  "node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/core/segments.js"(exports) {
+    var Mode = require_mode();
+    var NumericData = require_numeric_data();
+    var AlphanumericData = require_alphanumeric_data();
+    var ByteData = require_byte_data();
+    var KanjiData = require_kanji_data();
+    var Regex = require_regex();
+    var Utils = require_utils();
+    var dijkstra = require_dijkstra();
+    function getStringByteLength(str) {
+      return unescape(encodeURIComponent(str)).length;
+    }
+    function getSegments(regex, mode, str) {
+      const segments = [];
+      let result;
+      while ((result = regex.exec(str)) !== null) {
+        segments.push({
+          data: result[0],
+          index: result.index,
+          mode,
+          length: result[0].length
+        });
+      }
+      return segments;
+    }
+    function getSegmentsFromString(dataStr) {
+      const numSegs = getSegments(Regex.NUMERIC, Mode.NUMERIC, dataStr);
+      const alphaNumSegs = getSegments(Regex.ALPHANUMERIC, Mode.ALPHANUMERIC, dataStr);
+      let byteSegs;
+      let kanjiSegs;
+      if (Utils.isKanjiModeEnabled()) {
+        byteSegs = getSegments(Regex.BYTE, Mode.BYTE, dataStr);
+        kanjiSegs = getSegments(Regex.KANJI, Mode.KANJI, dataStr);
+      } else {
+        byteSegs = getSegments(Regex.BYTE_KANJI, Mode.BYTE, dataStr);
+        kanjiSegs = [];
+      }
+      const segs = numSegs.concat(alphaNumSegs, byteSegs, kanjiSegs);
+      return segs.sort(function(s1, s2) {
+        return s1.index - s2.index;
+      }).map(function(obj) {
+        return {
+          data: obj.data,
+          mode: obj.mode,
+          length: obj.length
+        };
+      });
+    }
+    function getSegmentBitsLength(length, mode) {
+      switch (mode) {
+        case Mode.NUMERIC:
+          return NumericData.getBitsLength(length);
+        case Mode.ALPHANUMERIC:
+          return AlphanumericData.getBitsLength(length);
+        case Mode.KANJI:
+          return KanjiData.getBitsLength(length);
+        case Mode.BYTE:
+          return ByteData.getBitsLength(length);
+      }
+    }
+    function mergeSegments(segs) {
+      return segs.reduce(function(acc, curr) {
+        const prevSeg = acc.length - 1 >= 0 ? acc[acc.length - 1] : null;
+        if (prevSeg && prevSeg.mode === curr.mode) {
+          acc[acc.length - 1].data += curr.data;
+          return acc;
+        }
+        acc.push(curr);
+        return acc;
+      }, []);
+    }
+    function buildNodes(segs) {
+      const nodes = [];
+      for (let i = 0; i < segs.length; i++) {
+        const seg = segs[i];
+        switch (seg.mode) {
+          case Mode.NUMERIC:
+            nodes.push([
+              seg,
+              { data: seg.data, mode: Mode.ALPHANUMERIC, length: seg.length },
+              { data: seg.data, mode: Mode.BYTE, length: seg.length }
+            ]);
+            break;
+          case Mode.ALPHANUMERIC:
+            nodes.push([
+              seg,
+              { data: seg.data, mode: Mode.BYTE, length: seg.length }
+            ]);
+            break;
+          case Mode.KANJI:
+            nodes.push([
+              seg,
+              { data: seg.data, mode: Mode.BYTE, length: getStringByteLength(seg.data) }
+            ]);
+            break;
+          case Mode.BYTE:
+            nodes.push([
+              { data: seg.data, mode: Mode.BYTE, length: getStringByteLength(seg.data) }
+            ]);
+        }
+      }
+      return nodes;
+    }
+    function buildGraph(nodes, version2) {
+      const table = {};
+      const graph = { start: {} };
+      let prevNodeIds = ["start"];
+      for (let i = 0; i < nodes.length; i++) {
+        const nodeGroup = nodes[i];
+        const currentNodeIds = [];
+        for (let j = 0; j < nodeGroup.length; j++) {
+          const node3 = nodeGroup[j];
+          const key = "" + i + j;
+          currentNodeIds.push(key);
+          table[key] = { node: node3, lastCount: 0 };
+          graph[key] = {};
+          for (let n = 0; n < prevNodeIds.length; n++) {
+            const prevNodeId = prevNodeIds[n];
+            if (table[prevNodeId] && table[prevNodeId].node.mode === node3.mode) {
+              graph[prevNodeId][key] = getSegmentBitsLength(table[prevNodeId].lastCount + node3.length, node3.mode) - getSegmentBitsLength(table[prevNodeId].lastCount, node3.mode);
+              table[prevNodeId].lastCount += node3.length;
+            } else {
+              if (table[prevNodeId]) table[prevNodeId].lastCount = node3.length;
+              graph[prevNodeId][key] = getSegmentBitsLength(node3.length, node3.mode) + 4 + Mode.getCharCountIndicator(node3.mode, version2);
+            }
+          }
+        }
+        prevNodeIds = currentNodeIds;
+      }
+      for (let n = 0; n < prevNodeIds.length; n++) {
+        graph[prevNodeIds[n]].end = 0;
+      }
+      return { map: graph, table };
+    }
+    function buildSingleSegment(data, modesHint) {
+      let mode;
+      const bestMode = Mode.getBestModeForData(data);
+      mode = Mode.from(modesHint, bestMode);
+      if (mode !== Mode.BYTE && mode.bit < bestMode.bit) {
+        throw new Error('"' + data + '" cannot be encoded with mode ' + Mode.toString(mode) + ".\n Suggested mode is: " + Mode.toString(bestMode));
+      }
+      if (mode === Mode.KANJI && !Utils.isKanjiModeEnabled()) {
+        mode = Mode.BYTE;
+      }
+      switch (mode) {
+        case Mode.NUMERIC:
+          return new NumericData(data);
+        case Mode.ALPHANUMERIC:
+          return new AlphanumericData(data);
+        case Mode.KANJI:
+          return new KanjiData(data);
+        case Mode.BYTE:
+          return new ByteData(data);
+      }
+    }
+    exports.fromArray = function fromArray(array) {
+      return array.reduce(function(acc, seg) {
+        if (typeof seg === "string") {
+          acc.push(buildSingleSegment(seg, null));
+        } else if (seg.data) {
+          acc.push(buildSingleSegment(seg.data, seg.mode));
+        }
+        return acc;
+      }, []);
+    };
+    exports.fromString = function fromString(data, version2) {
+      const segs = getSegmentsFromString(data, Utils.isKanjiModeEnabled());
+      const nodes = buildNodes(segs);
+      const graph = buildGraph(nodes, version2);
+      const path = dijkstra.find_path(graph.map, "start", "end");
+      const optimizedSegs = [];
+      for (let i = 1; i < path.length - 1; i++) {
+        optimizedSegs.push(graph.table[path[i]].node);
+      }
+      return exports.fromArray(mergeSegments(optimizedSegs));
+    };
+    exports.rawSplit = function rawSplit(data) {
+      return exports.fromArray(
+        getSegmentsFromString(data, Utils.isKanjiModeEnabled())
+      );
+    };
+  }
+});
+
+// node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/core/qrcode.js
+var require_qrcode = __commonJS({
+  "node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/core/qrcode.js"(exports) {
+    var Utils = require_utils();
+    var ECLevel = require_error_correction_level();
+    var BitBuffer = require_bit_buffer();
+    var BitMatrix = require_bit_matrix();
+    var AlignmentPattern = require_alignment_pattern();
+    var FinderPattern = require_finder_pattern();
+    var MaskPattern = require_mask_pattern();
+    var ECCode = require_error_correction_code();
+    var ReedSolomonEncoder = require_reed_solomon_encoder();
+    var Version = require_version();
+    var FormatInfo = require_format_info();
+    var Mode = require_mode();
+    var Segments = require_segments();
+    function setupFinderPattern(matrix, version2) {
+      const size = matrix.size;
+      const pos = FinderPattern.getPositions(version2);
+      for (let i = 0; i < pos.length; i++) {
+        const row = pos[i][0];
+        const col = pos[i][1];
+        for (let r = -1; r <= 7; r++) {
+          if (row + r <= -1 || size <= row + r) continue;
+          for (let c = -1; c <= 7; c++) {
+            if (col + c <= -1 || size <= col + c) continue;
+            if (r >= 0 && r <= 6 && (c === 0 || c === 6) || c >= 0 && c <= 6 && (r === 0 || r === 6) || r >= 2 && r <= 4 && c >= 2 && c <= 4) {
+              matrix.set(row + r, col + c, true, true);
+            } else {
+              matrix.set(row + r, col + c, false, true);
+            }
+          }
+        }
+      }
+    }
+    function setupTimingPattern(matrix) {
+      const size = matrix.size;
+      for (let r = 8; r < size - 8; r++) {
+        const value = r % 2 === 0;
+        matrix.set(r, 6, value, true);
+        matrix.set(6, r, value, true);
+      }
+    }
+    function setupAlignmentPattern(matrix, version2) {
+      const pos = AlignmentPattern.getPositions(version2);
+      for (let i = 0; i < pos.length; i++) {
+        const row = pos[i][0];
+        const col = pos[i][1];
+        for (let r = -2; r <= 2; r++) {
+          for (let c = -2; c <= 2; c++) {
+            if (r === -2 || r === 2 || c === -2 || c === 2 || r === 0 && c === 0) {
+              matrix.set(row + r, col + c, true, true);
+            } else {
+              matrix.set(row + r, col + c, false, true);
+            }
+          }
+        }
+      }
+    }
+    function setupVersionInfo(matrix, version2) {
+      const size = matrix.size;
+      const bits = Version.getEncodedBits(version2);
+      let row, col, mod;
+      for (let i = 0; i < 18; i++) {
+        row = Math.floor(i / 3);
+        col = i % 3 + size - 8 - 3;
+        mod = (bits >> i & 1) === 1;
+        matrix.set(row, col, mod, true);
+        matrix.set(col, row, mod, true);
+      }
+    }
+    function setupFormatInfo(matrix, errorCorrectionLevel, maskPattern) {
+      const size = matrix.size;
+      const bits = FormatInfo.getEncodedBits(errorCorrectionLevel, maskPattern);
+      let i, mod;
+      for (i = 0; i < 15; i++) {
+        mod = (bits >> i & 1) === 1;
+        if (i < 6) {
+          matrix.set(i, 8, mod, true);
+        } else if (i < 8) {
+          matrix.set(i + 1, 8, mod, true);
+        } else {
+          matrix.set(size - 15 + i, 8, mod, true);
+        }
+        if (i < 8) {
+          matrix.set(8, size - i - 1, mod, true);
+        } else if (i < 9) {
+          matrix.set(8, 15 - i - 1 + 1, mod, true);
+        } else {
+          matrix.set(8, 15 - i - 1, mod, true);
+        }
+      }
+      matrix.set(size - 8, 8, 1, true);
+    }
+    function setupData(matrix, data) {
+      const size = matrix.size;
+      let inc = -1;
+      let row = size - 1;
+      let bitIndex = 7;
+      let byteIndex = 0;
+      for (let col = size - 1; col > 0; col -= 2) {
+        if (col === 6) col--;
+        while (true) {
+          for (let c = 0; c < 2; c++) {
+            if (!matrix.isReserved(row, col - c)) {
+              let dark = false;
+              if (byteIndex < data.length) {
+                dark = (data[byteIndex] >>> bitIndex & 1) === 1;
+              }
+              matrix.set(row, col - c, dark);
+              bitIndex--;
+              if (bitIndex === -1) {
+                byteIndex++;
+                bitIndex = 7;
+              }
+            }
+          }
+          row += inc;
+          if (row < 0 || size <= row) {
+            row -= inc;
+            inc = -inc;
+            break;
+          }
+        }
+      }
+    }
+    function createData(version2, errorCorrectionLevel, segments) {
+      const buffer = new BitBuffer();
+      segments.forEach(function(data) {
+        buffer.put(data.mode.bit, 4);
+        buffer.put(data.getLength(), Mode.getCharCountIndicator(data.mode, version2));
+        data.write(buffer);
+      });
+      const totalCodewords = Utils.getSymbolTotalCodewords(version2);
+      const ecTotalCodewords = ECCode.getTotalCodewordsCount(version2, errorCorrectionLevel);
+      const dataTotalCodewordsBits = (totalCodewords - ecTotalCodewords) * 8;
+      if (buffer.getLengthInBits() + 4 <= dataTotalCodewordsBits) {
+        buffer.put(0, 4);
+      }
+      while (buffer.getLengthInBits() % 8 !== 0) {
+        buffer.putBit(0);
+      }
+      const remainingByte = (dataTotalCodewordsBits - buffer.getLengthInBits()) / 8;
+      for (let i = 0; i < remainingByte; i++) {
+        buffer.put(i % 2 ? 17 : 236, 8);
+      }
+      return createCodewords(buffer, version2, errorCorrectionLevel);
+    }
+    function createCodewords(bitBuffer, version2, errorCorrectionLevel) {
+      const totalCodewords = Utils.getSymbolTotalCodewords(version2);
+      const ecTotalCodewords = ECCode.getTotalCodewordsCount(version2, errorCorrectionLevel);
+      const dataTotalCodewords = totalCodewords - ecTotalCodewords;
+      const ecTotalBlocks = ECCode.getBlocksCount(version2, errorCorrectionLevel);
+      const blocksInGroup2 = totalCodewords % ecTotalBlocks;
+      const blocksInGroup1 = ecTotalBlocks - blocksInGroup2;
+      const totalCodewordsInGroup1 = Math.floor(totalCodewords / ecTotalBlocks);
+      const dataCodewordsInGroup1 = Math.floor(dataTotalCodewords / ecTotalBlocks);
+      const dataCodewordsInGroup2 = dataCodewordsInGroup1 + 1;
+      const ecCount = totalCodewordsInGroup1 - dataCodewordsInGroup1;
+      const rs = new ReedSolomonEncoder(ecCount);
+      let offset = 0;
+      const dcData = new Array(ecTotalBlocks);
+      const ecData = new Array(ecTotalBlocks);
+      let maxDataSize = 0;
+      const buffer = new Uint8Array(bitBuffer.buffer);
+      for (let b = 0; b < ecTotalBlocks; b++) {
+        const dataSize = b < blocksInGroup1 ? dataCodewordsInGroup1 : dataCodewordsInGroup2;
+        dcData[b] = buffer.slice(offset, offset + dataSize);
+        ecData[b] = rs.encode(dcData[b]);
+        offset += dataSize;
+        maxDataSize = Math.max(maxDataSize, dataSize);
+      }
+      const data = new Uint8Array(totalCodewords);
+      let index = 0;
+      let i, r;
+      for (i = 0; i < maxDataSize; i++) {
+        for (r = 0; r < ecTotalBlocks; r++) {
+          if (i < dcData[r].length) {
+            data[index++] = dcData[r][i];
+          }
+        }
+      }
+      for (i = 0; i < ecCount; i++) {
+        for (r = 0; r < ecTotalBlocks; r++) {
+          data[index++] = ecData[r][i];
+        }
+      }
+      return data;
+    }
+    function createSymbol(data, version2, errorCorrectionLevel, maskPattern) {
+      let segments;
+      if (Array.isArray(data)) {
+        segments = Segments.fromArray(data);
+      } else if (typeof data === "string") {
+        let estimatedVersion = version2;
+        if (!estimatedVersion) {
+          const rawSegments = Segments.rawSplit(data);
+          estimatedVersion = Version.getBestVersionForData(rawSegments, errorCorrectionLevel);
+        }
+        segments = Segments.fromString(data, estimatedVersion || 40);
+      } else {
+        throw new Error("Invalid data");
+      }
+      const bestVersion = Version.getBestVersionForData(segments, errorCorrectionLevel);
+      if (!bestVersion) {
+        throw new Error("The amount of data is too big to be stored in a QR Code");
+      }
+      if (!version2) {
+        version2 = bestVersion;
+      } else if (version2 < bestVersion) {
+        throw new Error(
+          "\nThe chosen QR Code version cannot contain this amount of data.\nMinimum version required to store current data is: " + bestVersion + ".\n"
+        );
+      }
+      const dataBits = createData(version2, errorCorrectionLevel, segments);
+      const moduleCount = Utils.getSymbolSize(version2);
+      const modules = new BitMatrix(moduleCount);
+      setupFinderPattern(modules, version2);
+      setupTimingPattern(modules);
+      setupAlignmentPattern(modules, version2);
+      setupFormatInfo(modules, errorCorrectionLevel, 0);
+      if (version2 >= 7) {
+        setupVersionInfo(modules, version2);
+      }
+      setupData(modules, dataBits);
+      if (isNaN(maskPattern)) {
+        maskPattern = MaskPattern.getBestMask(
+          modules,
+          setupFormatInfo.bind(null, modules, errorCorrectionLevel)
+        );
+      }
+      MaskPattern.applyMask(maskPattern, modules);
+      setupFormatInfo(modules, errorCorrectionLevel, maskPattern);
+      return {
+        modules,
+        version: version2,
+        errorCorrectionLevel,
+        maskPattern,
+        segments
+      };
+    }
+    exports.create = function create(data, options) {
+      if (typeof data === "undefined" || data === "") {
+        throw new Error("No input text");
+      }
+      let errorCorrectionLevel = ECLevel.M;
+      let version2;
+      let mask;
+      if (typeof options !== "undefined") {
+        errorCorrectionLevel = ECLevel.from(options.errorCorrectionLevel, ECLevel.M);
+        version2 = Version.from(options.version);
+        mask = MaskPattern.from(options.maskPattern);
+        if (options.toSJISFunc) {
+          Utils.setToSJISFunction(options.toSJISFunc);
+        }
+      }
+      return createSymbol(data, version2, errorCorrectionLevel, mask);
+    };
+  }
+});
+
+// node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/renderer/utils.js
+var require_utils2 = __commonJS({
+  "node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/renderer/utils.js"(exports) {
+    function hex2rgba(hex) {
+      if (typeof hex === "number") {
+        hex = hex.toString();
+      }
+      if (typeof hex !== "string") {
+        throw new Error("Color should be defined as hex string");
+      }
+      let hexCode = hex.slice().replace("#", "").split("");
+      if (hexCode.length < 3 || hexCode.length === 5 || hexCode.length > 8) {
+        throw new Error("Invalid hex color: " + hex);
+      }
+      if (hexCode.length === 3 || hexCode.length === 4) {
+        hexCode = Array.prototype.concat.apply([], hexCode.map(function(c) {
+          return [c, c];
+        }));
+      }
+      if (hexCode.length === 6) hexCode.push("F", "F");
+      const hexValue = parseInt(hexCode.join(""), 16);
+      return {
+        r: hexValue >> 24 & 255,
+        g: hexValue >> 16 & 255,
+        b: hexValue >> 8 & 255,
+        a: hexValue & 255,
+        hex: "#" + hexCode.slice(0, 6).join("")
+      };
+    }
+    exports.getOptions = function getOptions(options) {
+      if (!options) options = {};
+      if (!options.color) options.color = {};
+      const margin = typeof options.margin === "undefined" || options.margin === null || options.margin < 0 ? 4 : options.margin;
+      const width = options.width && options.width >= 21 ? options.width : void 0;
+      const scale = options.scale || 4;
+      return {
+        width,
+        scale: width ? 4 : scale,
+        margin,
+        color: {
+          dark: hex2rgba(options.color.dark || "#000000ff"),
+          light: hex2rgba(options.color.light || "#ffffffff")
+        },
+        type: options.type,
+        rendererOpts: options.rendererOpts || {}
+      };
+    };
+    exports.getScale = function getScale(qrSize, opts) {
+      return opts.width && opts.width >= qrSize + opts.margin * 2 ? opts.width / (qrSize + opts.margin * 2) : opts.scale;
+    };
+    exports.getImageWidth = function getImageWidth(qrSize, opts) {
+      const scale = exports.getScale(qrSize, opts);
+      return Math.floor((qrSize + opts.margin * 2) * scale);
+    };
+    exports.qrToImageData = function qrToImageData(imgData, qr, opts) {
+      const size = qr.modules.size;
+      const data = qr.modules.data;
+      const scale = exports.getScale(size, opts);
+      const symbolSize = Math.floor((size + opts.margin * 2) * scale);
+      const scaledMargin = opts.margin * scale;
+      const palette = [opts.color.light, opts.color.dark];
+      for (let i = 0; i < symbolSize; i++) {
+        for (let j = 0; j < symbolSize; j++) {
+          let posDst = (i * symbolSize + j) * 4;
+          let pxColor = opts.color.light;
+          if (i >= scaledMargin && j >= scaledMargin && i < symbolSize - scaledMargin && j < symbolSize - scaledMargin) {
+            const iSrc = Math.floor((i - scaledMargin) / scale);
+            const jSrc = Math.floor((j - scaledMargin) / scale);
+            pxColor = palette[data[iSrc * size + jSrc] ? 1 : 0];
+          }
+          imgData[posDst++] = pxColor.r;
+          imgData[posDst++] = pxColor.g;
+          imgData[posDst++] = pxColor.b;
+          imgData[posDst] = pxColor.a;
+        }
+      }
+    };
+  }
+});
+
+// node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/renderer/canvas.js
+var require_canvas = __commonJS({
+  "node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/renderer/canvas.js"(exports) {
+    var Utils = require_utils2();
+    function clearCanvas(ctx, canvas, size) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      if (!canvas.style) canvas.style = {};
+      canvas.height = size;
+      canvas.width = size;
+      canvas.style.height = size + "px";
+      canvas.style.width = size + "px";
+    }
+    function getCanvasElement() {
+      try {
+        return document.createElement("canvas");
+      } catch (e) {
+        throw new Error("You need to specify a canvas element");
+      }
+    }
+    exports.render = function render(qrData, canvas, options) {
+      let opts = options;
+      let canvasEl = canvas;
+      if (typeof opts === "undefined" && (!canvas || !canvas.getContext)) {
+        opts = canvas;
+        canvas = void 0;
+      }
+      if (!canvas) {
+        canvasEl = getCanvasElement();
+      }
+      opts = Utils.getOptions(opts);
+      const size = Utils.getImageWidth(qrData.modules.size, opts);
+      const ctx = canvasEl.getContext("2d");
+      const image = ctx.createImageData(size, size);
+      Utils.qrToImageData(image.data, qrData, opts);
+      clearCanvas(ctx, canvasEl, size);
+      ctx.putImageData(image, 0, 0);
+      return canvasEl;
+    };
+    exports.renderToDataURL = function renderToDataURL(qrData, canvas, options) {
+      let opts = options;
+      if (typeof opts === "undefined" && (!canvas || !canvas.getContext)) {
+        opts = canvas;
+        canvas = void 0;
+      }
+      if (!opts) opts = {};
+      const canvasEl = exports.render(qrData, canvas, opts);
+      const type = opts.type || "image/png";
+      const rendererOpts = opts.rendererOpts || {};
+      return canvasEl.toDataURL(type, rendererOpts.quality);
+    };
+  }
+});
+
+// node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/renderer/svg-tag.js
+var require_svg_tag = __commonJS({
+  "node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/renderer/svg-tag.js"(exports) {
+    var Utils = require_utils2();
+    function getColorAttrib(color, attrib) {
+      const alpha = color.a / 255;
+      const str = attrib + '="' + color.hex + '"';
+      return alpha < 1 ? str + " " + attrib + '-opacity="' + alpha.toFixed(2).slice(1) + '"' : str;
+    }
+    function svgCmd(cmd, x, y) {
+      let str = cmd + x;
+      if (typeof y !== "undefined") str += " " + y;
+      return str;
+    }
+    function qrToPath(data, size, margin) {
+      let path = "";
+      let moveBy = 0;
+      let newRow = false;
+      let lineLength = 0;
+      for (let i = 0; i < data.length; i++) {
+        const col = Math.floor(i % size);
+        const row = Math.floor(i / size);
+        if (!col && !newRow) newRow = true;
+        if (data[i]) {
+          lineLength++;
+          if (!(i > 0 && col > 0 && data[i - 1])) {
+            path += newRow ? svgCmd("M", col + margin, 0.5 + row + margin) : svgCmd("m", moveBy, 0);
+            moveBy = 0;
+            newRow = false;
+          }
+          if (!(col + 1 < size && data[i + 1])) {
+            path += svgCmd("h", lineLength);
+            lineLength = 0;
+          }
+        } else {
+          moveBy++;
+        }
+      }
+      return path;
+    }
+    exports.render = function render(qrData, options, cb) {
+      const opts = Utils.getOptions(options);
+      const size = qrData.modules.size;
+      const data = qrData.modules.data;
+      const qrcodesize = size + opts.margin * 2;
+      const bg = !opts.color.light.a ? "" : "<path " + getColorAttrib(opts.color.light, "fill") + ' d="M0 0h' + qrcodesize + "v" + qrcodesize + 'H0z"/>';
+      const path = "<path " + getColorAttrib(opts.color.dark, "stroke") + ' d="' + qrToPath(data, size, opts.margin) + '"/>';
+      const viewBox = 'viewBox="0 0 ' + qrcodesize + " " + qrcodesize + '"';
+      const width = !opts.width ? "" : 'width="' + opts.width + '" height="' + opts.width + '" ';
+      const svgTag = '<svg xmlns="http://www.w3.org/2000/svg" ' + width + viewBox + ' shape-rendering="crispEdges">' + bg + path + "</svg>\n";
+      if (typeof cb === "function") {
+        cb(null, svgTag);
+      }
+      return svgTag;
+    };
+  }
+});
+
+// node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/browser.js
+var require_browser2 = __commonJS({
+  "node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/browser.js"(exports) {
+    var canPromise = require_can_promise();
+    var QRCode2 = require_qrcode();
+    var CanvasRenderer = require_canvas();
+    var SvgRenderer = require_svg_tag();
+    function renderCanvas(renderFunc, canvas, text, opts, cb) {
+      const args = [].slice.call(arguments, 1);
+      const argsNum = args.length;
+      const isLastArgCb = typeof args[argsNum - 1] === "function";
+      if (!isLastArgCb && !canPromise()) {
+        throw new Error("Callback required as last argument");
+      }
+      if (isLastArgCb) {
+        if (argsNum < 2) {
+          throw new Error("Too few arguments provided");
+        }
+        if (argsNum === 2) {
+          cb = text;
+          text = canvas;
+          canvas = opts = void 0;
+        } else if (argsNum === 3) {
+          if (canvas.getContext && typeof cb === "undefined") {
+            cb = opts;
+            opts = void 0;
+          } else {
+            cb = opts;
+            opts = text;
+            text = canvas;
+            canvas = void 0;
+          }
+        }
+      } else {
+        if (argsNum < 1) {
+          throw new Error("Too few arguments provided");
+        }
+        if (argsNum === 1) {
+          text = canvas;
+          canvas = opts = void 0;
+        } else if (argsNum === 2 && !canvas.getContext) {
+          opts = text;
+          text = canvas;
+          canvas = void 0;
+        }
+        return new Promise(function(resolve, reject) {
+          try {
+            const data = QRCode2.create(text, opts);
+            resolve(renderFunc(data, canvas, opts));
+          } catch (e) {
+            reject(e);
+          }
+        });
+      }
+      try {
+        const data = QRCode2.create(text, opts);
+        cb(null, renderFunc(data, canvas, opts));
+      } catch (e) {
+        cb(e);
+      }
+    }
+    exports.create = QRCode2.create;
+    exports.toCanvas = renderCanvas.bind(null, CanvasRenderer.render);
+    exports.toDataURL = renderCanvas.bind(null, CanvasRenderer.renderToDataURL);
+    exports.toString = renderCanvas.bind(null, function(data, _, opts) {
+      return SvgRenderer.render(data, opts);
+    });
+  }
+});
+
+// src/workflow-nav.js
+function initWorkflowNav() {
+  const dock = document.getElementById("workflow-dock"), toggle = document.getElementById("dock-toggle"), panel = document.getElementById("workflow-panel");
+  let keyboard = false;
+  const setOpen = (open) => {
+    dock.classList.toggle("expanded", open);
+    toggle.setAttribute("aria-expanded", String(open));
+    panel.inert = !open;
+  };
+  dock.addEventListener("pointerenter", (event) => {
+    if (event.pointerType === "mouse") {
+      keyboard = false;
+      setOpen(true);
+    }
+  });
+  dock.addEventListener("pointerleave", (event) => {
+    if (event.pointerType === "mouse" && !(keyboard && dock.matches(":focus-within"))) setOpen(false);
+  });
+  toggle.addEventListener("click", () => setOpen(toggle.getAttribute("aria-expanded") !== "true"));
+  document.addEventListener("keydown", (event) => {
+    if (["Tab", "Enter", " "].includes(event.key)) keyboard = true;
+  });
+  dock.addEventListener("focusin", (event) => {
+    if (keyboard && event.target !== toggle) setOpen(true);
+  });
+  dock.addEventListener("focusout", (event) => {
+    if (!dock.contains(event.relatedTarget)) setOpen(false);
+  });
+  dock.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      event.preventDefault();
+      setOpen(false);
+      toggle.focus({ preventScroll: true });
+    }
+  });
+  document.addEventListener("pointerdown", (event) => {
+    if (!dock.contains(event.target)) setOpen(false);
+  });
+}
+
+// node_modules/.deno/pdfjs-dist@6.3.289/node_modules/pdfjs-dist/build/pdf.mjs
 var isNodeJS = typeof process === "object" && process + "" === "[object process]" && !process.versions.nw && !(process.versions.electron && process.type && process.type !== "browser");
 var BBOX_INIT = [Infinity, Infinity, -Infinity, -Infinity];
 var F32_BBOX_INIT = new Float32Array(BBOX_INIT);
@@ -11670,8 +13788,8 @@ function shadow(obj, prop, value, nonSerializable = false) {
   return value;
 }
 var BaseException = (function BaseExceptionClosure() {
-  function BaseException2(message, name) {
-    this.message = message;
+  function BaseException2(message2, name) {
+    this.message = message2;
     this.name = name;
   }
   BaseException2.prototype = new Error();
@@ -11929,15 +14047,15 @@ var Util = class {
     minMax[2] = Math.max(minMax[2], x0, x1);
     minMax[3] = Math.max(minMax[3], y0, y1);
   }
-  static #getExtremumOnCurve(x0, x1, x2, x3, y0, y1, y2, y3, t, minMax) {
-    if (t <= 0 || t >= 1) {
+  static #getExtremumOnCurve(x0, x1, x2, x3, y0, y1, y2, y3, t2, minMax) {
+    if (t2 <= 0 || t2 >= 1) {
       return;
     }
-    const mt = 1 - t;
-    const tt = t * t;
-    const ttt = tt * t;
-    const x = mt * (mt * (mt * x0 + 3 * t * x1) + 3 * tt * x2) + ttt * x3;
-    const y = mt * (mt * (mt * y0 + 3 * t * y1) + 3 * tt * y2) + ttt * y3;
+    const mt = 1 - t2;
+    const tt = t2 * t2;
+    const ttt = tt * t2;
+    const x = mt * (mt * (mt * x0 + 3 * t2 * x1) + 3 * tt * x2) + ttt * x3;
+    const y = mt * (mt * (mt * y0 + 3 * t2 * y1) + 3 * tt * y2) + ttt * y3;
     minMax[0] = Math.min(minMax[0], x);
     minMax[1] = Math.min(minMax[1], y);
     minMax[2] = Math.max(minMax[2], x);
@@ -12164,30 +14282,30 @@ var XfaText = class _XfaText {
       items,
       styles: /* @__PURE__ */ Object.create(null)
     };
-    function walk(node2) {
-      if (!node2) {
+    function walk(node3) {
+      if (!node3) {
         return;
       }
       let str = null;
-      const name = node2.name;
+      const name = node3.name;
       if (name === "#text") {
-        str = node2.value;
+        str = node3.value;
       } else if (!_XfaText.shouldBuildText(name)) {
         return;
-      } else if (node2?.attributes?.textContent) {
-        str = node2.attributes.textContent;
-      } else if (node2.value) {
-        str = node2.value;
+      } else if (node3?.attributes?.textContent) {
+        str = node3.attributes.textContent;
+      } else if (node3.value) {
+        str = node3.value;
       }
       if (str !== null) {
         items.push({
           str
         });
       }
-      if (!node2.children) {
+      if (!node3.children) {
         return;
       }
-      for (const child of node2.children) {
+      for (const child of node3.children) {
         walk(child);
       }
     }
@@ -12383,10 +14501,10 @@ var XfaLayer = class {
     const textDivs = [];
     if (root.children.length === 0) {
       if (root.value) {
-        const node2 = document.createTextNode(root.value);
-        rootHtml.append(node2);
+        const node3 = document.createTextNode(root.value);
+        rootHtml.append(node3);
         if (isNotForRichText && XfaText.shouldBuildText(root.name)) {
-          textDivs.push(node2);
+          textDivs.push(node3);
         }
       }
       return {
@@ -12408,9 +14526,9 @@ var XfaLayer = class {
         name
       } = child;
       if (name === "#text") {
-        const node2 = document.createTextNode(child.value);
-        textDivs.push(node2);
-        html.append(node2);
+        const node3 = document.createTextNode(child.value);
+        textDivs.push(node3);
+        html.append(node3);
         continue;
       }
       const childHtml = this.#createElement(name, child.attributes?.xmlns, intent);
@@ -12430,11 +14548,11 @@ var XfaLayer = class {
       if (child.children?.length > 0) {
         stack.push([child, -1, childHtml]);
       } else if (child.value) {
-        const node2 = document.createTextNode(child.value);
+        const node3 = document.createTextNode(child.value);
         if (isNotForRichText && XfaText.shouldBuildText(name)) {
-          textDivs.push(node2);
+          textDivs.push(node3);
         }
-        childHtml.append(node2);
+        childHtml.append(node3);
       }
     }
     for (const el of rootDiv.querySelectorAll(".xfaNonInteractive input, .xfaNonInteractive textarea")) {
@@ -12487,29 +14605,29 @@ async function fetchData(url, type = "text") {
     return response.text();
   }
   return new Promise((resolve, reject) => {
-    const request = new XMLHttpRequest();
-    request.open("GET", url, true);
-    request.responseType = type === "bytes" ? "arraybuffer" : type;
-    request.onreadystatechange = () => {
-      if (request.readyState !== XMLHttpRequest.DONE) {
+    const request2 = new XMLHttpRequest();
+    request2.open("GET", url, true);
+    request2.responseType = type === "bytes" ? "arraybuffer" : type;
+    request2.onreadystatechange = () => {
+      if (request2.readyState !== XMLHttpRequest.DONE) {
         return;
       }
-      if (request.status === 200 || request.status === 0) {
+      if (request2.status === 200 || request2.status === 0) {
         switch (type) {
           case "bytes":
-            resolve(new Uint8Array(request.response));
+            resolve(new Uint8Array(request2.response));
             return;
           case "blob":
           case "json":
-            resolve(request.response);
+            resolve(request2.response);
             return;
         }
-        resolve(request.responseText);
+        resolve(request2.responseText);
         return;
       }
-      reject(new Error(request.statusText));
+      reject(new Error(request2.statusText));
     };
-    request.send(null);
+    request2.send(null);
   });
 }
 var RenderingCancelledException = class extends BaseException {
@@ -12633,8 +14751,8 @@ var StatTimer = class {
     this.#started.delete(name);
   }
   toString() {
-    const longest = Math.max(...this.times.map((t) => t.name.length));
-    return this.times.map((t) => `${t.name.padEnd(longest)} ${t.end - t.start}ms
+    const longest = Math.max(...this.times.map((t2) => t2.name.length));
+    return this.times.map((t2) => `${t2.name.padEnd(longest)} ${t2.end - t2.start}ms
 `).join("");
   }
 };
@@ -13114,18 +15232,18 @@ var EditorToolbar = class _EditorToolbar {
       editorType,
       _uiManager
     } = this.#editor;
-    const button = document.createElement("button");
-    button.classList.add("basic", "deleteButton");
-    button.tabIndex = 0;
-    button.setAttribute("data-l10n-id", _EditorToolbar.#l10nRemove[editorType]);
-    if (this.#addListenersToElement(button)) {
-      button.addEventListener("click", (e) => {
+    const button2 = document.createElement("button");
+    button2.classList.add("basic", "deleteButton");
+    button2.tabIndex = 0;
+    button2.setAttribute("data-l10n-id", _EditorToolbar.#l10nRemove[editorType]);
+    if (this.#addListenersToElement(button2)) {
+      button2.addEventListener("click", (e) => {
         _uiManager.delete();
       }, {
         signal: _uiManager._signal
       });
     }
-    this.#buttons.append(button);
+    this.#buttons.append(button2);
   }
   get #divider() {
     const divider = document.createElement("div");
@@ -13133,25 +15251,25 @@ var EditorToolbar = class _EditorToolbar {
     return divider;
   }
   async addAltText(altText) {
-    const button = await altText.render();
-    this.#addListenersToElement(button);
-    this.#buttons.append(button, this.#divider);
+    const button2 = await altText.render();
+    this.#addListenersToElement(button2);
+    this.#buttons.append(button2, this.#divider);
     this.#altText = altText;
   }
   addComment(comment, beforeElement = null) {
     if (this.#comment) {
       return;
     }
-    const button = comment.renderForToolbar();
-    if (!button) {
+    const button2 = comment.renderForToolbar();
+    if (!button2) {
       return;
     }
-    this.#addListenersToElement(button);
+    this.#addListenersToElement(button2);
     const divider = this.#commentButtonDivider = this.#divider;
     if (!beforeElement) {
-      this.#buttons.append(button, divider);
+      this.#buttons.append(button2, divider);
     } else {
-      this.#buttons.insertBefore(button, beforeElement);
+      this.#buttons.insertBefore(button2, beforeElement);
       this.#buttons.insertBefore(divider, beforeElement);
     }
     this.#comment = comment;
@@ -13162,14 +15280,14 @@ var EditorToolbar = class _EditorToolbar {
       return;
     }
     this.#colorPicker = colorPicker;
-    const button = colorPicker.renderButton();
-    this.#addListenersToElement(button);
-    this.#buttons.append(button, this.#divider);
+    const button2 = colorPicker.renderButton();
+    this.#addListenersToElement(button2);
+    this.#buttons.append(button2, this.#divider);
   }
   async addEditSignatureButton(signatureManager) {
-    const button = this.#signatureDescriptionButton = await signatureManager.renderEditButton(this.#editor);
-    this.#addListenersToElement(button);
-    this.#buttons.append(button, this.#divider);
+    const button2 = this.#signatureDescriptionButton = await signatureManager.renderEditButton(this.#editor);
+    this.#addListenersToElement(button2);
+    this.#buttons.append(button2, this.#divider);
   }
   removeButton(name) {
     switch (name) {
@@ -13299,24 +15417,24 @@ var FloatingToolbar = class {
     this.#toolbar.remove();
   }
   #makeButton(buttonClass, l10nId, labelL10nId, clickHandler) {
-    const button = document.createElement("button");
-    button.classList.add("basic", buttonClass);
-    button.tabIndex = 0;
-    button.setAttribute("data-l10n-id", l10nId);
+    const button2 = document.createElement("button");
+    button2.classList.add("basic", buttonClass);
+    button2.tabIndex = 0;
+    button2.setAttribute("data-l10n-id", l10nId);
     const span = document.createElement("span");
-    button.append(span);
+    button2.append(span);
     span.className = "visuallyHidden";
     span.setAttribute("data-l10n-id", labelL10nId);
     const signal = this.#uiManager._signal;
     if (signal instanceof AbortSignal && !signal.aborted) {
-      button.addEventListener("contextmenu", noContextMenu, {
+      button2.addEventListener("contextmenu", noContextMenu, {
         signal
       });
-      button.addEventListener("click", clickHandler, {
+      button2.addEventListener("click", clickHandler, {
         signal
       });
     }
-    this.#buttons.append(button);
+    this.#buttons.append(button2);
   }
 };
 var INTERNAL_EVT = "59968104-cc61-4cf9-b570-014b35b3709c";
@@ -15687,13 +17805,13 @@ var AltText = class _AltText {
     this.#badge = null;
   }
   async #setState() {
-    const button = this.#altTextButton;
-    if (!button) {
+    const button2 = this.#altTextButton;
+    if (!button2) {
       return;
     }
     if (this.#useNewAltTextFlow) {
-      button.classList.toggle("done", !!this.#altText);
-      button.setAttribute("data-l10n-id", _AltText.#l10nNewButton[this.#label]);
+      button2.classList.toggle("done", !!this.#altText);
+      button2.setAttribute("data-l10n-id", _AltText.#l10nNewButton[this.#label]);
       this.#altTextButtonLabel?.setAttribute("data-l10n-id", _AltText.#l10nNewButton[`${this.#label}-label`]);
       if (!this.#altText) {
         this.#altTextTooltip?.remove();
@@ -15701,12 +17819,12 @@ var AltText = class _AltText {
       }
     } else {
       if (!this.#altText && !this.#altTextDecorative) {
-        button.classList.remove("done");
+        button2.classList.remove("done");
         this.#altTextTooltip?.remove();
         return;
       }
-      button.classList.add("done");
-      button.setAttribute("data-l10n-id", "pdfjs-editor-alt-text-edit-button");
+      button2.classList.add("done");
+      button2.setAttribute("data-l10n-id", "pdfjs-editor-alt-text-edit-button");
     }
     let tooltip = this.#altTextTooltip;
     if (!tooltip) {
@@ -15722,7 +17840,7 @@ var AltText = class _AltText {
       }, {
         once: true
       });
-      button.addEventListener("mouseenter", () => {
+      button2.addEventListener("mouseenter", () => {
         this.#altTextTooltipTimeout = setTimeout(() => {
           this.#altTextTooltipTimeout = null;
           this.#altTextTooltip.classList.add("show");
@@ -15733,7 +17851,7 @@ var AltText = class _AltText {
       }, {
         signal
       });
-      button.addEventListener("mouseleave", () => {
+      button2.addEventListener("mouseleave", () => {
         if (this.#altTextTooltipTimeout) {
           clearTimeout(this.#altTextTooltipTimeout);
           this.#altTextTooltipTimeout = null;
@@ -15750,7 +17868,7 @@ var AltText = class _AltText {
       tooltip.textContent = this.#altText;
     }
     if (!tooltip.parentNode) {
-      button.append(tooltip);
+      button2.append(tooltip);
     }
     const element = this.#editor.getElementForAltText();
     element?.setAttribute("aria-describedby", tooltip.id);
@@ -15771,18 +17889,18 @@ var Comment = class {
     this.#editor = editor;
   }
   renderForToolbar() {
-    const button = this.#commentToolbarButton = document.createElement("button");
-    button.className = "comment";
-    return this.#render(button, false);
+    const button2 = this.#commentToolbarButton = document.createElement("button");
+    button2.className = "comment";
+    return this.#render(button2, false);
   }
   renderForStandalone() {
-    const button = this.#commentStandaloneButton = document.createElement("button");
-    button.className = "annotationCommentButton";
+    const button2 = this.#commentStandaloneButton = document.createElement("button");
+    button2.className = "annotationCommentButton";
     const position = this.#editor.commentButtonPosition;
     if (position) {
       const {
         style
-      } = button;
+      } = button2;
       style.insetInlineEnd = `calc(${100 * (this.#editor._uiManager.direction === "ltr" ? 1 - position[0] : position[0])}% - var(--comment-button-dim))`;
       style.top = `calc(${100 * position[1]}% - var(--comment-button-dim))`;
       const color = this.#editor.commentButtonColor;
@@ -15790,7 +17908,7 @@ var Comment = class {
         style.backgroundColor = color;
       }
     }
-    return this.#render(button, true);
+    return this.#render(button2, true);
   }
   focusButton() {
     setTimeout(() => {
@@ -19232,8 +21350,8 @@ var FontLoader = class {
         return;
       }
       await new Promise((resolve) => {
-        const request = this._queueLoadingCallback(resolve);
-        this._prepareFontLoadEvent(font, request);
+        const request2 = this._queueLoadingCallback(resolve);
+        this._prepareFontLoadEvent(font, request2);
       });
     }
   }
@@ -19246,8 +21364,8 @@ var FontLoader = class {
   }
   _queueLoadingCallback(callback) {
     function completeRequest() {
-      assert(!request.done, "completeRequest() cannot be called twice.");
-      request.done = true;
+      assert(!request2.done, "completeRequest() cannot be called twice.");
+      request2.done = true;
       while (loadingRequests.length > 0 && loadingRequests[0].done) {
         const otherRequest = loadingRequests.shift();
         setTimeout(otherRequest.callback, 0);
@@ -19256,19 +21374,19 @@ var FontLoader = class {
     const {
       loadingRequests
     } = this;
-    const request = {
+    const request2 = {
       done: false,
       complete: completeRequest,
       callback
     };
-    loadingRequests.push(request);
-    return request;
+    loadingRequests.push(request2);
+    return request2;
   }
   get _loadTestFont() {
     const testFont = atob("T1RUTwALAIAAAwAwQ0ZGIDHtZg4AAAOYAAAAgUZGVE1lkzZwAAAEHAAAABxHREVGABQAFQAABDgAAAAeT1MvMlYNYwkAAAEgAAAAYGNtYXABDQLUAAACNAAAAUJoZWFk/xVFDQAAALwAAAA2aGhlYQdkA+oAAAD0AAAAJGhtdHgD6AAAAAAEWAAAAAZtYXhwAAJQAAAAARgAAAAGbmFtZVjmdH4AAAGAAAAAsXBvc3T/hgAzAAADeAAAACAAAQAAAAEAALZRFsRfDzz1AAsD6AAAAADOBOTLAAAAAM4KHDwAAAAAA+gDIQAAAAgAAgAAAAAAAAABAAADIQAAAFoD6AAAAAAD6AABAAAAAAAAAAAAAAAAAAAAAQAAUAAAAgAAAAQD6AH0AAUAAAKKArwAAACMAooCvAAAAeAAMQECAAACAAYJAAAAAAAAAAAAAQAAAAAAAAAAAAAAAFBmRWQAwAAuAC4DIP84AFoDIQAAAAAAAQAAAAAAAAAAACAAIAABAAAADgCuAAEAAAAAAAAAAQAAAAEAAAAAAAEAAQAAAAEAAAAAAAIAAQAAAAEAAAAAAAMAAQAAAAEAAAAAAAQAAQAAAAEAAAAAAAUAAQAAAAEAAAAAAAYAAQAAAAMAAQQJAAAAAgABAAMAAQQJAAEAAgABAAMAAQQJAAIAAgABAAMAAQQJAAMAAgABAAMAAQQJAAQAAgABAAMAAQQJAAUAAgABAAMAAQQJAAYAAgABWABYAAAAAAAAAwAAAAMAAAAcAAEAAAAAADwAAwABAAAAHAAEACAAAAAEAAQAAQAAAC7//wAAAC7////TAAEAAAAAAAABBgAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMAAAAAAAD/gwAyAAAAAQAAAAAAAAAAAAAAAAAAAAABAAQEAAEBAQJYAAEBASH4DwD4GwHEAvgcA/gXBIwMAYuL+nz5tQXkD5j3CBLnEQACAQEBIVhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYAAABAQAADwACAQEEE/t3Dov6fAH6fAT+fPp8+nwHDosMCvm1Cvm1DAz6fBQAAAAAAAABAAAAAMmJbzEAAAAAzgTjFQAAAADOBOQpAAEAAAAAAAAADAAUAAQAAAABAAAAAgABAAAAAAAAAAAD6AAAAAAAAA==");
     return shadow(this, "_loadTestFont", testFont);
   }
-  _prepareFontLoadEvent(font, request) {
+  _prepareFontLoadEvent(font, request2) {
     function int32(data2, offset) {
       return data2.charCodeAt(offset) << 24 | data2.charCodeAt(offset + 1) << 16 | data2.charCodeAt(offset + 2) << 8 | data2.charCodeAt(offset + 3) & 255;
     }
@@ -19332,7 +21450,7 @@ var FontLoader = class {
     this._document.body.append(div);
     isFontReady(loadTestFontId, () => {
       div.remove();
-      request.complete();
+      request2.complete();
     });
   }
 };
@@ -21226,9 +23344,9 @@ var RadialAxialShadingPattern = class extends BaseShadingPattern {
       r1 *= scale[0];
     }
     const grad = ctx.createRadialGradient(firstPoint[0], firstPoint[1], r0, secondPoint[0], secondPoint[1], r1);
-    const reversedStops = this._colorStops.map(([t, c]) => [1 - t, c]).reverse();
-    for (const [t, c] of reversedStops) {
-      grad.addColorStop(t, c);
+    const reversedStops = this._colorStops.map(([t2, c]) => [1 - t2, c]).reverse();
+    for (const [t2, c] of reversedStops) {
+      grad.addColorStop(t2, c);
     }
     return grad;
   }
@@ -27736,8 +29854,8 @@ var WorkerTransport = class {
               if (!data.dataLen) {
                 return null;
               }
-              const copy = structuredClone(data);
-              this.commonObjs.resolve(id, copy);
+              const copy2 = structuredClone(data);
+              this.commonObjs.resolve(id, copy2);
               return data.dataLen;
             }
           }
@@ -28258,27 +30376,27 @@ var ColorPicker = class _ColorPicker {
     });
   }
   renderButton() {
-    const button = this.#button = document.createElement("button");
-    button.className = "colorPicker";
-    button.tabIndex = "0";
-    button.setAttribute("data-l10n-id", "pdfjs-editor-colorpicker-button");
-    button.ariaHasPopup = "true";
+    const button2 = this.#button = document.createElement("button");
+    button2.className = "colorPicker";
+    button2.tabIndex = "0";
+    button2.setAttribute("data-l10n-id", "pdfjs-editor-colorpicker-button");
+    button2.ariaHasPopup = "true";
     if (this.#editor) {
-      button.ariaControls = `${this.#editor.id}_colorpicker_dropdown`;
+      button2.ariaControls = `${this.#editor.id}_colorpicker_dropdown`;
     }
     const signal = this.#uiManager._signal;
-    button.addEventListener("click", this.#openDropdown.bind(this), {
+    button2.addEventListener("click", this.#openDropdown.bind(this), {
       signal
     });
-    button.addEventListener("keydown", this.#keyDown.bind(this), {
+    button2.addEventListener("keydown", this.#keyDown.bind(this), {
       signal
     });
     const swatch = this.#buttonSwatch = document.createElement("span");
     swatch.className = "swatch";
     swatch.ariaHidden = "true";
     swatch.style.backgroundColor = this.#defaultColor;
-    button.append(swatch);
-    return button;
+    button2.append(swatch);
+    return button2;
   }
   renderMainDropdown() {
     const dropdown = this.#dropdown = this.#getDropdownRoot();
@@ -28301,21 +30419,21 @@ var ColorPicker = class _ColorPicker {
       div.id = `${this.#editor.id}_colorpicker_dropdown`;
     }
     for (const [name, color] of this.#uiManager.highlightColors) {
-      const button = document.createElement("button");
-      button.tabIndex = "0";
-      button.role = "option";
-      button.setAttribute("data-color", color);
-      button.title = name;
-      button.setAttribute("data-l10n-id", _ColorPicker.#l10nColor[name]);
+      const button2 = document.createElement("button");
+      button2.tabIndex = "0";
+      button2.role = "option";
+      button2.setAttribute("data-color", color);
+      button2.title = name;
+      button2.setAttribute("data-l10n-id", _ColorPicker.#l10nColor[name]);
       const swatch = document.createElement("span");
-      button.append(swatch);
+      button2.append(swatch);
       swatch.className = "swatch";
       swatch.style.backgroundColor = color;
-      button.ariaSelected = color === this.#defaultColor;
-      button.addEventListener("click", this.#colorSelect.bind(this, color), {
+      button2.ariaSelected = color === this.#defaultColor;
+      button2.addEventListener("click", this.#colorSelect.bind(this, color), {
         signal
       });
-      div.append(button);
+      div.append(button2);
     }
     div.addEventListener("keydown", this.#keyDown.bind(this), {
       signal
@@ -30743,29 +32861,29 @@ var PopupElement = class {
       this.#commentManager.toggleCommentPopup(this, false, false);
     };
     if (!hasOwnButton) {
-      const button = this.#commentButton = document.createElement("button");
-      button.className = "annotationCommentButton";
+      const button2 = this.#commentButton = document.createElement("button");
+      button2.className = "annotationCommentButton";
       const parentContainer = this.#firstElement.container;
-      button.style.zIndex = parseInt(parentContainer.style.zIndex, 10) + 1;
-      button.tabIndex = 0;
-      button.ariaHasPopup = "dialog";
-      button.ariaControls = "commentPopup";
-      button.setAttribute("data-l10n-id", "pdfjs-show-comment-button");
+      button2.style.zIndex = parseInt(parentContainer.style.zIndex, 10) + 1;
+      button2.tabIndex = 0;
+      button2.ariaHasPopup = "dialog";
+      button2.ariaControls = "commentPopup";
+      button2.setAttribute("data-l10n-id", "pdfjs-show-comment-button");
       this.#updateColor();
       this.#updateCommentButtonPosition();
-      button.addEventListener("keydown", this.#boundKeyDown, {
+      button2.addEventListener("keydown", this.#boundKeyDown, {
         signal
       });
-      button.addEventListener("click", togglePopup, {
+      button2.addEventListener("click", togglePopup, {
         signal
       });
-      button.addEventListener("pointerenter", showPopup, {
+      button2.addEventListener("pointerenter", showPopup, {
         signal
       });
-      button.addEventListener("pointerleave", hidePopup, {
+      button2.addEventListener("pointerleave", hidePopup, {
         signal
       });
-      parentContainer.after(button);
+      parentContainer.after(button2);
     } else {
       this.#commentButton = this.#firstElement.container;
       for (const element of this.trigger) {
@@ -31744,32 +33862,32 @@ var MediaAnnotationElement = class extends AnnotationElement {
     const {
       filename
     } = this.data.richMedia;
-    const button = document.createElement("button");
-    button.className = "mediaPlayButton";
-    button.type = "button";
-    button.title = button.ariaLabel = filename;
-    button.addEventListener("click", () => this.#load(button), {
+    const button2 = document.createElement("button");
+    button2.className = "mediaPlayButton";
+    button2.type = "button";
+    button2.title = button2.ariaLabel = filename;
+    button2.addEventListener("click", () => this.#load(button2), {
       signal: this.#abortController.signal
     });
-    this.container.append(button);
+    this.container.append(button2);
     return this.container;
   }
-  async #load(button) {
+  async #load(button2) {
     const {
       fileId,
       filename,
       contentType
     } = this.data.richMedia;
-    button.disabled = true;
+    button2.disabled = true;
     let content;
     try {
       content = await this.linkService.getAttachmentContent(fileId);
     } catch {
       return;
     } finally {
-      button.disabled = false;
+      button2.disabled = false;
     }
-    if (!content || !button.isConnected) {
+    if (!content || !button2.isConnected) {
       return;
     }
     const {
@@ -31824,7 +33942,7 @@ var MediaAnnotationElement = class extends AnnotationElement {
       once: true,
       signal
     });
-    button.replaceWith(media);
+    button2.replaceWith(media);
     media.play().catch(() => {
     });
   }
@@ -32630,8 +34748,8 @@ var FreeTextEditor = class _FreeTextEditor extends AnnotationEditor {
     }
     return this.div;
   }
-  static #getNodeContent(node2) {
-    return (node2.nodeType === Node.TEXT_NODE ? node2.nodeValue : node2.innerText).replaceAll(EOL_PATTERN, "");
+  static #getNodeContent(node3) {
+    return (node3.nodeType === Node.TEXT_NODE ? node3.nodeValue : node3.innerText).replaceAll(EOL_PATTERN, "");
   }
   editorDivPaste(event) {
     const clipboardData = event.clipboardData || window.clipboardData;
@@ -38402,14 +40520,14 @@ function compareTextLayers(a, b) {
   }
   return a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1;
 }
-function getTextLayer(node2) {
-  if (!node2) {
+function getTextLayer(node3) {
+  if (!node3) {
     return null;
   }
-  if (node2.nodeType === Node.ELEMENT_NODE) {
-    return node2.closest(".textLayer");
+  if (node3.nodeType === Node.ELEMENT_NODE) {
+    return node3.closest(".textLayer");
   }
-  return node2.parentElement?.closest(".textLayer") || null;
+  return node3.parentElement?.closest(".textLayer") || null;
 }
 function isPointBefore(nodeA, offsetA, nodeB, offsetB) {
   if (nodeA === nodeB) {
@@ -38491,8 +40609,8 @@ var DrawLayer = class _DrawLayer {
         for (const {
           addedNodes
         } of records) {
-          for (const node2 of addedNodes) {
-            if (node2.nodeType === Node.ELEMENT_NODE && node2.classList.contains("endOfContent")) {
+          for (const node3 of addedNodes) {
+            if (node3.nodeType === Node.ELEMENT_NODE && node3.classList.contains("endOfContent")) {
               _DrawLayer.#selectionChange();
               return;
             }
@@ -39210,13 +41328,18 @@ function decodeQrPixelsInRegions(pixels, width, height, regions = qrScanRegions(
 // src/schedule.js
 var DAYS = { sunday: 0, sun: 0, monday: 1, mon: 1, tuesday: 2, tue: 2, wednesday: 3, wed: 3, thursday: 4, thu: 4, friday: 5, fri: 5, saturday: 6, sat: 6 };
 var pad = (n) => String(n).padStart(2, "0");
+var iso = (d) => `${d.getUTCFullYear()}-${pad(d.getUTCMonth() + 1)}-${pad(d.getUTCDate())}`;
 function normalizeDate(value) {
   const text = String(value || "").trim();
   let m = text.match(/^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})$/);
-  if (m) return `${m[1]}-${pad(m[2])}-${pad(m[3])}`;
+  if (m) return calendarDate(`${m[1]}-${pad(m[2])}-${pad(m[3])}`);
   m = text.match(/^(\d{1,2})[-/.](\d{1,2})[-/.](\d{4})$/);
-  if (m) return `${m[3]}-${pad(m[2])}-${pad(m[1])}`;
+  if (m) return calendarDate(`${m[3]}-${pad(m[2])}-${pad(m[1])}`);
   return null;
+}
+function calendarDate(value) {
+  const d = /* @__PURE__ */ new Date(`${value}T00:00:00Z`);
+  return Number.isFinite(d.getTime()) && iso(d) === value ? value : null;
 }
 function parseScheduleText(text) {
   const rows = [];
@@ -39237,34 +41360,46 @@ function parseScheduleText(text) {
   return rows;
 }
 function parseScheduleTokens(tokens) {
-  const ordered = [...tokens].filter((t) => t.text?.trim()).sort((a, b) => a.y - b.y || a.x - b.x);
+  const ordered = [...tokens].filter((t2) => t2.text?.trim()).sort((a, b) => a.y - b.y || a.x - b.x);
   const lines = [];
   for (const token of ordered) {
     const line = lines.find((row) => Math.abs(row.y - token.y) <= Math.max(6, (token.height || 12) / 2));
     if (line) line.items.push(token);
     else lines.push({ y: token.y, items: [token] });
   }
-  const dayOf = (t) => DAYS[normalizeToken(t.text)];
-  const header = lines.find((row) => row.items.filter((t) => dayOf(t) !== void 0).length >= 2);
+  const dayOf = (t2) => DAYS[normalizeToken(t2.text)];
+  const header = lines.find((row) => row.items.filter((t2) => dayOf(t2) !== void 0).length >= 2);
   if (!header) return [];
-  const columns = header.items.filter((t) => dayOf(t) !== void 0).sort((a, b) => a.x - b.x);
+  const columns = header.items.filter((t2) => dayOf(t2) !== void 0).sort((a, b) => a.x - b.x);
   const rows = [];
   for (const line of lines.filter((row) => row.y > header.y)) {
-    const timeItems = line.items.filter((t) => t.x < columns[0].x).sort((a, b) => a.x - b.x);
-    const timeText = timeItems.map((t) => t.text).join(" ");
+    const timeItems = line.items.filter((t2) => t2.x < columns[0].x).sort((a, b) => a.x - b.x);
+    const timeText = timeItems.map((t2) => t2.text).join(" ");
     const range = timeText.match(/(\d{1,2})[:.](\d{2})\s*[-–—]\s*(\d{1,2})[:.](\d{2})/);
     if (!range) continue;
     const start = `${pad(range[1])}:${range[2]}`, end = `${pad(range[3])}:${range[4]}`;
     for (let i = 0; i < columns.length; i++) {
-      const left = i === 0 ? Math.max(...timeItems.map((t) => t.x + t.width)) : (columns[i - 1].x + columns[i].x) / 2;
+      const left = i === 0 ? Math.max(...timeItems.map((t2) => t2.x + t2.width)) : (columns[i - 1].x + columns[i].x) / 2;
       const right = i === columns.length - 1 ? Infinity : (columns[i].x + columns[i + 1].x) / 2;
-      const course = line.items.filter((t) => !timeItems.includes(t) && t.x >= left && t.x < right).sort((a, b) => a.x - b.x).map((t) => t.text.trim()).join(" ").trim();
+      const course = line.items.filter((t2) => !timeItems.includes(t2) && t2.x >= left && t2.x < right).sort((a, b) => a.x - b.x).map((t2) => t2.text.trim()).join(" ").trim();
       if (course && end > start) rows.push({ kind: "weekly", weekday: dayOf(columns[i]), time: start, endTime: end, course });
     }
   }
   return rows;
 }
 var normalizeToken = (s) => String(s).trim().toLowerCase();
+function occurrencesBetween(sessions, startDate, endDate) {
+  const result = [];
+  for (let d = /* @__PURE__ */ new Date(`${startDate}T00:00:00Z`); d <= /* @__PURE__ */ new Date(`${endDate}T00:00:00Z`); d.setUTCDate(d.getUTCDate() + 1)) {
+    const date = iso(d);
+    for (const s of sessions) {
+      if (s.enabled === false) continue;
+      if (s.kind === "dated" ? s.date !== date : s.weekday !== d.getUTCDay() || date < s.startDate || date > s.endDate || (s.exceptions || []).includes(date)) continue;
+      result.push({ ...s, date, key: `${encodeURIComponent(s.course.trim().toLowerCase())}:${date}:${s.time}` });
+    }
+  }
+  return result.sort((a, b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time) || a.id.localeCompare(b.id));
+}
 function toWeeklySession(session) {
   const { date, startDate, endDate, ...weekly } = session;
   const weekday = session.kind === "dated" ? (/* @__PURE__ */ new Date(`${normalizeDate(date)}T00:00:00Z`)).getUTCDay() : Number(session.weekday);
@@ -39284,38 +41419,74 @@ function todayMalaysia(now = /* @__PURE__ */ new Date()) {
   const parts = Object.fromEntries(new Intl.DateTimeFormat("en-GB", { timeZone: "Asia/Kuala_Lumpur", year: "numeric", month: "2-digit", day: "2-digit" }).formatToParts(now).map((p) => [p.type, p.value]));
   return `${parts.year}-${parts.month}-${parts.day}`;
 }
+function occurrenceTimestamp(occurrence) {
+  return Date.parse(`${occurrence.date}T${occurrence.time}:00+08:00`);
+}
+function triggerTimestamp(occurrence) {
+  const end = String(occurrence.endTime || occurrence.time || "");
+  const match = end.match(/^(\d{1,2}):(\d{2})$/);
+  if (!match) return occurrenceTimestamp(occurrence) - 5 * 60 * 1e3;
+  const hour = Number(match[1]), minute = Number(match[2]);
+  if (hour > 23 || minute > 59) return occurrenceTimestamp(occurrence) - 5 * 60 * 1e3;
+  return Date.parse(`${occurrence.date}T${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}:00+08:00`) - 5 * 60 * 1e3;
+}
 
 // src/recognition.js
 var DAY_LABELS = { mo: 1, tu: 2, we: 3, th: 4, fr: 5, sa: 6, su: 0 };
 var rangePattern = /(\d{1,2}):([0-5]\d)\s*[-–—]\s*(\d{1,2}):([0-5]\d)/;
 var clockPattern = /^\d{1,2}:[0-5]\d$/;
-var centerX = (t) => t.x + t.width / 2;
-var centerY = (t) => t.y + t.height / 2;
+var centerX = (t2) => t2.x + t2.width / 2;
+var centerY = (t2) => t2.y + t2.height / 2;
 var pad2 = (n) => String(n).padStart(2, "0");
 var clock = (hour, minute) => `${pad2(hour)}:${minute}`;
 function weekDates(text) {
-  const match = String(text).match(/(\d{1,2})[/.](\d{1,2})\s*[-–—]\s*(\d{1,2})[/.](\d{1,2})[/.](\d{2,4})/);
-  if (!match) return null;
-  const year = +match[5] < 100 ? 2e3 + +match[5] : +match[5];
-  const startYear = +match[2] > +match[4] ? year - 1 : year;
-  const start = new Date(Date.UTC(startYear, +match[2] - 1, +match[1]));
-  const end = new Date(Date.UTC(year, +match[4] - 1, +match[3]));
-  if (start.getUTCDate() !== +match[1] || end.getUTCDate() !== +match[3] || end - start < 0 || end - start > 7 * 864e5) return null;
+  const normalized = String(text).replace(/[／]/g, "/").replace(/[．。]/g, ".").replace(/[－–—]/g, "-");
+  const full = /((\d{1,2})[/.](\d{1,2})\s*-\s*(\d{1,2})[/.](\d{1,2})[/.](\d{2,4}))/;
+  const compact = /((\d{1,2})\s*-\s*(\d{1,2})[/.](\d{1,2})[/.](\d{2,4}))/;
+  const bothFull = /((\d{1,2})[/.](\d{1,2})[/.](\d{2,4})\s*-\s*(\d{1,2})[/.](\d{1,2})[/.](\d{2,4}))/;
+  let match, startDay, startMonth, startYear, endDay, endMonth, endYear;
+  if (match = normalized.match(bothFull)) {
+    startDay = +match[2];
+    startMonth = +match[3];
+    startYear = toFullYear(+match[4]);
+    endDay = +match[5];
+    endMonth = +match[6];
+    endYear = toFullYear(+match[7]);
+  } else if (match = normalized.match(full)) {
+    startDay = +match[2];
+    startMonth = +match[3];
+    endDay = +match[4];
+    endMonth = +match[5];
+    endYear = toFullYear(+match[6]);
+    startYear = endYear - (startMonth > endMonth ? 1 : 0);
+  } else if (match = normalized.match(compact)) {
+    startDay = +match[2];
+    endDay = +match[3];
+    endMonth = +match[4];
+    endYear = toFullYear(+match[5]);
+    startMonth = endMonth - (startDay > endDay ? 1 : 0);
+    startYear = endYear - (startMonth < 1 ? 1 : 0);
+    if (startMonth < 1) startMonth = 12;
+  } else return null;
+  const start = new Date(Date.UTC(startYear, startMonth - 1, startDay));
+  const end = new Date(Date.UTC(endYear, endMonth - 1, endDay));
+  if (start.getUTCDate() !== startDay || start.getUTCMonth() !== startMonth - 1 || end.getUTCDate() !== endDay || end.getUTCMonth() !== endMonth - 1 || end - start < 0 || end - start > 7 * 864e5) return null;
   const dates = /* @__PURE__ */ new Map();
   for (let day = new Date(start); day <= end; day.setUTCDate(day.getUTCDate() + 1)) {
     dates.set(day.getUTCDay(), `${day.getUTCFullYear()}-${pad2(day.getUTCMonth() + 1)}-${pad2(day.getUTCDate())}`);
   }
   return dates;
 }
+var toFullYear = (year) => year < 100 ? 2e3 + year : year;
 function hourColumns(tokens, firstCourseY) {
-  const headerRow = tokens.filter((t) => t.y < firstCourseY);
-  const header = headerRow.filter((t) => /\d{1,2}:[0-5]\d/.test(t.text));
-  const complete = header.flatMap((t) => {
-    const match = t.text.match(rangePattern);
-    return match ? [{ x: centerX(t), y: centerY(t), time: clock(match[1], match[2]), endTime: clock(match[3], match[4]) }] : [];
+  const headerRow = tokens.filter((t2) => t2.y < firstCourseY);
+  const header = headerRow.filter((t2) => /\d{1,2}:[0-5]\d/.test(t2.text));
+  const complete = header.flatMap((t2) => {
+    const match = t2.text.match(rangePattern);
+    return match ? [{ x: centerX(t2), y: centerY(t2), time: clock(match[1], match[2]), endTime: clock(match[3], match[4]) }] : [];
   });
   if (complete.length >= 2) return complete.sort((a, b) => a.x - b.x);
-  const pieces = header.filter((t) => clockPattern.test(t.text.trim())).sort((a, b) => a.y - b.y || a.x - b.x);
+  const pieces = header.filter((t2) => clockPattern.test(t2.text.trim())).sort((a, b) => a.y - b.y || a.x - b.x);
   const columns = [];
   for (const start of pieces) {
     const next = pieces.find((end) => end.x > start.x + start.width && Math.abs(centerY(end) - centerY(start)) < Math.max(start.height, end.height) && !pieces.some((middle) => middle.x > start.x + start.width && middle.x < end.x) && headerRow.some((dash) => /^[-–—]$/.test(dash.text.trim()) && dash.x > start.x + start.width && dash.x < end.x && Math.abs(centerY(dash) - centerY(start)) < start.height));
@@ -39327,13 +41498,13 @@ function nearestColumn(columns, x) {
   return columns.reduce((best, column, index) => Math.abs(column.x - x) < Math.abs(columns[best].x - x) ? index : best, 0);
 }
 function parseASCTimetable(tokens, text) {
-  const courses = tokens.filter((t) => /\b[A-Z]{2,}\d{3,}(?:-[A-Z]{2,})?\b/i.test(t.text));
-  const days = tokens.filter((t) => DAY_LABELS[t.text.trim().toLowerCase()] !== void 0).sort((a, b) => centerY(a) - centerY(b));
+  const courses = tokens.filter((t2) => /\b[A-Z]{2,}\d{3,}(?:-[A-Z]{2,})?\b/i.test(t2.text));
+  const days = tokens.filter((t2) => DAY_LABELS[t2.text.trim().toLowerCase()] !== void 0).sort((a, b) => centerY(a) - centerY(b));
   if (!courses.length || days.length < 2) return [];
-  const columns = hourColumns(tokens, Math.min(...courses.map((t) => t.y)));
+  const columns = hourColumns(tokens, Math.min(...courses.map((t2) => t2.y)));
   if (columns.length < 2) return [];
   const dates = weekDates(`${text}
-${tokens.map((t) => t.text).join(" ")}`), rows = [];
+${tokens.map((t2) => t2.text).join(" ")}`), rows = [];
   for (const course of courses) {
     const dayIndex = days.findIndex((day, index) => centerY(course) < (centerY(day) + centerY(days[index + 1] || day)) / 2);
     const selectedDay = dayIndex < 0 ? days.at(-1) : days[dayIndex];
@@ -39342,10 +41513,10 @@ ${tokens.map((t) => t.text).join(" ")}`), rows = [];
     const first = nearestColumn(columns, course.x), last = nearestColumn(columns, course.x + course.width);
     const start = columns[Math.min(first, last)], end = columns[Math.max(first, last)];
     if (end.endTime <= start.time) continue;
-    const suffix = tokens.find((t) => /^[-–](LEC|LAB|TUT)$/i.test(t.text.trim()) && Math.abs(centerX(t) - centerX(course)) < Math.max(course.width / 3, course.height) && t.y >= course.y && t.y - course.y < course.height * 2.5);
-    const group = tokens.find((t) => /^Group(?:\s*[12])?$/i.test(t.text.trim()) && t.y < course.y && course.y - t.y < course.height * 2.5 && centerX(t) >= course.x && centerX(t) <= course.x + course.width + course.height * 2);
+    const suffix = tokens.find((t2) => /^[-–](LEC|LAB|TUT)$/i.test(t2.text.trim()) && Math.abs(centerX(t2) - centerX(course)) < Math.max(course.width / 3, course.height) && t2.y >= course.y && t2.y - course.y < course.height * 2.5);
+    const group = tokens.find((t2) => /^Group(?:\s*[12])?$/i.test(t2.text.trim()) && t2.y < course.y && course.y - t2.y < course.height * 2.5 && centerX(t2) >= course.x && centerX(t2) <= course.x + course.width + course.height * 2);
     let groupNumber = group?.text.match(/[12]/)?.[0];
-    if (group && !groupNumber) groupNumber = tokens.find((t) => /^[12]$/.test(t.text.trim()) && t.x >= group.x + group.width && t.x - group.x - group.width < course.height * 2 && Math.abs(centerY(t) - centerY(group)) < course.height)?.text.trim();
+    if (group && !groupNumber) groupNumber = tokens.find((t2) => /^[12]$/.test(t2.text.trim()) && t2.x >= group.x + group.width && t2.x - group.x - group.width < course.height * 2 && Math.abs(centerY(t2) - centerY(group)) < course.height)?.text.trim();
     const label = `${course.text.trim()}${suffix && !/-[A-Z]+$/i.test(course.text) ? suffix.text.trim() : ""}${groupNumber ? ` Group ${groupNumber}` : ""}`;
     const date = dates?.get(weekday);
     if (dates && !date) continue;
@@ -39355,6 +41526,894 @@ ${tokens.map((t) => t.text).join(" ")}`), rows = [];
 }
 function rowsFromPage({ text = "", tokens = [] }) {
   return mergeSessions(parseASCTimetable(tokens, text), mergeSessions(parseScheduleTokens(tokens), parseScheduleText(text)));
+}
+
+// src/timetable-grid.js
+var DAY_NAMES = ["Mo", "Tu", "We", "Th", "Fr"];
+function darkAt(image, x, y, radius = 2) {
+  for (let dy = -radius; dy <= radius; dy++) for (let dx = -radius; dx <= radius; dx++) {
+    const px = x + dx, py = y + dy;
+    if (px >= 0 && py >= 0 && px < image.width && py < image.height && image.mask[py * image.width + px]) return true;
+  }
+  return false;
+}
+function adaptiveMask(image) {
+  const { width, height, data } = image, size = width * height, gray = new Uint8Array(size), integral = new Uint32Array((width + 1) * (height + 1)), stride = width + 1;
+  for (let i = 0; i < size; i++) {
+    const at = i * 4;
+    gray[i] = Math.round(0.299 * data[at] + 0.587 * data[at + 1] + 0.114 * data[at + 2]);
+  }
+  for (let y = 1; y <= height; y++) {
+    let row = 0;
+    for (let x = 1; x <= width; x++) {
+      row += gray[(y - 1) * width + x - 1];
+      integral[y * stride + x] = integral[(y - 1) * stride + x] + row;
+    }
+  }
+  const radius = Math.max(3, Math.round(Math.min(width, height) * 6e-3)), mask = new Uint8Array(size);
+  for (let y = 0; y < height; y++) for (let x = 0; x < width; x++) {
+    const x0 = Math.max(0, x - radius), x1 = Math.min(width, x + radius + 1), y0 = Math.max(0, y - radius), y1 = Math.min(height, y + radius + 1);
+    const sum = integral[y1 * stride + x1] - integral[y0 * stride + x1] - integral[y1 * stride + x0] + integral[y0 * stride + x0], mean = sum / ((x1 - x0) * (y1 - y0)), value = gray[y * width + x];
+    if (value < 150 || value < mean - 18) mask[y * width + x] = 1;
+  }
+  return { width, height, data, mask };
+}
+function lineRuns(image, axis, { start = 0, end = axis === "horizontal" ? image.height : image.width, from = 0, to = axis === "horizontal" ? image.width : image.height, threshold = 0.72, minLength = 5 } = {}) {
+  const coordinateLength = axis === "horizontal" ? image.width : image.height;
+  const runs = [];
+  let active = null;
+  for (let c = start; c < end; c++) {
+    let hits = 0;
+    for (let p = from; p < to; p++) if (axis === "horizontal" ? darkAt(image, p, c, Math.max(2, Math.round(Math.min(image.width, image.height) * 8e-3))) : darkAt(image, c, p)) hits++;
+    const ratio = hits / Math.max(1, to - from);
+    if (ratio >= threshold) {
+      if (active === null) active = c;
+    } else if (active !== null) {
+      if (c - active >= minLength) runs.push({ start: active, end: c - 1, center: (active + c - 1) / 2 });
+      active = null;
+    }
+  }
+  if (active !== null && end - active >= minLength) runs.push({ start: active, end: end - 1, center: (active + end - 1) / 2 });
+  return runs;
+}
+var centerOf = (run) => run.center;
+function fail(reason) {
+  return { ok: false, code: "GRID_DETECTION_FAILED", reason };
+}
+function detectTimetableGrid(imageData, { expectedPeriods = 11, expectedWeekdays = 5 } = {}) {
+  if (!imageData?.data || !Number.isInteger(imageData.width) || !Number.isInteger(imageData.height) || imageData.data.length < imageData.width * imageData.height * 4) return fail("invalid pixel image");
+  imageData = adaptiveMask(imageData);
+  const fullHorizontal = lineRuns(imageData, "horizontal", { threshold: 0.52, minLength: 3 });
+  if (fullHorizontal.length < expectedWeekdays + 2) return fail(`could not detect weekday rows (${fullHorizontal.length} long horizontal lines)`);
+  let selected = null;
+  for (let top = 0; top < fullHorizontal.length; top++) for (let bottom = top + expectedWeekdays + 1; bottom < fullHorizontal.length; bottom++) {
+    const subset = fullHorizontal.slice(top, bottom + 1);
+    if (subset.length !== expectedWeekdays + 2) continue;
+    const rowPitch = subset.slice(2).map((line, i) => centerOf(line) - centerOf(subset[i + 1]));
+    const median = [...rowPitch].sort((a, b) => a - b)[Math.floor(rowPitch.length / 2)];
+    if (median <= 0 || rowPitch.some((value) => value < median * 0.62 || value > median * 1.38)) continue;
+    const margin = subset[0].end - subset[0].start + 1;
+    if (!selected || margin > selected.margin) selected = { subset, margin };
+  }
+  if (!selected) return fail(`could not detect exactly five weekday rows (${fullHorizontal.length} long horizontal lines)`);
+  const horizontal = selected.subset;
+  const tableTop = centerOf(horizontal[0]), headerBottom = centerOf(horizontal[1]), tableBottom = centerOf(horizontal.at(-1));
+  const verticalHeader = lineRuns(imageData, "vertical", { start: 0, end: imageData.width, from: Math.round(tableTop), to: Math.round(headerBottom), threshold: 0.48, minLength: 3 });
+  let xCenters = verticalHeader.map(centerOf).filter((x, i, array) => !i || x - array[i - 1] > 2);
+  if (xCenters.length > expectedPeriods + 2) {
+    const left = xCenters[0], right = xCenters.at(-1), pitch = (right - left) * 0.9 / expectedPeriods, dayWidth = right - left - pitch * expectedPeriods;
+    const snapped = Array.from({ length: expectedPeriods + 2 }, (_, index) => left + (index === 0 ? 0 : index === 1 ? dayWidth : dayWidth + (index - 1) * pitch));
+    const selected2 = snapped.map((target) => xCenters.reduce((best, value) => Math.abs(value - target) < Math.abs(best - target) ? value : best, xCenters[0]));
+    if (selected2.every((value, index) => Math.abs(value - snapped[index]) <= pitch * 0.22) && new Set(selected2).size === selected2.length) xCenters = selected2;
+  }
+  if (xCenters.length > expectedPeriods + 2) {
+    const candidates = [];
+    for (let start = 0; start <= xCenters.length - (expectedPeriods + 2); start++) {
+      const values = xCenters.slice(start, start + expectedPeriods + 2), gaps = values.slice(1).map((value, index) => value - values[index]);
+      const periods = gaps.slice(1), median = [...periods].sort((a, b) => a - b)[Math.floor(periods.length / 2)];
+      if (median <= 0 || gaps[0] < median * 0.65 || gaps[0] > median * 1.5 || periods.some((value) => value < median * 0.65 || value > median * 1.35)) continue;
+      const score = periods.reduce((sum, value) => sum + Math.abs(value - median), 0) / median + Math.abs(gaps[0] / median - 1.1) * 0.15;
+      candidates.push({ values, score });
+    }
+    candidates.sort((a, b) => a.score - b.score);
+    if (candidates.length) xCenters = candidates[0].values;
+  }
+  if (xCenters.length !== expectedPeriods + 2) return fail(`could not detect exactly ${expectedPeriods} period columns (found ${Math.max(0, xCenters.length - 1)})`);
+  const tableLeft = xCenters[0], tableRight = xCenters.at(-1);
+  const dayBoundary = xCenters[1];
+  const periodBounds = xCenters.slice(1);
+  const periodColumns = Array.from({ length: expectedPeriods }, (_, index) => ({ period: index + 1, start: periodBounds[index], end: periodBounds[index + 1], center: (periodBounds[index] + periodBounds[index + 1]) / 2 }));
+  const dayRows = Array.from({ length: expectedWeekdays }, (_, index) => ({ day: DAY_NAMES[index], top: centerOf(horizontal[index + 1]), bottom: centerOf(horizontal[index + 2]), center: (centerOf(horizontal[index + 1]) + centerOf(horizontal[index + 2])) / 2 }));
+  const cells = [];
+  for (const row of dayRows) {
+    const rowVertical = lineRuns(imageData, "vertical", { start: Math.round(dayBoundary), end: Math.round(tableRight), from: Math.round(row.top), to: Math.round(row.bottom), threshold: 0.34, minLength: 3 });
+    const present = rowVertical.map(centerOf).filter((x, i, array) => !i || x - array[i - 1] > 2);
+    const boundaries = [dayBoundary, ...periodBounds.slice(1, -1), tableRight];
+    const cellStarts = periodColumns.map((column) => column.start);
+    let col = 0;
+    while (col < expectedPeriods) {
+      const first = col;
+      let last = col;
+      while (last < expectedPeriods - 1 && !present.some((x) => Math.abs(x - periodColumns[last].end) < Math.max(2, imageData.width * 3e-3))) last++;
+      const left = periodColumns[first].start, right = periodColumns[last].end;
+      const splits = lineRuns(imageData, "horizontal", { start: Math.ceil(row.top + 2), end: Math.floor(row.bottom - 1), from: Math.ceil(left + 2), to: Math.floor(right - 1), threshold: 0.48, minLength: 3 });
+      const groupSegments = [];
+      let segmentTop = row.top;
+      for (const split of splits) {
+        if (split.center - segmentTop > 3) groupSegments.push({ top: segmentTop, bottom: split.center });
+        segmentTop = split.center;
+      }
+      if (row.bottom - segmentTop > 3) groupSegments.push({ top: segmentTop, bottom: row.bottom });
+      cells.push({ day: row.day, periodStart: first + 1, periodEnd: last + 1, left, right, top: row.top, bottom: row.bottom, groupSegments });
+      col = last + 1;
+    }
+  }
+  return { ok: true, table: { left: tableLeft, right: tableRight, top: tableTop, headerBottom, bottom: tableBottom, dayBoundary }, dayRows, periodColumns, cells, lines: { horizontal, verticalHeader } };
+}
+
+// src/timetable-fields.js
+var pad3 = (value) => String(value).padStart(2, "0");
+var minuteClock = (minutes) => `${pad3(Math.floor(minutes / 60) % 24)}:${pad3(minutes % 60)}`;
+var editDistance = (left, right) => {
+  const row = Array.from({ length: right.length + 1 }, (_, i) => i);
+  for (let i = 1; i <= left.length; i++) {
+    let diagonal = row[0];
+    row[0] = i;
+    for (let j = 1; j <= right.length; j++) {
+      const old = row[j];
+      row[j] = Math.min(row[j] + 1, row[j - 1] + 1, diagonal + (left[i - 1] === right[j - 1] ? 0 : 1));
+      diagonal = old;
+    }
+  }
+  return row[right.length];
+};
+function periodTime(periodStart, periodEnd = periodStart, { startHour = 8, minutesPerPeriod = 60, header = null } = {}) {
+  if (!Number.isInteger(periodStart) || !Number.isInteger(periodEnd) || periodStart < 1 || periodEnd < periodStart || !Number.isFinite(startHour) || !Number.isFinite(minutesPerPeriod) || minutesPerPeriod <= 0) throw new TypeError("invalid period mapping");
+  const startMinutes = startHour * 60 + periodStart * minutesPerPeriod, endMinutes = startHour * 60 + (periodEnd + 1) * minutesPerPeriod;
+  const start = minuteClock(startMinutes), end = minuteClock(endMinutes);
+  const conflict = header && (header.start && header.start !== start || header.end && header.end !== end);
+  return { start, end, needsReview: Boolean(conflict) };
+}
+function normalizedLines(text) {
+  return String(text || "").replace(/[｜¦]/g, " ").replace(/[‐‑‒–—]/g, "-").split(/\r?\n/).map((line) => line.replace(/\s+/g, " ").trim()).filter(Boolean);
+}
+function parseCellText(text, context = {}) {
+  const lines = normalizedLines(text), raw = lines.join("\n"), corrections = [];
+  const courseMatch = raw.match(/\b([A-Z]{3,}\d{4})\b/i);
+  const codeRaw = courseMatch?.[1] || "";
+  const code = codeRaw.toUpperCase();
+  const typeCandidates = lines.flatMap((line) => [...line.matchAll(/-?\s*([A-Z0-9]{3})\b/gi)]).map((match) => match[1].toUpperCase());
+  let typeRaw = typeCandidates.find((value) => ["LEC", "LAB", "TUT"].includes(value) || ["LEC", "LAB", "TUT"].some((known) => editDistance(value, known) === 1)) || "";
+  let type = typeRaw;
+  if (typeRaw && !["LEC", "LAB", "TUT"].includes(typeRaw)) {
+    type = ["LEC", "LAB", "TUT"].find((known) => editDistance(typeRaw, known) === 1) || "";
+    if (type) corrections.push({ field: "type", raw: typeRaw, corrected: type });
+  }
+  if (typeRaw && type && typeRaw !== type && !corrections.some((item) => item.field === "type")) corrections.push({ field: "type", raw: typeRaw, corrected: type });
+  const roomCandidate = raw.match(/\b(?:3[RRO]0[0-9OG]{2}|R\d{3})\b/i)?.[0] || "";
+  let room = roomCandidate.toUpperCase();
+  if (/^3/i.test(room)) {
+    const corrected = room.replace(/^3[RRO]0/i, "3R0").replace(/[OG]/g, "0");
+    if (corrected !== room) {
+      corrections.push({ field: "room", raw: room, corrected });
+      room = corrected;
+    }
+  }
+  const groupMatch = raw.match(/\bGroup\s*([12])\b/i), group = groupMatch?.[1] || "";
+  const metadataPattern = /^(?:[A-Z]{3,}\d{4}|-?\s*[A-Z0-9]{3}|(?:3[RRO]0[0-9OG]{2}|R\d{3})|Group\s*[12])$/i;
+  const lecturer = lines.find((line) => {
+    const clean = line.replace(/[|¦]/g, " ").trim();
+    return !metadataPattern.test(clean) && !/^[\s.-]+$/.test(clean);
+  }) || "";
+  const fields = {
+    code: { raw: codeRaw, value: code, confidence: code?.match(/^[A-Z]{3,}\d{4}$/) ? codeRaw === code ? 0.94 : 0.8 : 0 },
+    type: { raw: typeRaw, value: type, confidence: type ? ["LEC", "LAB", "TUT"].includes(typeRaw) ? 0.92 : 0.68 : 0 },
+    group: { raw: groupMatch?.[0] || "", value: group, confidence: group ? 0.9 : 0.75 },
+    room: { raw: roomCandidate, value: room, confidence: room ? roomCandidate.toUpperCase() === room ? 0.9 : 0.68 : 0 },
+    lecturer: { raw: lecturer, value: lecturer, confidence: lecturer ? 0.76 : 0 }
+  };
+  const evidence = Number.isFinite(context.ocrConfidence) ? Math.max(0.2, Math.min(1, context.ocrConfidence)) : 1;
+  for (const value of Object.values(fields)) value.confidence = Number((value.confidence * evidence).toFixed(2));
+  const confidence = Object.fromEntries(Object.entries(fields).map(([key, value]) => [key, value.confidence]));
+  const base = { ...context, code, type, group, room, lecturer, confidence, fields, raw, corrections };
+  return { ...base, needsReview: Boolean(context.needsReview || corrections.length || !code || !type || Object.values(confidence).some((value) => value < 0.7)) };
+}
+
+// src/options-locale.js
+var copy = {
+  zh: {
+    documentTitle: "Attendance \xB7 \u81EA\u52A8\u6253\u5361\u8BBE\u7F6E",
+    appTitle: "\u81EA\u52A8\u6253\u5361",
+    heroDescription: "\u4FDD\u5B58\u8D44\u6599\uFF0C\u5BFC\u5165\u8BFE\u8868\uFF0C\u81EA\u52A8\u7ED1\u5B9A\u540E\u542F\u7528\u3002",
+    profileHeading: "\u5B66\u751F\u8D44\u6599",
+    openSubscription: "\u8BA2\u9605\u624B\u673A\u63D0\u9192",
+    profileSummaryEmpty: "\u586B\u5199\u5B66\u53F7\u4E0E\u59D3\u540D",
+    studentId: "\u5B66\u53F7",
+    studentName: "\u59D3\u540D",
+    studentType: "\u5B66\u751F\u8EAB\u4EFD",
+    localStudent: "\u672C\u5730\u5B66\u751F",
+    internationalStudent: "\u56FD\u9645\u5B66\u751F",
+    saveProfile: "\u4FDD\u5B58\u8D44\u6599",
+    chromeLoginHint: "\u8BF7\u5728\u5F53\u524D Chrome \u7528\u6237\u4E2D\u767B\u5F55\u5B66\u6821 Microsoft \u8D26\u53F7\u3002",
+    timetableHeading: "\u8BFE\u8868",
+    timetableDescription: "\u76F4\u63A5\u5220\u9664\u4E0D\u9700\u8981\u7684\u8BFE\u7A0B\uFF1B\u5C55\u5F00\u53EF\u4FEE\u6539\u3002",
+    clearDraft: "\u6E05\u7A7A\u8349\u7A3F",
+    importTimetable: "\u5BFC\u5165\u8BFE\u8868",
+    addCourse: "\u6DFB\u52A0\u8BFE\u7A0B",
+    timetableHint: "\u652F\u6301 JPG\u3001PNG\u3001PDF\u3002Group 1\uFF0F2 \u53EA\u4FDD\u7559\u81EA\u5DF1\u7684\u7EC4\u522B\u3002",
+    noTimetable: "\u8FD8\u6CA1\u6709\u5BFC\u5165\u8BFE\u8868\u3002",
+    draftAutoSave: "\u8349\u7A3F\u81EA\u52A8\u4FDD\u5B58\uFF0C\u542F\u7528\u540E\u624D\u4F1A\u6267\u884C\u3002",
+    bindingHeading: "\u8868\u5355\u7ED1\u5B9A",
+    bindingDescription: "\u7C98\u8D34\u94FE\u63A5\u6216\u4E0A\u4F20\u4E8C\u7EF4\u7801\u5373\u53EF\u81EA\u52A8\u7ED1\u5B9A\uFF1B\u626B\u63CF\u4E0D\u4F1A\u63D0\u4EA4\u8868\u5355\u3002",
+    clearBindings: "\u6E05\u7A7A\u7ED1\u5B9A",
+    emptyBindings: "\u5148\u5BFC\u5165\u6216\u6DFB\u52A0\u8BFE\u7A0B\u3002",
+    tasksHeading: "\u6BCF\u5468\u4EFB\u52A1",
+    tasksDescription: "\u7ED3\u675F\u524D 5 \u5206\u949F\u81EA\u52A8\u6267\u884C\u3002\u8BF7\u4FDD\u6301 Chrome \u8FD0\u884C\u3001\u7535\u8111\u6E05\u9192\u4E14\u5B66\u6821\u8D26\u53F7\u5DF2\u767B\u5F55\u3002",
+    clearTasks: "\u5220\u9664\u5168\u90E8\u4EFB\u52A1",
+    recordsHeading: "\u6253\u5361\u8BB0\u5F55",
+    recordsMeta: "\u67E5\u770B\u7ED3\u679C\u4E0E\u5BFC\u51FA",
+    filterRecords: "\u7B5B\u9009\u7ED3\u679C",
+    filterAll: "\u5168\u90E8\u7ED3\u679C",
+    filterUnknown: "\u7ED3\u679C\u4E0D\u660E",
+    filterFailed: "\u5931\u8D25",
+    filterMissed: "\u672A\u81EA\u52A8\u63D0\u4EA4",
+    filterSuccess: "\u6210\u529F",
+    exportRecords: "\u5BFC\u51FA\u8BB0\u5F55",
+    previousPage: "\u4E0A\u4E00\u9875",
+    nextPage: "\u4E0B\u4E00\u9875",
+    workflowLabel: "\u5BFC\u822A\u4E0E\u64CD\u4F5C",
+    workflowToggle: "\u64CD\u4F5C",
+    pageNavigation: "\u9875\u9762\u5BFC\u822A",
+    navTimetable: "\u8BFE\u8868",
+    navBindings: "\u8868\u5355\u7ED1\u5B9A",
+    navTasks: "\u6BCF\u5468\u4EFB\u52A1",
+    navProfile: "\u5B66\u751F\u8D44\u6599",
+    reviewDraft: "\u6211\u5DF2\u6838\u5BF9\u8BFE\u8868\u4E0E\u7EC4\u522B\u3002",
+    verifyAllForms: "\u81EA\u52A8\u626B\u63CF\u5E76\u4FDD\u5B58\u5168\u90E8",
+    testAllForms: "\u6D4B\u8BD5\u5168\u90E8\u8BFE\u578B \xB7 \u4E0D\u63D0\u4EA4",
+    confirmAllForms: "\u4E00\u952E\u786E\u8BA4\u5168\u90E8\u8BFE\u578B",
+    enableTasks: "\u542F\u7528\u6BCF\u5468\u4EFB\u52A1",
+    cancelChecks: "\u53D6\u6D88\u68C0\u67E5",
+    profileSavedSummary: "\u8D44\u6599\u5DF2\u4FDD\u5B58 \xB7 \u5C55\u5F00\u4FEE\u6539",
+    profileSavedToast: "\u5B66\u751F\u8D44\u6599\u5DF2\u4FDD\u5B58\u3002",
+    profileInvalid: "\u8BF7\u5148\u586B\u5199\u6709\u6548\u5B66\u53F7\u548C\u59D3\u540D\u3002",
+    emptyAgendaTitle: "\u7B49\u5F85\u4F60\u7684\u8BFE\u8868",
+    emptyAgendaCopy: "\u4E0A\u4F20\u6587\u4EF6\u540E\uFF0C\u8FD9\u91CC\u4F1A\u6309\u661F\u671F\u5217\u51FA\u8BFE\u7A0B\u3002",
+    emptyAgenda: "\u8FD8\u6CA1\u6709\u5F85\u6838\u5BF9\u7684\u8BFE\u7A0B\u3002\u4E5F\u53EF\u4EE5\u5148\u624B\u52A8\u6DFB\u52A0\u4E00\u8282\u3002",
+    previewCount: "{count} \u8282\u5F85\u6838\u5BF9\u8BFE\u7A0B",
+    previewDayCount: "\u5206\u4E3A {count} \u4E2A\u4E0A\u8BFE\u65E5 \xB7 \u5C55\u5F00\u8BFE\u7A0B\u53EF\u4FEE\u6539\u661F\u671F\u4E0E\u65F6\u95F4",
+    weekdayPrefix: "\u6BCF",
+    weekdayFallback: "\u5468\u4E00",
+    lessonCount: "{count} \u8282\u8BFE",
+    endTimeSuffix: "\u7ED3\u675F",
+    everyWeek: "\u6BCF\u5468\u91CD\u590D",
+    unnamedCourse: "\u672A\u547D\u540D\u8BFE\u7A0B",
+    coursePlaceholder: "\u8BFE\u7A0B\u540D",
+    fieldCourseName: "\u8BFE\u7A0B\u540D\u79F0",
+    fieldWeekday: "\u6BCF\u5468\u661F\u671F",
+    fieldStartTime: "\u5F00\u59CB\u65F6\u95F4",
+    fieldEndTime: "\u7ED3\u675F\u65F6\u95F4",
+    fieldExceptions: "\u505C\u8BFE\u65E5\u671F\uFF08\u53EF\u9009\uFF0C\u591A\u4E2A\u65E5\u671F\u7528\u9017\u53F7\u5206\u9694\uFF09",
+    delete: "\u5220\u9664",
+    clearPreviewConfirm: "\u6E05\u7A7A\u5F85\u6838\u5BF9\u8BFE\u8868\uFF1F\u5DF2\u542F\u7528\u7684\u6BCF\u5468\u4EFB\u52A1\u4F1A\u4FDD\u7559\u3002",
+    clearBindingsConfirm: "\u6E05\u7A7A\u5168\u90E8\u8BFE\u7A0B\u7ED1\u5B9A\uFF1F\u91CD\u65B0\u7ED1\u5B9A\u524D\u65E0\u6CD5\u81EA\u52A8\u63D0\u4EA4\u3002",
+    clearTasksConfirm: "\u5220\u9664\u5168\u90E8\u6BCF\u5468\u4EFB\u52A1\uFF1F\u6253\u5361\u8BB0\u5F55\u4F1A\u4FDD\u7559\u3002",
+    draftCleared: "\u8BFE\u8868\u8349\u7A3F\u5DF2\u6E05\u7A7A\u3002",
+    bindingsCleared: "\u8BFE\u7A0B\u7ED1\u5B9A\u5DF2\u6E05\u7A7A\u3002",
+    tasksDeleted: "\u6BCF\u5468\u4EFB\u52A1\u5DF2\u5220\u9664\u3002",
+    emptyTasks: "\u8FD8\u6CA1\u6709\u4EFB\u52A1\u3002\u5B8C\u6210\u8868\u5355\u68C0\u67E5\u540E\uFF0C\u542F\u7528\u5DF2\u6838\u5BF9\u7684\u8349\u7A3F\u3002",
+    inspectFormsCopy: "\u5171\u7528\u6B64\u94FE\u63A5\uFF1A{courses}",
+    formsUrlPlaceholder: "\u7C98\u8D34 Forms \u94FE\u63A5\uFF0C\u6216\u4E0A\u4F20\u4E8C\u7EF4\u7801",
+    formsUrlLabel: "{key} Microsoft Forms \u94FE\u63A5",
+    uploadQr: "\u4E0A\u4F20\u4E8C\u7EF4\u7801",
+    bindingReady: "\u5DF2\u6838\u5BF9\uFF1A{title}",
+    legacyConflict: "\u65E7\u7248\u8BFE\u578B\u7ED1\u5B9A\u4E86\u4E0D\u540C\u94FE\u63A5\u3002\u8BF7\u4F7F\u7528\u8FD9\u4E00\u95E8\u8BFE\u7A0B\u5171\u7528\u7684\u94FE\u63A5\u91CD\u65B0\u6838\u5BF9\u3002",
+    bindingNeedsReview: "\u7C98\u8D34\u94FE\u63A5\u6216\u4E0A\u4F20\u4E8C\u7EF4\u7801\uFF0C\u81EA\u52A8\u626B\u63CF\u5E76\u4FDD\u5B58\u3002",
+    qrRead: "\u4E8C\u7EF4\u7801\u5DF2\u8BFB\u53D6\u3002\u70B9\u51FB\u5E95\u90E8\u201C\u4E00\u952E\u6253\u5F00\u5168\u90E8\u5E76\u6838\u5BF9\u201D\u7EE7\u7EED\u3002",
+    boundSuccessfully: "\u2705 \u7ED1\u5B9A\u6210\u529F",
+    dateOptional: "\u65E5\u671F\u4E3A\u9009\u586B \xB7 \u81EA\u52A8\u8DF3\u8FC7",
+    readingQr: "\u6B63\u5728\u8BFB\u53D6\u4E8C\u7EF4\u7801\u2026",
+    noFormLinks: "\u8BF7\u5148\u7C98\u8D34\u8868\u5355\u94FE\u63A5\u6216\u4E0A\u4F20\u4E8C\u7EF4\u7801\u3002",
+    scanCancelled: "\u94FE\u63A5\u5DF2\u53D8\u5316\uFF0C\u5DF2\u53D6\u6D88\u65E7\u626B\u63CF\u3002",
+    scanningAll: "\u6B63\u5728\u626B\u63CF\u5E76\u4FDD\u5B58\u2026",
+    scanSummary: "\u5DF2\u7ED1\u5B9A {succeeded} \u95E8\u8BFE\u7A0B\uFF1B{failed} \u95E8\u9700\u5904\u7406\u3002",
+    inspectionBusy: "\u6B63\u5728\u8BFB\u53D6\u8868\u5355\uFF0C\u8BF7\u5148\u5B8C\u6210\u5F53\u524D\u6838\u5BF9\u540E\u518D\u7EE7\u7EED\u3002",
+    openingForm: "\u6B63\u5728\u540E\u53F0\u626B\u63CF\u5E76\u4FDD\u5B58\u8868\u5355\u2026",
+    inspectionTimeout: "\u672A\u80FD\u8BFB\u53D6\u8868\u5355\u3002\u8BF7\u68C0\u67E5\u5B66\u6821\u767B\u5F55\u72B6\u6001\u540E\u91CD\u8BD5\u3002",
+    openedForms: "\u5DF2\u540C\u65F6\u6253\u5F00 {count} \u4E2A\u8BFE\u7A0B\u8868\u5355\uFF0C\u8BF7\u5206\u522B\u6838\u5BF9\u5E76\u4FDD\u5B58\u3002",
+    actualForm: "\u5B9E\u9645\u8868\u5355\uFF1A{title} \xB7 {url}",
+    courseCodeMissing: "\u6CE8\u610F\uFF1A\u8868\u5355\u6807\u9898\u4E2D\u672A\u627E\u5230\u8BFE\u7A0B\u4EE3\u7801 {code}\uFF0C\u8BF7\u4ED4\u7EC6\u6838\u5BF9\u3002",
+    editMapping: "\u67E5\u770B\u6216\u4FEE\u6539\u9898\u76EE\u5339\u914D",
+    bindingConfirmation: "\u6211\u5DF2\u6838\u5BF9\uFF1A\u8FD9\u662F {key} \u7684\u5171\u7528\u6253\u5361\u8868\u5355\uFF0C\u9002\u7528\u4E8E {courses}\u3002",
+    saveBinding: "\u4FDD\u5B58\u8868\u5355\u7ED1\u5B9A",
+    verifyBeforeSave: "\u8BF7\u5148\u6838\u5BF9\u8BFE\u7A0B\u4E0E\u8868\u5355\u3002",
+    mapEveryQuestion: "\u8BF7\u4E3A\u6BCF\u4E00\u9053\u9898\u9009\u62E9\u5BF9\u5E94\u8D44\u6599\u3002",
+    verifiedForm: "\u5DF2\u6838\u5BF9\uFF1A{title}",
+    bindingSaved: "{key} \u5171\u7528\u8868\u5355\u5DF2\u7ED1\u5B9A\u3002",
+    formsNotFound: "\u6CA1\u6709\u627E\u5230\u53EF\u914D\u7F6E\u7684 Microsoft Forms \u7B54\u9898\u9875\u3002",
+    reviewForm: "\u8BF7\u6838\u5BF9\u8868\u5355\u6807\u9898\u4E0E\u6BCF\u9053\u9898\uFF0C\u518D\u4FDD\u5B58\u7ED1\u5B9A\u3002",
+    recognizingTimetable: "\u6B63\u5728\u672C\u673A\u8BC6\u522B\u2026",
+    noRecognizedLessons: "\u6CA1\u6709\u53EF\u9760\u8BC6\u522B\u51FA\u8BFE\u7A0B\u3002\u8BF7\u624B\u52A8\u6DFB\u52A0\uFF0C\u6216\u4E0A\u4F20\u66F4\u6E05\u6670\u7684\u8BFE\u8868\u3002",
+    recognizedLessons: "\u8BC6\u522B\u51FA {count} \u884C\u3002{groupWarning}\u8BF7\u9010\u884C\u6838\u5BF9\uFF0C\u518D\u7ED1\u5B9A\u4E8C\u7EF4\u7801\u3002",
+    groupWarning: "\u8BF7\u5220\u9664\u4E0D\u5C5E\u4E8E\u81EA\u5DF1\u7684 Group \u8BFE\u7A0B\u3002",
+    noImportYet: "\u8FD8\u6CA1\u6709\u5BFC\u5165\u8BFE\u8868\u3002",
+    savingDraftFailed: "\u8349\u7A3F\u4FDD\u5B58\u5931\u8D25\uFF1A{error}",
+    draftSavedNeedsReview: "\u8349\u7A3F\u5DF2\u5728\u672C\u673A\u81EA\u52A8\u4FDD\u5B58\uFF1B\u91CD\u65B0\u6838\u5BF9\u540E\u52FE\u9009\u786E\u8BA4\u3002\u4FDD\u5B58\u8349\u7A3F\u4E0D\u4F1A\u542F\u7528\u4EFB\u52A1\u3002",
+    draftRestored: "\u5DF2\u6062\u590D\u672C\u673A\u8349\u7A3F\uFF1B\u4FDD\u5B58\u8349\u7A3F\u4E0D\u4F1A\u542F\u7528\u4EFB\u52A1\u3002",
+    draftReviewed: "\u8BFE\u8868\u5DF2\u6838\u5BF9\uFF0C\u8868\u5355\u7ED1\u5B9A\u540E\u5373\u53EF\u542F\u7528\u3002",
+    draftUnreviewed: "\u8349\u7A3F\u5DF2\u4FDD\u5B58\uFF0C\u5C1A\u672A\u6838\u5BF9\u3002",
+    taskEnabledDraft: "\u4EFB\u52A1\u5DF2\u542F\u7528\uFF1B\u53EF\u5BFC\u5165\u6216\u6DFB\u52A0\u65B0\u7684\u8BFE\u7A0B\u3002",
+    draftReadyToRun: "\u8BFE\u8868\u5DF2\u6838\u5BF9\uFF0C\u8868\u5355\u7ED1\u5B9A\u540E\u5373\u53EF\u542F\u7528\u3002",
+    noTasks: "\u8FD8\u6CA1\u6709\u4EFB\u52A1\u3002\u5B8C\u6210\u8868\u5355\u68C0\u67E5\u540E\uFF0C\u542F\u7528\u5DF2\u6838\u5BF9\u7684\u8349\u7A3F\u3002",
+    sessionSummary: "\u6BCF\u5468{weekday} {start}\u2013{end} \xB7 {state} \xB7 {check}",
+    paused: "\u5DF2\u6682\u505C",
+    nextRun: "\u4E0B\u6B21\uFF1A{date}\uFF08\u9A6C\u6765\u897F\u4E9A\uFF09",
+    noNextRun: "\u6682\u672A\u627E\u5230\u4E0B\u6B21\u89E6\u53D1",
+    checksComplete: "\u5DF2\u81EA\u52A8\u7ED1\u5B9A",
+    checksIncomplete: "\u9700\u8981\u7ED1\u5B9A\u8868\u5355",
+    enable: "\u542F\u7528",
+    pause: "\u6682\u505C",
+    editSession: "\u7F16\u8F91\u661F\u671F\u3001\u65F6\u95F4\u4E0E\u505C\u8BFE\u65E5\u671F",
+    fieldCourse: "\u8BFE\u7A0B\u540D\u79F0",
+    fieldExceptionsShort: "\u505C\u8BFE\u65E5\u671F\uFF08\u7528\u9017\u53F7\u5206\u9694\uFF09",
+    saveChanges: "\u4FDD\u5B58\u4FEE\u6539",
+    noSuchTask: "\u4EFB\u52A1\u5DF2\u5220\u9664\u3002",
+    checkBeforeEnable: "\u8BF7\u5148\u7ED1\u5B9A\u6B64\u8BFE\u7A0B\u8868\u5355\uFF0C\u518D\u542F\u7528\u3002",
+    duplicateTask: "\u76F8\u540C\u8BFE\u7A0B\u4E0E\u65F6\u95F4\u7684\u4EFB\u52A1\u5DF2\u5B58\u5728\u3002",
+    taskSavedRemovedTrigger: "\u4EFB\u52A1\u4FEE\u6539\u5DF2\u4FDD\u5B58\uFF0C\u65E7\u65F6\u95F4\u7684\u89E6\u53D1\u5DF2\u79FB\u9664\u3002",
+    savedPausedForReview: "\u4FEE\u6539\u5DF2\u4FDD\u5B58\u5E76\u6682\u505C\uFF1B\u7ED1\u5B9A\u8868\u5355\u540E\u5373\u53EF\u542F\u7528\u3002",
+    setupReadyTitle: "\u5168\u90E8\u8BFE\u578B\u5DF2\u586B\u5199\u5B8C\u6210\uFF0C\u53EF\u4E00\u952E\u786E\u8BA4\uFF1B\u4E0D\u4F1A\u63D0\u4EA4\u8868\u5355\u3002",
+    setupFailedTitle: "\u6709\u8BFE\u578B\u68C0\u67E5\u5931\u8D25\uFF0C\u8BF7\u5148\u53D6\u6D88\u68C0\u67E5\uFF0C\u518D\u91CD\u65B0\u6D4B\u8BD5\u3002",
+    setupWaitingTitle: "\u7B49\u5F85\u5168\u90E8 Forms \u68C0\u67E5\u9875\u5B8C\u6210\u586B\u5199\uFF1B\u786E\u8BA4\u540E\u4E0D\u4F1A\u63D0\u4EA4\u8868\u5355\u3002",
+    recordCount: "{count} \u6761\u8BB0\u5F55",
+    lessonFallback: "\u8BFE\u7A0B",
+    recordSuccess: "\u6210\u529F",
+    recordUnknown: "\u7ED3\u679C\u4E0D\u660E",
+    recordFailed: "\u5931\u8D25",
+    recordMissed: "\u672A\u81EA\u52A8\u63D0\u4EA4",
+    recordLaunched: "\u6253\u5F00\u4E2D",
+    recordPending: "\u63D0\u4EA4\u4E2D",
+    noOriginalForm: "\u5C1A\u65E0\u539F\u8868\u5355\u94FE\u63A5\uFF0C\u8BF7\u5148\u4FEE\u590D\u8BFE\u7A0B\u8868\u5355\u7ED1\u5B9A\u3002",
+    noRecords: "\u8FD8\u6CA1\u6709\u6253\u5361\u8BB0\u5F55\u3002",
+    noFilteredRecords: "\u6CA1\u6709\u6B64\u7C7B\u578B\u7684\u8BB0\u5F55\uFF0C\u8BF7\u8C03\u6574\u7B5B\u9009\u3002",
+    recordsPage: "\u7B2C {page} / {pages} \u9875 \xB7 {count} \u6761",
+    noPreviewToActivate: "\u8BF7\u5148\u5BFC\u5165\u6216\u6DFB\u52A0\u8BFE\u7A0B\u3002",
+    draftChangedReview: "\u8BFE\u8868\u5DF2\u53D8\u5316\uFF0C\u8BF7\u91CD\u65B0\u6838\u5BF9\u5E76\u52FE\u9009\u786E\u8BA4\u3002",
+    reviewBeforeEnable: "\u8BF7\u5148\u6838\u5BF9\u8BFE\u8868\uFF0C\u518D\u52FE\u9009\u786E\u8BA4\u3002",
+    saveProfileFirst: "\u8BF7\u5148\u4FDD\u5B58\u4FEE\u6539\u540E\u7684\u5B66\u751F\u8D44\u6599\u3002",
+    confirmLessonTypes: "\u8BF7\u5148\u68C0\u67E5\u5E76\u786E\u8BA4\u8FD9\u4E9B\u8BFE\u578B\uFF1A{courses}\u3002",
+    enabledWeeklyTasks: "\u6BCF\u5468\u4EFB\u52A1\u5DF2\u542F\u7528\u3002",
+    enabledReviewedDraft: "\u5DF2\u542F\u7528\u4E4B\u524D\u6838\u5BF9\u7684\u8BFE\u8868\uFF1B\u65B0\u4FEE\u6539\u5DF2\u4FDD\u7559\u4E3A\u8349\u7A3F\u3002",
+    checksOpened: "\u5DF2\u6253\u5F00\u5404\u8BFE\u578B\u7684\u68C0\u67E5\u9875{count}\uFF0C\u586B\u5199\u540E\u8BF7\u5728\u5404\u9875\u9762\u786E\u8BA4\uFF1B\u4E0D\u4F1A\u63D0\u4EA4\u3002",
+    checksPageCount: "\uFF0C\u5171 {count} \u9875",
+    allChecksConfirmed: "\u5DF2\u4E00\u952E\u786E\u8BA4\u5168\u90E8 {count} \u4E2A\u8BFE\u578B\uFF0C\u672A\u63D0\u4EA4\u8868\u5355\u3002\u73B0\u5728\u53EF\u4EE5\u542F\u7528\u6BCF\u5468\u4EFB\u52A1\u3002",
+    importerQrImage: "\u8BF7\u4E0A\u4F20\u4E8C\u7EF4\u7801\u56FE\u7247\uFF08PNG \u6216 JPG\uFF09\u3002",
+    importerQrUnread: "\u672A\u80FD\u4ECE\u56FE\u7247\u4E2D\u8BC6\u522B\u4E8C\u7EF4\u7801\uFF0C\u8BF7\u6362\u6E05\u6670\u622A\u56FE\u6216\u7C98\u8D34\u94FE\u63A5\u3002",
+    importerRecognizeHeader: "\u6B63\u5728\u8BC6\u522B\u8BFE\u8868\u7684\u65E5\u671F\u3001\u65F6\u95F4\u548C\u661F\u671F",
+    importerFileLimit: "\u8BF7\u9009\u62E9\u4E0D\u8D85\u8FC7 20 MB \u7684 JPG\u3001PNG \u6216 PDF\u3002",
+    importerPdfPages: "PDF \u6700\u591A\u652F\u6301 20 \u9875\u3002",
+    importerReadingPage: "\u6B63\u5728\u8BFB\u53D6 PDF \u7B2C {page}/{pages} \u9875",
+    importerOcrPage: "\u7B2C {page} \u9875\u9700\u8981\u672C\u673A OCR \u8BC6\u522B",
+    importerOcrImage: "\u6B63\u5728\u672C\u673A OCR \u8BC6\u522B\u56FE\u7247",
+    importerUnsupported: "\u8BFE\u8868\u53EA\u652F\u6301 JPG/JPEG\u3001PNG \u6216 PDF\u3002",
+    dateAutoCheck: "\u5F53\u65E5\u65E5\u671F \xB7 \u81EA\u52A8\u6838\u5BF9",
+    profileFieldStudent: "\u5B66\u53F7",
+    profileFieldName: "\u59D3\u540D",
+    dateMismatchQuestion: "\u65E5\u671F\u9898\u578B\u4E0D\u5339\u914D\uFF0C\u8BF7\u6838\u5BF9\u8868\u5355",
+    selectTextData: "\u9009\u62E9\u6587\u5B57\u8D44\u6599",
+    courseKindAuto: "\u6309\u8BFE\u7A0B\u540D\u79F0\u81EA\u52A8\u9009",
+    unsupportedCourseOptions: "\u8BFE\u7A0B\u7C7B\u578B\u9009\u9879\u4E0D\u53D7\u652F\u6301",
+    studentTypeAuto: "\u6309\u5B66\u751F\u8EAB\u4EFD\u81EA\u52A8\u9009 Local / International",
+    unsupportedQuestion: "\u6682\u4E0D\u652F\u6301\u8FD9\u9053\u9898",
+    fixedOption: "\u56FA\u5B9A\u9009 {option}",
+    fixedLocal: "\u56FA\u5B9A\u9009 Local",
+    fixedInternational: "\u56FA\u5B9A\u9009 International",
+    recoveryInspect: "\u624B\u52A8\u6838\u5BF9\u539F\u8868\u5355",
+    recoveryInspectDescription: "\u5DF2\u5F00\u59CB\u63D0\u4EA4\u4F46\u7ED3\u679C\u4E0D\u660E\u3002\u8BF7\u624B\u52A8\u6838\u5BF9\u5B66\u6821\u8BB0\u5F55\uFF1B\u7CFB\u7EDF\u4E0D\u4F1A\u81EA\u52A8\u91CD\u8BD5\u3002",
+    recoveryBinding: "\u4FEE\u590D\u8BFE\u7A0B\u8868\u5355\u7ED1\u5B9A",
+    recoveryBindingDescription: "\u91CD\u65B0\u6838\u5BF9\u8868\u5355\u548C\u8D44\u6599\u6620\u5C04\uFF0C\u518D\u8FD0\u884C\u8BBE\u7F6E\u68C0\u67E5\u3002",
+    recoveryLogin: "\u68C0\u67E5\u5B66\u6821\u767B\u5F55\u4E0E\u8868\u5355",
+    recoveryLoginDescription: "\u6253\u5F00\u539F\u8868\u5355\u68C0\u67E5\u5B66\u6821\u767B\u5F55\u3001\u5F00\u653E\u65F6\u95F4\u6216\u989D\u5916\u9A8C\u8BC1\u3002",
+    recoveryMissed: "\u6253\u5F00\u8868\u5355\u624B\u52A8\u5904\u7406",
+    recoveryMissedDescription: "\u6B64\u6B21\u672A\u81EA\u52A8\u63D0\u4EA4\u3002\u8BF7\u6309\u5B66\u6821\u8981\u6C42\u624B\u52A8\u5904\u7406\uFF0C\u5E76\u68C0\u67E5 Chrome \u4E0E\u7535\u8111\u4F11\u7720\u8BBE\u7F6E\u3002",
+    recoveryView: "\u67E5\u770B\u539F\u8868\u5355",
+    recoverySuccessDescription: "\u539F\u8868\u5355\u5DF2\u663E\u793A\u6210\u529F\u53CD\u9988\u3002",
+    recoveryCurrentDescription: "\u8BF7\u67E5\u770B\u5F53\u524D\u8FD0\u884C\u9875\u9762\u3002",
+    subscriptionTitle: "\u624B\u673A\u63D0\u9192\u8BA2\u9605",
+    subscriptionMeta: "\u53EF\u9009 \xB7 \u5C55\u5F00\u8D2D\u4E70\u6216\u6FC0\u6D3B",
+    subscriptionIntro: "\u8D2D\u4E70\u540E\u7528\u5BC6\u94A5\u6FC0\u6D3B\uFF1B\u672C\u673A\u81EA\u52A8\u6253\u5361\u65E0\u9700\u624B\u673A\u63D0\u9192\u6388\u6743\u3002",
+    chooseCurrency: "\u9009\u62E9\u8D27\u5E01",
+    planName: "\u624B\u673A\u63D0\u9192\u7EED\u8BA2",
+    planDescription: "\u7EED\u8BA2\u540E\uFF0C\u670D\u52A1\u6709\u6548\u671F\u81F3\u5BC6\u94A5\u5BF9\u5E94\u7684\u5B66\u671F\u622A\u6B62\u65E5\u3002",
+    pricePeriod: "/sem",
+    purchaseRm: "\u83B7\u53D6\u6388\u6743\u5BC6\u94A5",
+    purchaseRmb: "\u524D\u5F80\u5E97\u94FA \xB7 \u624B\u673A\u63D0\u9192\u7EED\u8BA2",
+    activationHeading: "\u9996\u6B21\u6FC0\u6D3B\u65B0\u5BC6\u94A5\u6216\u7EED\u671F",
+    newKey: "\u65B0\u5BC6\u94A5",
+    activate: "\u6FC0\u6D3B\u624B\u673A\u63D0\u9192",
+    refresh: "\u5237\u65B0\u6388\u6743",
+    entitlementLoading: "\u5C55\u5F00\u540E\u67E5\u8BE2\u624B\u673A\u63D0\u9192\u6388\u6743\u3002",
+    recoveryTitle: "\u5DF2\u5151\u6362\u8FC7\u5BC6\u94A5\uFF1F\u6062\u590D\u624B\u673A\u63D0\u9192",
+    recoveryDescription: "\u8F93\u5165\u4E4B\u524D\u5151\u6362\u8FC7\u7684\u539F\u5BC6\u94A5\uFF0C\u9A8C\u8BC1\u7801\u4F1A\u53D1\u9001\u5230\u539F\u6765\u63A5\u6536\u63D0\u9192\u7684\u624B\u673A\u3002\u6062\u590D\u4E0D\u4F1A\u518D\u6B21\u5151\u6362\u5BC6\u94A5\uFF1B\u5982\u679C\u7535\u8111\u4E0A\u7684\u672C\u5730\u8D44\u6599\u4E5F\u5DF2\u6E05\u9664\uFF0C\u8BF7\u91CD\u65B0\u5BFC\u5165\u8BFE\u8868\u5E76\u586B\u5199\u5B66\u751F\u8D44\u6599\u3002",
+    oldKey: "\u5DF2\u5151\u6362\u7684\u539F\u5BC6\u94A5",
+    sendCode: "\u53D1\u9001\u9A8C\u8BC1\u7801",
+    receivedCode: "\u624B\u673A\u6536\u5230\u7684 6 \u4F4D\u9A8C\u8BC1\u7801",
+    verifyRecover: "\u9A8C\u8BC1\u5E76\u6062\u590D",
+    cancelRecovery: "\u53D6\u6D88\u6062\u590D",
+    subscriptionHelp: "\u8BA2\u9605\u8BF4\u660E",
+    subscriptionTerms: "\u6BCF\u628A\u5BC6\u94A5\u53EA\u80FD\u7ED1\u5B9A\u4E00\u53F0\u8BBE\u5907\u3002\u540C\u4E00\u5B66\u671F\u7684\u5BC6\u94A5\u4E0D\u53E0\u52A0\u65F6\u957F\uFF1B\u5B66\u671F\u622A\u6B62\u65E5\u6309\u9A6C\u6765\u897F\u4E9A\u65F6\u95F4\u5F53\u5929\u7ED3\u675F\u8BA1\u7B97\u3002ntfy \u4E3B\u9898\u4E0D\u80FD\u4EE3\u66FF\u6709\u6548\u6388\u6743\u3002",
+    phoneStatusTitle: "\u8FDE\u63A5\u624B\u673A\u4E0E\u901A\u77E5\u72B6\u6001",
+    cloudStarting: "\u6B63\u5728\u51C6\u5907\u4E91\u7AEF\u8FDE\u63A5\u2026",
+    topicStarting: "\u624B\u673A\u4E3B\u9898\u5C1A\u672A\u51C6\u5907\u3002",
+    retryConnection: "\u91CD\u8BD5\u8FDE\u63A5",
+    copyTopic: "\u590D\u5236 ntfy \u5730\u5740",
+    topicQr: "\u8BA2\u9605\u4E8C\u7EF4\u7801",
+    choosePhoneSystem: "\u9009\u62E9\u624B\u673A\u7CFB\u7EDF",
+    androidSubscribe: "Android \xB7 \u81EA\u52A8\u8BA2\u9605",
+    iosSubscribe: "iPhone / iPad",
+    topicQrAccessible: "ntfy \u8BA2\u9605\u4E8C\u7EF4\u7801",
+    refreshDelivery: "\u5237\u65B0\u901A\u77E5\u72B6\u6001",
+    queueStatus: "\u5F85\u540C\u6B65 {count} \u9879",
+    queueError: " \xB7 \u6700\u8FD1\u9519\u8BEF\uFF1A{error}",
+    queueSent: " \xB7 \u6700\u8FD1\u53D1\u9001\uFF1A{date}",
+    connectionRestored: "\u8BBE\u5907\u8FDE\u63A5\u5DF2\u6062\u590D\u3002",
+    waitingConnection: "\u7B49\u5F85\u8FDE\u63A5\u3002",
+    topicNotReady: "\u624B\u673A\u4E3B\u9898\u5C1A\u672A\u51C6\u5907\u597D\uFF0C\u8BF7\u91CD\u8BD5\u4E91\u7AEF\u8FDE\u63A5\u3002",
+    copiedTopic: "\u5DF2\u590D\u5236 ntfy \u5730\u5740\uFF0C\u8BF7\u5728\u624B\u673A ntfy \u4E2D\u8BA2\u9605\u3002",
+    qrAndroidHelp: "\u626B\u7801\u4F1A\u6253\u5F00 ntfy \u5E76\u81EA\u52A8\u8BA2\u9605\u4E3B\u9898\u3002ntfy \u94FE\u63A5\u65E0\u6CD5\u8FDC\u7A0B\u66FF\u4F60\u6539 App \u8BBE\u7F6E\uFF1B\u626B\u7801\u540E\u8BF7\u5728 ntfy \u8BBE\u7F6E\u4E2D\u542F\u7528\u201C\u5373\u65F6\u4EA4\u4ED8 / Subscription Service\u201D\uFF0C\u5E76\u5141\u8BB8\u5E38\u9A7B\u901A\u77E5\u3002F-Droid \u7248\u9ED8\u8BA4\u4F7F\u7528\u5373\u65F6\u4EA4\u4ED8\u3002",
+    qrIosHelp: "\u626B\u7801\u4F1A\u6253\u5F00\u4E3B\u9898\u7F51\u9875\u3002iOS \u8BF7\u5728 ntfy App \u6DFB\u52A0\u8BA2\u9605\uFF08\u670D\u52A1\u5668 ntfy.sh\uFF0C\u4E3B\u9898 {topic}\uFF09\uFF0C\u5E76\u5728 iPhone\u201C\u8BBE\u7F6E > \u901A\u77E5 > ntfy\u201D\u5141\u8BB8\u901A\u77E5\uFF1B\u5982\u542F\u7528\u4E86\u4E13\u6CE8\u6A21\u5F0F\u6216\u5B9A\u65F6\u6458\u8981\uFF0C\u8BF7\u5141\u8BB8 ntfy \u901A\u77E5\u901A\u8FC7\u4E13\u6CE8\u6A21\u5F0F\uFF0C\u5E76\u5C06\u5176\u4ECE\u5B9A\u65F6\u6458\u8981\u4E2D\u79FB\u9664\u3002iOS \u6CA1\u6709 Android \u7684\u5373\u65F6\u4EA4\u4ED8\u5F00\u5173\u3002",
+    deliveryRecorded: "\u53D1\u9001\u72B6\u6001\u6765\u81EA\u670D\u52A1\u5668\uFF1Bntfy \u63A5\u53D7\u4E0D\u7B49\u4E8E\u624B\u673A\u6536\u5230\u3002",
+    deliveryEmpty: "\u5C1A\u65E0\u4E91\u7AEF\u901A\u77E5\u8BB0\u5F55\u3002",
+    receiptConfirmed: "\u5B66\u751F\u5DF2\u786E\u8BA4\u624B\u673A\u6536\u5230",
+    deliveryQueued: "\u5DF2\u6392\u961F",
+    deliverySending: "\u6B63\u5728\u53D1\u9001",
+    deliveryAccepted: "ntfy \u5DF2\u63A5\u53D7\uFF0C\u624B\u673A\u6536\u5230\u5C1A\u672A\u786E\u8BA4",
+    deliveryUncertain: "\u53D1\u9001\u7ED3\u679C\u4E0D\u660E\uFF0C\u672A\u81EA\u52A8\u91CD\u53D1",
+    deliveryDiscarded: "\u672A\u53D1\u9001\u6216\u5DF2\u505C\u6B62\u91CD\u8BD5",
+    confirmReceipt: "\u6211\u5DF2\u5728\u624B\u673A\u770B\u5230\u8FD9\u6761\u6D88\u606F",
+    deliveryUnknown: "\u72B6\u6001\u672A\u77E5",
+    noEntitlement: "\u5F53\u524D\u6CA1\u6709\u624B\u673A\u63D0\u9192\u6388\u6743\u3002\u8D2D\u4E70\u5957\u9910\u540E\uFF0C\u5728\u4E0B\u65B9\u8F93\u5165\u5BC6\u94A5\u6FC0\u6D3B\u3002",
+    checkingEntitlement: "\u6B63\u5728\u67E5\u8BE2\u624B\u673A\u63D0\u9192\u6388\u6743\u2026",
+    entitlementActive: "\u6388\u6743\u6709\u6548",
+    entitlementPending: "\u6388\u6743\u5C1A\u672A\u5F00\u59CB",
+    entitlementExpired: "\u6388\u6743\u5DF2\u5230\u671F",
+    entitlementRevoked: "\u6388\u6743\u5DF2\u64A4\u9500",
+    phonePlan: "\u624B\u673A\u63D0\u9192\u7EED\u671F",
+    firstTermPlan: "\u9996\u5B66\u671F\u5957\u9910",
+    semesterSubscriptionPlan: "\u5B66\u671F\u8BA2\u9605",
+    phoneFallback: "\u624B\u673A\u63D0\u9192",
+    unknownStatus: "\u72B6\u6001\u672A\u77E5",
+    expiry: " \xB7 \u5B66\u671F\u622A\u6B62\uFF1A{date}",
+    permissionOff: " \xB7 \u624B\u673A\u63D0\u9192\u6743\u9650\u672A\u5F00\u542F",
+    cloudConnected: "\u4E91\u7AEF\u8BBE\u5907\u5DF2\u8FDE\u63A5\uFF1B\u53D1\u9001\u8FDB\u5EA6\u8BF7\u67E5\u770B\u961F\u5217\u4E0E\u901A\u77E5\u72B6\u6001\u3002",
+    phoneTopicReady: "\u624B\u673A\u4E3B\u9898\u5DF2\u51C6\u5907\uFF08\u4E3B\u9898\u672C\u8EAB\u4E0D\u5305\u542B\u6388\u6743\uFF09\u3002\u5728 ntfy \u8BA2\u9605",
+    cloudFailed: "\u4E91\u7AEF\u8FDE\u63A5\u5931\u8D25\uFF1A{error}\u3002\u672C\u673A\u81EA\u52A8\u6253\u5361\u4ECD\u53EF\u4F7F\u7528\u3002",
+    recoverySendFailed: "\u6682\u65F6\u65E0\u6CD5\u53D1\u9001\u9A8C\u8BC1\u7801\uFF0C\u8BF7\u68C0\u67E5\u7F51\u7EDC\u540E\u91CD\u8BD5\u3002",
+    entitlementFailed: "\u6682\u65F6\u65E0\u6CD5\u8BFB\u53D6\u624B\u673A\u63D0\u9192\u6388\u6743\uFF0C\u8BF7\u68C0\u67E5\u7F51\u7EDC\u540E\u91CD\u8BD5\u3002",
+    enterPurchaseKey: "\u8BF7\u8F93\u5165\u8D2D\u4E70\u540E\u6536\u5230\u7684\u5BC6\u94A5\u3002",
+    activatingKey: "\u6B63\u5728\u9A8C\u8BC1\u5E76\u6FC0\u6D3B\u5BC6\u94A5\u2026",
+    keyActivated: "\u5BC6\u94A5\u5DF2\u6FC0\u6D3B\uFF0C\u6B63\u5728\u5237\u65B0\u6388\u6743\u72B6\u6001\u3002",
+    activationFailed: "\u6FC0\u6D3B\u5931\u8D25\uFF0C\u8BF7\u68C0\u67E5\u5BC6\u94A5\u548C\u7F51\u7EDC\u540E\u91CD\u8BD5\u3002",
+    errInvalidKey: "\u5BC6\u94A5\u65E0\u6548\uFF0C\u8BF7\u68C0\u67E5\u540E\u91CD\u8BD5\u3002",
+    errKeyUsed: "\u8FD9\u628A\u5BC6\u94A5\u5DF2\u7ECF\u5151\u6362\u8FC7\u3002",
+    errKeyRevoked: "\u8FD9\u628A\u5BC6\u94A5\u5DF2\u64A4\u9500\uFF0C\u8BF7\u8054\u7CFB\u5E97\u94FA\u5904\u7406\u3002",
+    errKeyExpired: "\u8FD9\u628A\u5BC6\u94A5\u5BF9\u5E94\u7684\u5B66\u671F\u5DF2\u622A\u6B62\uFF0C\u65E0\u6CD5\u6FC0\u6D3B\u3002",
+    errActivationFailed: "\u6FC0\u6D3B\u670D\u52A1\u6682\u65F6\u4E0D\u53EF\u7528\uFF0C\u8BF7\u7A0D\u540E\u91CD\u8BD5\u3002",
+    errUnauthorized: "\u8BBE\u5907\u4E91\u7AEF\u51ED\u8BC1\u5DF2\u5931\u6548\uFF0C\u8BF7\u8054\u7CFB\u652F\u6301\u3002\u5DF2\u4FDD\u7559\u672C\u673A\u914D\u7F6E\u4E0E\u8BBE\u5907\u8EAB\u4EFD\uFF1B\u4E0D\u4F1A\u81EA\u52A8\u8986\u76D6\u6CE8\u518C\u3002",
+    errDeviceExists: "\u8BE5\u8BBE\u5907\u8EAB\u4EFD\u5DF2\u5B58\u5728\uFF0C\u8BF7\u8054\u7CFB\u652F\u6301\u6062\u590D\u4E91\u7AEF\u51ED\u8BC1\u3002\u672C\u673A\u81EA\u52A8\u6253\u5361\u4ECD\u53EF\u4F7F\u7528\u3002",
+    recoveryUnavailable: "\u65E0\u6CD5\u9A8C\u8BC1\u8FD9\u628A\u5BC6\u94A5\u6216\u8054\u7CFB\u539F\u624B\u673A\u901A\u77E5\u3002\u8BF7\u6838\u5BF9\u5BC6\u94A5\uFF1B\u82E5\u4ECD\u65E0\u6CD5\u6062\u590D\uFF0C\u8BF7\u8054\u7CFB\u5E97\u94FA\u652F\u6301\u3002",
+    recoveryDeliveryFailed: "\u9A8C\u8BC1\u7801\u53D1\u9001\u5931\u8D25\uFF0C\u8BF7\u7A0D\u540E\u91CD\u8BD5\u3002\u65E7\u8BA2\u9605\u51ED\u8BC1\u672A\u66F4\u6539\u3002",
+    recoveryRateLimited: "\u8BF7\u6C42\u8FC7\u4E8E\u9891\u7E41\uFF0C\u8BF7\u7A0D\u540E\u518D\u8BD5\u3002",
+    recoveryCodeInvalid: "\u9A8C\u8BC1\u7801\u4E0D\u6B63\u786E\uFF0C\u8BF7\u6838\u5BF9\u624B\u673A\u4E0A\u7684\u6700\u65B0\u6D88\u606F\u540E\u518D\u8BD5\u3002",
+    recoveryCodeExpired: "\u9A8C\u8BC1\u7801\u5DF2\u8FC7\u671F\uFF0C\u8BF7\u91CD\u65B0\u53D1\u9001\u3002",
+    recoveryAttemptsExhausted: "\u5C1D\u8BD5\u6B21\u6570\u5DF2\u7528\u5B8C\uFF0C\u8BF7\u91CD\u65B0\u53D1\u9001\u9A8C\u8BC1\u7801\u3002",
+    recoveryChoice: "\u8BF7\u5148\u6062\u590D\u5DF2\u8D2D\u4E70\u7684\u8BA2\u9605\uFF0C\u6216\u4F7F\u7528\u65B0\u5BC6\u94A5\u6FC0\u6D3B\u624B\u673A\u63D0\u9192\u3002",
+    recoveryOutcomeUnknown: "\u6062\u590D\u8BF7\u6C42\u7ED3\u679C\u5C1A\u672A\u786E\u8BA4\u3002\u8BF7\u4F7F\u7528\u539F\u9A8C\u8BC1\u7801\u518D\u6B21\u9A8C\u8BC1\uFF0C\u4E0D\u8981\u53D6\u6D88\u6062\u590D\u3002",
+    recoveryInProgress: "\u6062\u590D\u6B63\u5728\u5904\u7406\u4E2D\uFF0C\u8BF7\u52FF\u53D6\u6D88\u3002",
+    recoveryUnknownStatus: "\u6682\u65F6\u65E0\u6CD5\u786E\u8BA4\u6062\u590D\u7ED3\u679C\u3002\u8BF7\u4F7F\u7528\u539F\u9A8C\u8BC1\u7801\u518D\u6B21\u9A8C\u8BC1\uFF0C\u4E0D\u8981\u53D6\u6D88\u6D41\u7A0B\u3002",
+    enterOldKey: "\u8BF7\u8F93\u5165\u5DF2\u5151\u6362\u8FC7\u7684\u539F\u5BC6\u94A5\u3002",
+    sendingCode: "\u6B63\u5728\u53D1\u9001\u2026",
+    resendAfter: "{seconds} \u79D2\u540E\u53EF\u91CD\u53D1",
+    resendCode: "\u91CD\u65B0\u53D1\u9001\u9A8C\u8BC1\u7801",
+    sendingRecovery: "\u6B63\u5728\u5411\u539F\u624B\u673A\u901A\u77E5\u53D1\u9001\u9A8C\u8BC1\u7801\u2026",
+    recoveryPending: "\u6062\u590D\u7ED3\u679C\u6682\u672A\u786E\u8BA4\u3002\u8BF7\u4F7F\u7528\u539F\u9A8C\u8BC1\u7801\u7EE7\u7EED\u9A8C\u8BC1\uFF1B\u8BF7\u52FF\u53D6\u6D88\u6D41\u7A0B\u6216\u6539\u7528\u65B0\u5BC6\u94A5\u3002",
+    sentCode: "\u9A8C\u8BC1\u7801\u5DF2\u53D1\u9001\u5230\u539F\u6765\u63A5\u6536\u624B\u673A\u63D0\u9192\u7684\u5E94\u7528\uFF0C\u6709\u6548\u81F3 {time}\u3002",
+    expiredCode: "\u4E0A\u6B21\u9A8C\u8BC1\u7801\u5DF2\u8FC7\u671F\uFF0C\u8BF7\u91CD\u65B0\u53D1\u9001\u3002",
+    requestUnconfirmed: "\u4E0A\u6B21\u53D1\u9001\u8BF7\u6C42\u672A\u5B8C\u6210\u786E\u8BA4\uFF1B\u53EF\u91CD\u65B0\u8BF7\u6C42\u9A8C\u8BC1\u7801\u3002",
+    recoveryIncomplete: "\u6062\u590D\u5C1A\u672A\u5B8C\u6210\uFF0C\u53EF\u4EE5\u91CD\u65B0\u8BF7\u6C42\u9A8C\u8BC1\u7801\uFF0C\u6216\u53D6\u6D88\u8FD9\u6B21\u6062\u590D\u3002",
+    enterSixDigits: "\u8BF7\u8F93\u5165\u624B\u673A\u6536\u5230\u7684 6 \u4F4D\u9A8C\u8BC1\u7801\u3002",
+    verifyingRecover: "\u6B63\u5728\u9A8C\u8BC1\u5E76\u6062\u590D\u8BA2\u9605\u2026",
+    recoverySuccess: "\u8BA2\u9605\u6062\u590D\u6210\u529F\u3002\u6B63\u5728\u66F4\u65B0\u6388\u6743\u4E0E\u901A\u77E5\u72B6\u6001\u3002",
+    recoveryCancelled: "\u6062\u590D\u6D41\u7A0B\u5DF2\u53D6\u6D88\uFF0C\u539F\u8BA2\u9605\u51ED\u8BC1\u672A\u66F4\u6539\u3002",
+    cancelFailed: "\u6682\u65F6\u65E0\u6CD5\u53D6\u6D88\uFF0C\u8BF7\u5237\u65B0\u9875\u9762\u540E\u91CD\u8BD5\u3002"
+  },
+  en: {
+    documentTitle: "Attendance \xB7 Auto-Check Settings",
+    appTitle: "Auto-Check",
+    heroDescription: "Save your profile, import your timetable, auto-bind your forms, and enable check-ins.",
+    profileHeading: "Student profile",
+    openSubscription: "Phone notifications",
+    profileSummaryEmpty: "Enter your student ID and name",
+    studentId: "Student ID",
+    studentName: "Name",
+    studentType: "Student type",
+    localStudent: "Local student",
+    internationalStudent: "International student",
+    saveProfile: "Save profile",
+    chromeLoginHint: "Sign in to your school Microsoft account in this Chrome profile.",
+    timetableHeading: "Timetable",
+    timetableDescription: "Delete lessons you do not need; expand a lesson to edit it.",
+    clearDraft: "Clear draft",
+    importTimetable: "Import timetable",
+    addCourse: "Add lesson",
+    timetableHint: "JPG, PNG, and PDF supported. Keep only your own Group 1 or Group 2 lessons.",
+    noTimetable: "No timetable imported yet.",
+    draftAutoSave: "Drafts save automatically and run only after you enable them.",
+    bindingHeading: "Form bindings",
+    bindingDescription: "Paste a link or upload a QR code to bind automatically. Scans never submit forms.",
+    clearBindings: "Clear bindings",
+    emptyBindings: "Import or add a lesson first.",
+    tasksHeading: "Weekly tasks",
+    tasksDescription: "Runs 5 minutes before each lesson ends. Keep Chrome running, your computer awake, and your school account signed in.",
+    clearTasks: "Delete all tasks",
+    recordsHeading: "Check-in records",
+    recordsMeta: "Review results and export",
+    filterRecords: "Filter results",
+    filterAll: "All results",
+    filterUnknown: "Unknown",
+    filterFailed: "Failed",
+    filterMissed: "Not submitted automatically",
+    filterSuccess: "Succeeded",
+    exportRecords: "Export records",
+    previousPage: "Previous page",
+    nextPage: "Next page",
+    workflowLabel: "Navigation and actions",
+    workflowToggle: "Actions",
+    pageNavigation: "Page navigation",
+    navTimetable: "Timetable",
+    navBindings: "Form bindings",
+    navTasks: "Weekly tasks",
+    navProfile: "Student profile",
+    reviewDraft: "I reviewed the timetable and groups.",
+    verifyAllForms: "Auto-Scan & Save All",
+    testAllForms: "Check all form types \xB7 No submission",
+    confirmAllForms: "Confirm all form types",
+    enableTasks: "Enable weekly tasks",
+    cancelChecks: "Cancel checks",
+    profileSavedSummary: "Saved profile \xB7 Expand to edit",
+    profileSavedToast: "Student profile saved.",
+    profileInvalid: "Enter a valid student ID and name first.",
+    emptyAgendaTitle: "Your timetable will appear here",
+    emptyAgendaCopy: "Import a file to list lessons by weekday.",
+    emptyAgenda: "No lessons to review yet. You can also add one manually.",
+    previewCount: "{count} lesson(s) to review",
+    previewDayCount: "Across {count} weekdays \xB7 Expand a lesson to edit its day or time",
+    weekdayPrefix: "Every ",
+    weekdayFallback: "Monday",
+    lessonCount: "{count} lesson(s)",
+    endTimeSuffix: "end",
+    everyWeek: "Repeats weekly",
+    unnamedCourse: "Untitled lesson",
+    coursePlaceholder: "Lesson name",
+    fieldCourseName: "Course name",
+    fieldWeekday: "Weekday",
+    fieldStartTime: "Start time",
+    fieldEndTime: "End time",
+    fieldExceptions: "No-class dates (optional, comma-separated)",
+    delete: "Delete",
+    clearPreviewConfirm: "Clear the timetable draft? Enabled weekly tasks will remain.",
+    clearBindingsConfirm: "Clear all course bindings? Automatic submission will pause until they are rebound.",
+    clearTasksConfirm: "Delete all weekly tasks? Check-in records will remain.",
+    draftCleared: "Timetable draft cleared.",
+    bindingsCleared: "Course bindings cleared.",
+    tasksDeleted: "Weekly tasks deleted.",
+    emptyTasks: "No tasks yet. Check the forms, then enable the reviewed draft.",
+    inspectFormsCopy: "Shared by: {courses}",
+    formsUrlPlaceholder: "Paste a Forms link or upload a QR code",
+    formsUrlLabel: "{key} Microsoft Forms link",
+    uploadQr: "Upload QR code",
+    bindingReady: "Verified: {title}",
+    legacyConflict: "Old form types use different links. Recheck them using one shared link for this course.",
+    bindingNeedsReview: "Paste a link or upload a QR code to scan and save automatically.",
+    qrRead: "QR code read. Use \u201COpen and review all forms\u201D in the bottom controls to continue.",
+    boundSuccessfully: "\u2705 Bound successfully",
+    dateOptional: "Optional Date \xB7 skipped",
+    readingQr: "Reading QR code\u2026",
+    noFormLinks: "Paste a form link or upload a QR code first.",
+    scanCancelled: "Link changed; previous scan cancelled.",
+    scanningAll: "Scanning & saving\u2026",
+    scanSummary: "Bound {succeeded} subject(s); {failed} need attention.",
+    inspectionBusy: "Forms are being read. Finish the current review before continuing.",
+    openingForm: "Scanning and saving the form in the background\u2026",
+    inspectionTimeout: "Could not read the form. Check your school sign-in and try again.",
+    openedForms: "Opened {count} course form(s). Review and save each one.",
+    actualForm: "Form found: {title} \xB7 {url}",
+    courseCodeMissing: "The form title does not contain course code {code}. Check it carefully.",
+    editMapping: "View or edit question mappings",
+    bindingConfirmation: "I confirmed this shared check-in form is for {key} and applies to {courses}.",
+    saveBinding: "Save form binding",
+    verifyBeforeSave: "Confirm the course and form first.",
+    mapEveryQuestion: "Choose a profile field for every question.",
+    verifiedForm: "Verified: {title}",
+    bindingSaved: "Shared form bound to {key}.",
+    formsNotFound: "No configurable Microsoft Forms response page was found.",
+    reviewForm: "Review the form title and every question, then save the binding.",
+    recognizingTimetable: "Reading timetable on this device\u2026",
+    noRecognizedLessons: "No lessons could be reliably recognized. Add them manually or upload a clearer timetable.",
+    recognizedLessons: "Recognized {count} row(s). {groupWarning}Review each row, then bind its QR code.",
+    groupWarning: "Remove Group lessons that are not yours. ",
+    noImportYet: "No timetable imported yet.",
+    savingDraftFailed: "Could not save the draft: {error}",
+    draftSavedNeedsReview: "Draft saved on this device. Review it again and confirm before continuing. Saving a draft does not enable tasks.",
+    draftRestored: "Restored the local draft. Saving a draft does not enable tasks.",
+    draftReviewed: "Timetable reviewed. Bind the forms to enable tasks.",
+    draftUnreviewed: "Draft saved but not reviewed.",
+    taskEnabledDraft: "Tasks enabled. You can import or add more lessons.",
+    draftReadyToRun: "Timetable reviewed. Bind the forms to enable tasks.",
+    noTasks: "No tasks yet. Check the forms, then enable the reviewed draft.",
+    sessionSummary: "Every {weekday} {start}\u2013{end} \xB7 {state} \xB7 {check}",
+    paused: "Paused",
+    nextRun: "Next: {date} (Malaysia time)",
+    noNextRun: "No upcoming run found",
+    checksComplete: "Form bound",
+    checksIncomplete: "Form binding needed",
+    enable: "Enable",
+    pause: "Pause",
+    editSession: "Edit weekday, time, and no-class dates",
+    fieldCourse: "Course name",
+    fieldExceptionsShort: "No-class dates (comma-separated)",
+    saveChanges: "Save changes",
+    noSuchTask: "This task was deleted.",
+    checkBeforeEnable: "Bind this course\u2019s form before enabling it.",
+    duplicateTask: "A task for the same course and time already exists.",
+    taskSavedRemovedTrigger: "Task updated; the old scheduled trigger was removed.",
+    savedPausedForReview: "Changes saved and task paused. Bind the form before enabling it.",
+    setupReadyTitle: "All form types are filled in and ready to confirm. No form will be submitted.",
+    setupFailedTitle: "A form check failed. Cancel the check, then run it again.",
+    setupWaitingTitle: "Waiting for all Forms pages to finish filling. Confirmation will not submit any form.",
+    recordCount: "{count} record(s)",
+    lessonFallback: "Lesson",
+    recordSuccess: "Succeeded",
+    recordUnknown: "Unknown",
+    recordFailed: "Failed",
+    recordMissed: "Not submitted automatically",
+    recordLaunched: "Opening",
+    recordPending: "Submitting",
+    noOriginalForm: "No original form link is saved. Repair the course binding first.",
+    noRecords: "No check-in records yet.",
+    noFilteredRecords: "No records match this filter. Choose another filter.",
+    recordsPage: "Page {page} of {pages} \xB7 {count} item(s)",
+    noPreviewToActivate: "Import or add a lesson first.",
+    draftChangedReview: "The timetable changed. Review it again and confirm.",
+    reviewBeforeEnable: "Review the timetable, then check the confirmation box.",
+    saveProfileFirst: "Save your changed student profile first.",
+    confirmLessonTypes: "Check and confirm these form types first: {courses}.",
+    enabledWeeklyTasks: "Weekly tasks enabled.",
+    enabledReviewedDraft: "Enabled the reviewed timetable. New changes remain saved as a draft.",
+    checksOpened: "Opened the form-type checks{count}. Review each page; nothing will be submitted.",
+    checksPageCount: " ({count} page(s))",
+    allChecksConfirmed: "Confirmed all {count} form types without submitting. You can now enable weekly tasks.",
+    importerQrImage: "Upload a QR code image (PNG or JPG).",
+    importerQrUnread: "Could not read a QR code from this image. Use a clearer image or paste the link.",
+    importerRecognizeHeader: "Recognizing timetable dates, times, and weekdays",
+    importerFileLimit: "Choose a JPG, PNG, or PDF no larger than 20 MB.",
+    importerPdfPages: "PDFs are limited to 20 pages.",
+    importerReadingPage: "Reading PDF page {page}/{pages}",
+    importerOcrPage: "Page {page} needs on-device OCR",
+    importerOcrImage: "Recognizing image with on-device OCR",
+    importerUnsupported: "Timetables must be JPG/JPEG, PNG, or PDF.",
+    dateAutoCheck: "Today\u2019s date \xB7 verify automatically",
+    profileFieldStudent: "Student ID",
+    profileFieldName: "Name",
+    dateMismatchQuestion: "Date question type mismatch. Check the form.",
+    selectTextData: "Choose a profile field",
+    courseKindAuto: "Choose automatically from course name",
+    unsupportedCourseOptions: "Unsupported lesson type options",
+    studentTypeAuto: "Choose automatically from student type",
+    unsupportedQuestion: "This question type is not supported",
+    fixedOption: "Select {option}",
+    fixedLocal: "Select Local",
+    fixedInternational: "Select International",
+    recoveryInspect: "Check original form manually",
+    recoveryInspectDescription: "Submission started but the result is unknown. Check the school record manually; the system will not retry.",
+    recoveryBinding: "Repair course form binding",
+    recoveryBindingDescription: "Review the form and profile mappings, then run the setup check again.",
+    recoveryLogin: "Check school sign-in and form",
+    recoveryLoginDescription: "Open the original form and check your school sign-in, its open period, or any extra verification.",
+    recoveryMissed: "Open form and handle manually",
+    recoveryMissedDescription: "This check-in was not submitted automatically. Follow your school\u2019s instructions and check Chrome and sleep settings.",
+    recoveryView: "View original form",
+    recoverySuccessDescription: "The original form showed a success message.",
+    recoveryCurrentDescription: "Check the currently open page.",
+    subscriptionTitle: "Phone notification subscription",
+    subscriptionMeta: "Optional \xB7 Expand to purchase or activate",
+    subscriptionIntro: "Activate with a key after purchase. Local automatic check-ins do not require phone notification access.",
+    chooseCurrency: "Choose currency",
+    planName: "Phone notification renewal",
+    planDescription: "After renewal, service remains valid until the semester end date assigned to the key.",
+    pricePeriod: "/sem",
+    purchaseRm: "Get License Key",
+    purchaseRmb: "Go to store \xB7 Phone notification renewal",
+    activationHeading: "Activate a new key or renew",
+    newKey: "New key",
+    activate: "Activate phone notifications",
+    refresh: "Refresh authorization",
+    entitlementLoading: "Expand to check phone notification authorization.",
+    recoveryTitle: "Already redeemed a key? Restore phone notifications",
+    recoveryDescription: "Enter the original key you redeemed before. A verification code will be sent to the phone that receives your reminders. Recovery does not redeem the key again. If your local computer data was also cleared, import your timetable and enter your student details again.",
+    oldKey: "Previously redeemed key",
+    sendCode: "Send code",
+    receivedCode: "6-digit code from your phone",
+    verifyRecover: "Verify and restore",
+    cancelRecovery: "Cancel recovery",
+    subscriptionHelp: "Subscription details",
+    subscriptionTerms: "Each key can be bound to one device. Keys for the same semester do not stack. The semester end date is inclusive in Malaysia time. An ntfy topic does not replace an active authorization.",
+    phoneStatusTitle: "Phone and notification status",
+    cloudStarting: "Preparing cloud connection\u2026",
+    topicStarting: "Phone topic is not ready yet.",
+    retryConnection: "Retry connection",
+    copyTopic: "Copy ntfy address",
+    topicQr: "Subscription QR code",
+    choosePhoneSystem: "Choose phone platform",
+    androidSubscribe: "Android \xB7 Subscribe automatically",
+    iosSubscribe: "iPhone / iPad",
+    topicQrAccessible: "ntfy subscription QR code",
+    refreshDelivery: "Refresh notification status",
+    queueStatus: "{count} item(s) waiting to sync",
+    queueError: " \xB7 Latest error: {error}",
+    queueSent: " \xB7 Last sent: {date}",
+    connectionRestored: "Device connection restored.",
+    waitingConnection: "Waiting for connection.",
+    topicNotReady: "Phone topic is not ready. Retry the cloud connection.",
+    copiedTopic: "ntfy address copied. Subscribe to it in the ntfy app on your phone.",
+    qrAndroidHelp: "Scanning opens ntfy and subscribes to the topic. An ntfy link cannot change app settings remotely; after scanning, enable \u201CInstant Delivery / Subscription Service\u201D in ntfy settings and allow persistent notifications. Instant delivery is enabled by default in the F-Droid version.",
+    qrIosHelp: "Scanning opens the topic webpage. In the ntfy app on iOS, add a subscription (server ntfy.sh, topic {topic}), then allow notifications in iPhone Settings > Notifications > ntfy. If Focus or Scheduled Summary is enabled, allow ntfy through Focus and remove it from Scheduled Summary. iOS has no Android instant-delivery switch.",
+    deliveryRecorded: "Delivery status comes from the server; ntfy acceptance does not confirm phone receipt.",
+    deliveryEmpty: "There are no cloud notification records yet.",
+    receiptConfirmed: "Student confirmed receipt on phone",
+    deliveryQueued: "Queued",
+    deliverySending: "Sending",
+    deliveryAccepted: "Accepted by ntfy; phone receipt is not confirmed",
+    deliveryUncertain: "Delivery is uncertain; it was not retried automatically",
+    deliveryDiscarded: "Not sent or retries stopped",
+    confirmReceipt: "I saw this message on my phone",
+    deliveryUnknown: "Unknown status",
+    noEntitlement: "There is no phone notification authorization yet. Purchase a plan, then enter your key below to activate it.",
+    checkingEntitlement: "Checking phone notification authorization\u2026",
+    entitlementActive: "Authorization active",
+    entitlementPending: "Authorization has not started",
+    entitlementExpired: "Authorization expired",
+    entitlementRevoked: "Authorization revoked",
+    phonePlan: "Phone notification renewal",
+    firstTermPlan: "First semester plan",
+    semesterSubscriptionPlan: "Semester subscription",
+    phoneFallback: "Phone notifications",
+    unknownStatus: "Unknown status",
+    expiry: " \xB7 Semester ends: {date}",
+    permissionOff: " \xB7 Phone notifications are not enabled",
+    cloudConnected: "Cloud device connected. Check the queue and notification status for delivery progress.",
+    phoneTopicReady: "Phone topic is ready (the topic does not include authorization). Subscribe in ntfy:",
+    cloudFailed: "Cloud connection failed: {error}. Local automatic check-ins are still available.",
+    recoverySendFailed: "Could not send a verification code. Check your connection and try again.",
+    entitlementFailed: "Could not load phone notification authorization. Check your connection and try again.",
+    enterPurchaseKey: "Enter the key you received after purchase.",
+    activatingKey: "Verifying and activating key\u2026",
+    keyActivated: "Key activated. Refreshing authorization status.",
+    activationFailed: "Activation failed. Check the key and your connection, then try again.",
+    errInvalidKey: "Invalid key. Check it and try again.",
+    errKeyUsed: "This key has already been redeemed.",
+    errKeyRevoked: "This key was revoked. Contact the store for help.",
+    errKeyExpired: "The semester assigned to this key has ended; it cannot be activated.",
+    errActivationFailed: "The activation service is temporarily unavailable. Try again later.",
+    errUnauthorized: "The device cloud credential is no longer valid. Contact support. Your local settings and device identity are preserved; registration will not be overwritten.",
+    errDeviceExists: "This device identity already exists. Contact support to restore cloud access. Local automatic check-ins are still available.",
+    recoveryUnavailable: "Could not verify this key or contact the original phone notification. Check the key; if recovery still fails, contact store support.",
+    recoveryDeliveryFailed: "Could not send the verification code. Try again later. The old subscription credentials are unchanged.",
+    recoveryRateLimited: "Too many requests. Try again later.",
+    recoveryCodeInvalid: "The code is incorrect. Check the latest message on your phone and try again.",
+    recoveryCodeExpired: "The code expired. Send a new one.",
+    recoveryAttemptsExhausted: "No attempts remain. Send a new verification code.",
+    recoveryChoice: "Restore your purchased subscription first, or activate phone notifications with a new key.",
+    recoveryOutcomeUnknown: "The recovery request is not confirmed yet. Verify again with the original code; do not cancel recovery.",
+    recoveryInProgress: "Recovery is in progress. Do not cancel it.",
+    recoveryUnknownStatus: "Could not confirm the recovery result. Verify again with the original code; do not cancel the process.",
+    enterOldKey: "Enter the key you redeemed before.",
+    sendingCode: "Sending\u2026",
+    resendAfter: "Resend in {seconds}s",
+    resendCode: "Resend code",
+    sendingRecovery: "Sending a verification code to the original phone notification\u2026",
+    recoveryPending: "Recovery is not confirmed yet. Continue with the original code; do not cancel or switch to a new key.",
+    sentCode: "A code was sent to the app that receives your phone reminders. It is valid until {time}.",
+    expiredCode: "The last code expired. Send a new one.",
+    requestUnconfirmed: "The previous send request was not confirmed. You can request another code.",
+    recoveryIncomplete: "Recovery is not complete. Request another code or cancel this recovery.",
+    enterSixDigits: "Enter the 6-digit code from your phone.",
+    verifyingRecover: "Verifying and restoring subscription\u2026",
+    recoverySuccess: "Subscription restored. Updating authorization and notification status.",
+    recoveryCancelled: "Recovery cancelled. The original subscription credentials are unchanged.",
+    cancelFailed: "Could not cancel right now. Refresh the page and try again."
+  }
+};
+var language = "zh";
+function t(key, values = {}) {
+  const template = copy[language][key] ?? copy.zh[key] ?? key;
+  return template.replace(/\{(\w+)\}/g, (_, name) => values[name] ?? "");
+}
+var errorText = {
+  "\u4E8C\u7EF4\u7801\u6216\u94FE\u63A5\u4E0D\u662F\u6709\u6548\u7F51\u5740\u3002": "The QR code or link is not a valid URL.",
+  "\u53EA\u63A5\u53D7 Microsoft Forms \u7684\u586B\u5199\u94FE\u63A5\u3002": "Only Microsoft Forms response links are accepted.",
+  "\u8868\u5355\u94FE\u63A5\u7F3A\u5C11 ID\u3002": "The Forms link is missing its ID.",
+  "\u65E0\u6CD5\u8BC6\u522B\u8868\u5355\u65E5\u671F\u683C\u5F0F\u3002": "Could not recognize the date format in the form.",
+  "\u65E0\u6CD5\u5224\u65AD\u6B64\u8BFE\u7A0B\u7C7B\u578B\uFF0C\u8BF7\u9009\u62E9 Lecture\u3001Tutorial \u6216 Laboratory\u3002": "Could not determine this lesson type. Choose Lecture, Tutorial, or Laboratory.",
+  "\u8868\u5355\u9898\u76EE\u53D1\u751F\u53D8\u5316\uFF0C\u5DF2\u505C\u6B62\u3002": "The form questions changed. Processing stopped.",
+  "\u4EFB\u52A1\u65E5\u671F\u4E0E\u9A6C\u6765\u897F\u4E9A\u5F53\u5929\u65E5\u671F\u4E0D\u4E00\u81F4\uFF0C\u5DF2\u505C\u6B62\u3002": "The task date does not match today in Malaysia. Processing stopped.",
+  "\u7535\u8111\u672C\u5730\u65E5\u671F\u4E0E\u9A6C\u6765\u897F\u4E9A\u65E5\u671F\u4E0D\u4E00\u81F4\uFF0C\u5DF2\u505C\u6B62\u3002": "The computer date does not match the Malaysia date. Processing stopped.",
+  "\u4EFB\u52A1\u7C7B\u578B\u65E0\u6548\u3002": "Invalid task type.",
+  "\u6BCF\u5468\u661F\u671F\u987B\u4E3A 0\u20136 \u7684\u6574\u6570\u3002": "Weekday must be an integer from 0 to 6.",
+  "\u4EFB\u52A1\u65E5\u671F\u65E0\u6548\u3002": "Invalid task date.",
+  "\u505C\u8BFE\u65E5\u671F\u683C\u5F0F\u65E0\u6548\u3002": "Invalid no-class date format.",
+  "\u4EFB\u52A1\u542F\u7528\u72B6\u6001\u65E0\u6548\u3002": "Invalid task enabled state.",
+  "\u8BFE\u7A0B\u540D\u79F0\u987B\u4E3A 2\u201364 \u4E2A\u82F1\u6587\u5B57\u6BCD\u3001\u6570\u5B57\u3001\u7A7A\u683C\u3001\u4E0B\u5212\u7EBF\u6216\u8FDE\u5B57\u7B26\u3002": "Course names must contain 2\u201364 English letters, numbers, spaces, underscores, or hyphens.",
+  "\u8BF7\u5148\u6DFB\u52A0\u8BFE\u7A0B\u5E76\u6838\u5BF9\u8868\u5355\u7ED1\u5B9A\u3002": "Add a course and verify its form binding first.",
+  "\u4E00\u6B21\u6700\u591A\u68C0\u67E5 200 \u4E2A\u8868\u5355\u8BFE\u578B\u3002": "You can check up to 200 form types at a time.",
+  "\u68C0\u67E5\u5DF2\u7ED3\u675F\u6216\u9875\u9762\u4E0D\u5339\u914D\u3002": "The check has ended or the page does not match.",
+  "\u65E0\u6548\u7684\u8BBE\u7F6E\u68C0\u67E5\u72B6\u6001\u3002": "Invalid setup check state.",
+  "\u68C0\u67E5\u672A\u5C31\u7EEA\u6216\u914D\u7F6E\u5DF2\u53D8\u5316\uFF0C\u8BF7\u91CD\u65B0\u68C0\u67E5\u3002": "The check is not ready or the setup changed. Run the check again.",
+  "\u4E0D\u662F\u652F\u6301\u7684 Attendance \u914D\u7F6E\u5907\u4EFD\u3002": "This is not a supported Attendance configuration backup.",
+  "\u5907\u4EFD\u5305\u542B\u4E0D\u652F\u6301\u7684\u5B57\u6BB5\u6216\u51ED\u8BC1\uFF0C\u672A\u5BFC\u5165\u3002": "The backup has unsupported fields or credentials and was not imported.",
+  "\u5907\u4EFD\u7ED3\u6784\u65E0\u6548\u3002": "Invalid backup structure.",
+  "\u5907\u4EFD\u5B66\u751F\u8D44\u6599\u65E0\u6548\u3002": "Invalid student profile in backup.",
+  "\u5907\u4EFD\u4EFB\u52A1 ID \u65E0\u6548\u6216\u91CD\u590D\u3002": "A backup task ID is invalid or duplicated.",
+  "\u5907\u4EFD\u4EFB\u52A1\u5305\u542B\u4E0D\u652F\u6301\u7684\u72B6\u6001\u3002": "A backup task has an unsupported state.",
+  "\u5907\u4EFD\u7ED1\u5B9A\u6570\u91CF\u8FC7\u591A\u3002": "The backup contains too many bindings.",
+  "\u5907\u4EFD\u8868\u5355\u7ED1\u5B9A\u65E0\u6548\u3002": "Invalid form binding in backup.",
+  "\u5907\u4EFD\u7ED1\u5B9A\u5305\u542B\u4E0D\u652F\u6301\u7684\u5B57\u6BB5\u3002": "A form binding in the backup contains unsupported fields.",
+  "\u5907\u4EFD\u8868\u5355\u9898\u76EE\u65E0\u6548\u3002": "Invalid form questions in backup.",
+  "\u5907\u4EFD\u8BB0\u5F55\u6570\u91CF\u8FC7\u591A\u3002": "The backup contains too many records.",
+  "\u5907\u4EFD\u53EA\u80FD\u5305\u542B\u6709\u6548\u7684\u5DF2\u7ED3\u675F\u8BB0\u5F55\u3002": "Backups can include only valid, completed records.",
+  "\u5907\u4EFD\u5305\u542B\u8FD0\u884C\u4E2D\u72B6\u6001\uFF0C\u672A\u5BFC\u5165\u3002": "The backup includes an in-progress state and was not imported."
+};
+function localizeMessage(message2) {
+  if (language !== "en" || typeof message2 !== "string") return message2;
+  if (errorText[message2]) return errorText[message2];
+  const patterns = [
+    [/^课程名称须为 2–64 个英文字母、数字、空格、下划线或连字符。$/, "Course names must contain 2\u201364 English letters, numbers, spaces, underscores, or hyphens."],
+    [/^(.+) 需要重新读取并保存表单题目。$/, "Reload and save the form questions for $1."],
+    [/^(.+) 的起止时间无效。$/, "$1 has an invalid start or end time."],
+    [/^(.+) 的停课日期无效。$/, "$1 has an invalid no-class date."],
+    [/^第 (\d+) 题映射与题型不一致，未提交。$/, "Question $1 does not match its configured type. Nothing was submitted."],
+    [/^未配置第 (\d+) 题。$/, "Question $1 is not configured."],
+    [/^第 (\d+) 题没有匹配的答案。$/, "No answer matches question $1."],
+    [/^(.+) 尚未绑定并核对共用表单。$/, "$1 does not have a verified shared form."],
+    [/^(.+) 的固定课型与课程名称不一致，请重新核对共用表单。$/, "The fixed lesson type for $1 does not match its course name. Review the shared form again."],
+    [/^请先为 (.+) 配置表单题目。$/, "Configure the form questions for $1 first."]
+  ];
+  for (const [pattern, replacement] of patterns) if (pattern.test(message2)) return message2.replace(pattern, replacement);
+  return message2;
+}
+function currentLanguage() {
+  return language;
+}
+async function setLanguage(value, persist = true) {
+  language = value === "en" ? "en" : "zh";
+  if (persist) await chrome.storage.local.set({ attendanceLanguage: language });
+  document.documentElement.lang = language === "en" ? "en" : "zh-CN";
+  document.querySelectorAll("[data-i18n]").forEach((element) => {
+    element.textContent = t(element.dataset.i18n);
+  });
+  document.querySelectorAll("[data-i18n-aria-label]").forEach((element) => {
+    element.setAttribute("aria-label", t(element.dataset.i18nAriaLabel));
+  });
+  document.querySelectorAll("[data-i18n-placeholder]").forEach((element) => {
+    element.setAttribute("placeholder", t(element.dataset.i18nPlaceholder));
+  });
+  document.querySelectorAll("[data-i18n-title]").forEach((element) => {
+    element.setAttribute("title", t(element.dataset.i18nTitle));
+  });
+  document.querySelector("#language-en")?.setAttribute("aria-pressed", String(language === "en"));
+  document.querySelector("#language-zh")?.setAttribute("aria-pressed", String(language === "zh"));
+  document.querySelector("#language-en")?.classList.toggle("selected", language === "en");
+  document.querySelector("#language-zh")?.classList.toggle("selected", language === "zh");
 }
 
 // src/importer.js
@@ -39369,12 +42428,98 @@ async function imageCanvas(blob) {
   image.close();
   return canvas;
 }
+function enhancedCanvas(source, scale = 3) {
+  const canvas = document.createElement("canvas");
+  canvas.width = source.width * scale;
+  canvas.height = source.height * scale;
+  const context = canvas.getContext("2d", { willReadFrequently: true });
+  context.drawImage(source, 0, 0, canvas.width, canvas.height);
+  const image = context.getImageData(0, 0, canvas.width, canvas.height), gray = new Uint8Array(canvas.width * canvas.height);
+  for (let i = 0; i < gray.length; i++) {
+    const at = i * 4;
+    gray[i] = Math.round(0.299 * image.data[at] + 0.587 * image.data[at + 1] + 0.114 * image.data[at + 2]);
+  }
+  const radius = Math.max(8, Math.round(12 * scale)), stride = canvas.width + 1, integral = new Uint32Array((canvas.width + 1) * (canvas.height + 1));
+  for (let y = 1; y <= canvas.height; y++) {
+    let row = 0;
+    for (let x = 1; x <= canvas.width; x++) {
+      row += gray[(y - 1) * canvas.width + x - 1];
+      integral[y * stride + x] = integral[(y - 1) * stride + x] + row;
+    }
+  }
+  for (let y = 0; y < canvas.height; y++) for (let x = 0; x < canvas.width; x++) {
+    const x0 = Math.max(0, x - radius), x1 = Math.min(canvas.width, x + radius + 1), y0 = Math.max(0, y - radius), y1 = Math.min(canvas.height, y + radius + 1);
+    const sum = integral[y1 * stride + x1] - integral[y0 * stride + x1] - integral[y1 * stride + x0] + integral[y0 * stride + x0], mean = sum / ((x1 - x0) * (y1 - y0));
+    const value = gray[y * canvas.width + x] < mean - 8 ? 0 : 255, at = (y * canvas.width + x) * 4;
+    image.data[at] = image.data[at + 1] = image.data[at + 2] = value;
+    image.data[at + 3] = 255;
+  }
+  context.putImageData(image, 0, 0);
+  return canvas;
+}
+async function makeWorker(onProgress) {
+  return (0, import_tesseract.createWorker)("eng", 1, { workerPath: asset("worker.min.js"), corePath: asset("tesseract-core"), langPath: asset("lang"), workerBlobURL: false, cacheMethod: "none", logger: (m) => onProgress?.(`${m.status} ${Math.round((m.progress || 0) * 100)}%`) });
+}
+function extractOcr(data, scale = 1) {
+  const tokens = [];
+  for (const block of data.blocks || []) for (const para of block.paragraphs || []) for (const line of para.lines || []) for (const word of line.words || []) {
+    const b = word.bbox;
+    tokens.push({ text: word.text, x: b.x0 / scale, y: b.y0 / scale, width: (b.x1 - b.x0) / scale, height: (b.y1 - b.y0) / scale, confidence: word.confidence });
+  }
+  return { text: data.text || "", tokens };
+}
+async function recognizeImageGrid(source, onProgress) {
+  const ctx = source.getContext("2d", { willReadFrequently: true }), grid = detectTimetableGrid(ctx.getImageData(0, 0, source.width, source.height));
+  if (!grid.ok) {
+    onProgress?.(`\u8868\u683C\u7F51\u683C\u68C0\u6D4B\u5931\u8D25\uFF0C\u56DE\u9000\u5230\u6574\u56FE OCR\uFF1A${grid.reason}`);
+    return null;
+  }
+  const worker = await makeWorker(onProgress), headerCanvas = enhancedCanvas(source, 3);
+  try {
+    const header = extractOcr((await worker.recognize(headerCanvas, {}, { text: true, blocks: true })).data, 3), dates = weekDates(header.text), weekdayIds = { Mo: 1, Tu: 2, We: 3, Th: 4, Fr: 5 }, rows = [];
+    const headerRanges = header.tokens.flatMap((token) => {
+      const found = [...token.text.matchAll(/(\d{1,2}:[0-5]\d)\s*[-–—]\s*(\d{1,2}:[0-5]\d)/g)];
+      return found.map((match) => ({ x: token.x + token.width / 2, start: match[1], end: match[2] }));
+    });
+    const clockTokens = header.tokens.filter((token) => /^\d{1,2}:[0-5]\d$/.test(token.text.trim())).sort((a, b) => a.y - b.y || a.x - b.x);
+    for (const start of clockTokens) {
+      const end = clockTokens.find((item) => item.x > start.x + start.width && Math.abs(item.y - start.y) < Math.max(item.height, start.height) * 1.5);
+      if (end) headerRanges.push({ x: (start.x + end.x + end.width) / 2, start: start.text.trim(), end: end.text.trim() });
+    }
+    for (const cell of grid.cells) for (const segment of cell.groupSegments) {
+      const padding = Math.max(1, Math.round(Math.min(source.width, source.height) * 2e-3)), left = Math.ceil(cell.left + padding), top = Math.ceil(segment.top + padding), right = Math.floor(cell.right - padding), bottom = Math.floor(segment.bottom - padding);
+      if (right - left < 4 || bottom - top < 4) continue;
+      const crop = document.createElement("canvas");
+      crop.width = (right - left) * 3;
+      crop.height = (bottom - top) * 3;
+      const cropCtx = crop.getContext("2d", { willReadFrequently: true });
+      cropCtx.fillStyle = "#fff";
+      cropCtx.fillRect(0, 0, crop.width, crop.height);
+      cropCtx.drawImage(source, left, top, right - left, bottom - top, 0, 0, crop.width, crop.height);
+      cropCtx.fillStyle = "#fff";
+      cropCtx.fillRect(0, 0, crop.width, 3);
+      cropCtx.fillRect(0, crop.height - 3, crop.width, 3);
+      cropCtx.fillRect(0, 0, 3, crop.height);
+      cropCtx.fillRect(crop.width - 3, 0, 3, crop.height);
+      const recognized = extractOcr((await worker.recognize(crop, {}, { text: true, blocks: true })).data);
+      if (!recognized.text.trim()) continue;
+      const periodCenter = (grid.periodColumns[cell.periodStart - 1].center + grid.periodColumns[cell.periodEnd - 1].center) / 2;
+      const headerTime = headerRanges.toSorted((a, b) => Math.abs(a.x - periodCenter) - Math.abs(b.x - periodCenter))[0];
+      const mapped = periodTime(cell.periodStart, cell.periodEnd, { header: headerTime });
+      const parsed = parseCellText(recognized.text, { day: cell.day, date: dates?.get(weekdayIds[cell.day]) || null, start: mapped.start, end: mapped.end, needsReview: mapped.needsReview, ocrConfidence: recognized.tokens.length ? recognized.tokens.reduce((sum, item) => sum + item.confidence, 0) / recognized.tokens.length / 100 : 0 });
+      rows.push(parsed);
+    }
+    return { rows, header };
+  } finally {
+    await worker.terminate();
+  }
+}
 async function decodeQrFile(file) {
-  if (!file?.type.startsWith("image/")) throw Error("\u8BF7\u4E0A\u4F20\u4E8C\u7EF4\u7801\u56FE\u7247\uFF08PNG \u6216 JPG\uFF09\u3002");
+  if (!file?.type.startsWith("image/")) throw Error(t("importerQrImage"));
   const canvas = await imageCanvas(file), ctx = canvas.getContext("2d", { willReadFrequently: true });
   const data = ctx.getImageData(0, 0, canvas.width, canvas.height);
   const url = decodeQrPixelsInRegions(data.data, canvas.width, canvas.height, qrScanRegions(canvas.width, canvas.height));
-  if (!url) throw Error("\u672A\u80FD\u4ECE\u56FE\u7247\u4E2D\u8BC6\u522B\u4E8C\u7EF4\u7801\uFF0C\u8BF7\u6362\u6E05\u6670\u622A\u56FE\u6216\u7C98\u8D34\u94FE\u63A5\u3002");
+  if (!url) throw Error(t("importerQrUnread"));
   return url;
 }
 async function ocr(canvas, onProgress) {
@@ -39397,10 +42542,10 @@ async function ocr(canvas, onProgress) {
     };
     const result = extract((await worker.recognize(canvas, {}, { text: true, blocks: true })).data);
     if (rowsFromPage(result).length) return result;
-    const courses = result.tokens.filter((t) => /\b[A-Z]{2,}\d{3,}/i.test(t.text));
+    const courses = result.tokens.filter((t2) => /\b[A-Z]{2,}\d{3,}/i.test(t2.text));
     if (!courses.length) return result;
-    const firstY = Math.min(...courses.map((t) => t.y)), lastY = Math.max(...courses.map((t) => t.y + t.height));
-    const firstX = Math.min(...courses.map((t) => t.x));
+    const firstY = Math.min(...courses.map((t2) => t2.y)), lastY = Math.max(...courses.map((t2) => t2.y + t2.height));
+    const firstX = Math.min(...courses.map((t2) => t2.x));
     const headerTop = Math.floor(firstY * 0.48), headerLeft = Math.floor(firstX * 0.75), daysTop = Math.floor(firstY * 0.75);
     const titleLeft = Math.floor(canvas.width * 0.18), titleTop = Math.floor(firstY * 0.08);
     const regions = [
@@ -39408,7 +42553,7 @@ async function ocr(canvas, onProgress) {
       { left: headerLeft, top: headerTop, width: canvas.width - headerLeft, height: Math.ceil(firstY * 0.36) },
       { left: 0, top: daysTop, width: Math.ceil(firstX * 0.95), height: Math.min(canvas.height - daysTop, Math.ceil(lastY * 1.15 - daysTop)) }
     ];
-    onProgress?.("\u6B63\u5728\u8BC6\u522B\u8BFE\u8868\u7684\u65E5\u671F\u3001\u65F6\u95F4\u548C\u661F\u671F");
+    onProgress?.(t("importerRecognizeHeader"));
     await worker.setParameters({ tessedit_pageseg_mode: import_tesseract.PSM.SINGLE_BLOCK });
     for (const rectangle of regions) {
       const part = extract((await worker.recognize(canvas, { rectangle }, { text: true, blocks: true })).data);
@@ -39422,24 +42567,24 @@ ${part.text}`;
   }
 }
 async function importTimetable(file, onProgress) {
-  if (!file || file.size > 20 * 1024 * 1024) throw Error("\u8BF7\u9009\u62E9\u4E0D\u8D85\u8FC7 20 MB \u7684 JPG\u3001PNG \u6216 PDF\u3002");
+  if (!file || file.size > 20 * 1024 * 1024) throw Error(t("importerFileLimit"));
   let rows = [];
   if (file.type === "application/pdf" || /\.pdf$/i.test(file.name)) {
     const pdf = await getDocument({ data: new Uint8Array(await file.arrayBuffer()), isEvalSupported: false }).promise;
-    if (pdf.numPages > 20) throw Error("PDF \u6700\u591A\u652F\u6301 20 \u9875\u3002");
+    if (pdf.numPages > 20) throw Error(t("importerPdfPages"));
     for (let number = 1; number <= pdf.numPages; number++) {
-      onProgress?.(`\u6B63\u5728\u8BFB\u53D6 PDF \u7B2C ${number}/${pdf.numPages} \u9875`);
+      onProgress?.(t("importerReadingPage", { page: number, pages: pdf.numPages }));
       const page = await pdf.getPage(number), content = await page.getTextContent();
       const tokens = content.items.filter((i) => i.str?.trim()).map((i) => ({ text: i.str, x: i.transform[4], y: page.view[3] - i.transform[5], width: i.width, height: i.height || 12 }));
       const lines = /* @__PURE__ */ new Map();
-      for (const t of tokens) {
-        const key = Math.round(t.y / 8) * 8;
-        lines.set(key, [...lines.get(key) || [], t]);
+      for (const t2 of tokens) {
+        const key = Math.round(t2.y / 8) * 8;
+        lines.set(key, [...lines.get(key) || [], t2]);
       }
       const text = [...lines.entries()].sort((a, b) => a[0] - b[0]).map(([, items]) => items.sort((a, b) => a.x - b.x).map((x) => x.text).join(" ")).join("\n");
       let found = rowsFromPage({ text, tokens });
       if (!found.length) {
-        onProgress?.(`\u7B2C ${number} \u9875\u9700\u8981\u672C\u673A OCR \u8BC6\u522B`);
+        onProgress?.(t("importerOcrPage", { page: number }));
         const viewport = page.getViewport({ scale: 2 }), canvas = document.createElement("canvas");
         canvas.width = Math.ceil(viewport.width);
         canvas.height = Math.ceil(viewport.height);
@@ -39449,9 +42594,16 @@ async function importTimetable(file, onProgress) {
       rows = mergeSessions(rows, found);
     }
   } else if (file.type === "image/jpeg" || file.type === "image/png" || /\.(?:jpe?g|png)$/i.test(file.name)) {
-    onProgress?.("\u6B63\u5728\u672C\u673A OCR \u8BC6\u522B\u56FE\u7247");
-    rows = rowsFromPage(await ocr(await imageCanvas(file), onProgress));
-  } else throw Error("\u8BFE\u8868\u53EA\u652F\u6301 JPG/JPEG\u3001PNG \u6216 PDF\u3002");
+    onProgress?.(t("importerOcrImage"));
+    const original = await imageCanvas(file), gridResult = await recognizeImageGrid(original, onProgress);
+    if (gridResult) rows = gridResult.rows;
+    if (!rows.length) {
+      const prepared = enhancedCanvas(original, 3);
+      rows = rowsFromPage(await ocr(prepared, onProgress));
+      if (!rows.length) rows = rowsFromPage(await ocr(original, onProgress));
+      if (rows.length) rows = rows.map((row) => ({ ...row, needsReview: true, confidence: { legacy: 0.45 }, gridFailure: "\u7F51\u683C\u9010\u683C\u8BC6\u522B\u672A\u5B8C\u6210\uFF1B\u7ED3\u679C\u6765\u81EA\u6574\u56FE\u56DE\u9000\u89E3\u6790" }));
+    }
+  } else throw Error(t("importerUnsupported"));
   return rows;
 }
 
@@ -39465,7 +42617,7 @@ function validateFormsUrl(value) {
   } catch {
     throw Error("\u4E8C\u7EF4\u7801\u6216\u94FE\u63A5\u4E0D\u662F\u6709\u6548\u7F51\u5740\u3002");
   }
-  if (url.protocol !== "https:" || !HOSTS.has(url.hostname.toLowerCase()) || !(/^\/r\/[\w-]+\/?$/.test(url.pathname) || /^\/Pages\/ResponsePage\.aspx$/i.test(url.pathname))) throw Error("\u53EA\u63A5\u53D7 Microsoft Forms \u7684\u586B\u5199\u94FE\u63A5\u3002");
+  if (url.protocol !== "https:" || url.username || url.password || url.port || !HOSTS.has(url.hostname.toLowerCase()) || !(/^\/r\/[\w-]+\/?$/.test(url.pathname) || /^\/Pages\/ResponsePage\.aspx$/i.test(url.pathname))) throw Error("\u53EA\u63A5\u53D7 Microsoft Forms \u7684\u586B\u5199\u94FE\u63A5\u3002");
   if (/^\/Pages\//i.test(url.pathname) && !url.searchParams.get("id")) throw Error("\u8868\u5355\u94FE\u63A5\u7F3A\u5C11 ID\u3002");
   url.hash = "";
   return url;
@@ -39477,7 +42629,7 @@ function formatDate(placeholder2, date) {
   const [y, m, d] = date.split("-");
   const format = String(placeholder2 || "").match(/(?:yyyy|MM|M|dd|d)[/.-](?:yyyy|MM|M|dd|d)[/.-](?:yyyy|MM|M|dd|d)/)?.[0];
   if (!format) throw Error("\u65E0\u6CD5\u8BC6\u522B\u8868\u5355\u65E5\u671F\u683C\u5F0F\u3002");
-  return format.replace(/yyyy|MM|dd|M|d/g, (t) => ({ yyyy: y, MM: m, M: String(+m), dd: d, d: String(+d) })[t]);
+  return format.replace(/yyyy|MM|dd|M|d/g, (t2) => ({ yyyy: y, MM: m, M: String(+m), dd: d, d: String(+d) })[t2]);
 }
 function deliveryFromCourse(course) {
   if (/(?:^|\W)(?:tut|tutorial)\b/i.test(course || "")) return "tutorial";
@@ -39496,11 +42648,12 @@ function buildFillPlan(questions, mapping, profile2, date, course) {
   return mapping.map((entry, i) => {
     const q = questions[i];
     let value;
+    if (q.type === "date" && q.required === false) return { type: "date", field: entry.field, skip: true };
     const expectedType = ["student", "name"].includes(entry.field) ? "text" : entry.field === "date" ? "date" : /^(?:delivery|local)(?::|$)/.test(entry.field) ? "radio" : null;
     if (expectedType && q.type !== expectedType) throw Error(`\u7B2C ${i + 1} \u9898\u6620\u5C04\u4E0E\u9898\u578B\u4E0D\u4E00\u81F4\uFF0C\u672A\u63D0\u4EA4\u3002`);
     if (entry.field === "student") value = profile2.student;
     else if (entry.field === "name") value = profile2.name;
-    else if (entry.field === "date") value = formatDate(q.placeholder, date);
+    else if (entry.field === "date") value = q.nativeDate ? date : formatDate(q.placeholder, date);
     else if (entry.field === "delivery" || ["delivery:lecture", "delivery:tutorial", "delivery:lab", "delivery:laboratory"].includes(entry.field)) {
       const target = entry.field === "delivery" ? deliveryFromCourse(course) : entry.field.split(":")[1];
       value = deliveryOption(q.options || [], target === "laboratory" ? "lab" : target);
@@ -39519,24 +42672,24 @@ var radioOption = (options, kind) => options.find((option) => kind === "lab" ? [
 var identityOption2 = (options, kind) => options.find((option) => kind === "local" ? /\blocal\b/i.test(option) && !/international/i.test(option) : /international/i.test(option));
 function fieldMappingForQuestion(question, course = "") {
   const title = normalize(question.title), options = question.options || [];
-  if (question.type === "date") return { choices: [["date", "\u5F53\u65E5\u65E5\u671F \xB7 \u81EA\u52A8\u6838\u5BF9"]], selected: "date" };
+  if (question.type === "date") return { choices: [[question.required === false ? "skip" : "date", t(question.required === false ? "dateOptional" : "dateAutoCheck")]], selected: question.required === false ? "skip" : "date" };
   if (question.type === "text") {
-    if (/student.*id|university.*id|学号/.test(title)) return { choices: [["student", "\u5B66\u53F7"]], selected: "student" };
-    if (/\bname\b|姓名/.test(title)) return { choices: [["name", "\u59D3\u540D"]], selected: "name" };
-    if (/\bdate\b|日期/.test(title)) return { choices: placeholder("\u65E5\u671F\u9898\u578B\u4E0D\u5339\u914D\uFF0C\u8BF7\u6838\u5BF9\u8868\u5355"), selected: "" };
-    return { choices: [...placeholder("\u9009\u62E9\u6587\u5B57\u8D44\u6599"), ["student", "\u5B66\u53F7"], ["name", "\u59D3\u540D"]], selected: "" };
+    if (/student.*id|university.*id|学号/.test(title)) return { choices: [["student", t("profileFieldStudent")]], selected: "student" };
+    if (/\bname\b|姓名/.test(title)) return { choices: [["name", t("profileFieldName")]], selected: "name" };
+    if (/\bdate\b|日期/.test(title)) return { choices: placeholder(t("dateMismatchQuestion")), selected: "" };
+    return { choices: [...placeholder(t("selectTextData")), ["student", t("profileFieldStudent")], ["name", t("profileFieldName")]], selected: "" };
   }
   if (question.type === "radio") {
     const deliveryKinds = ["lecture", "tutorial", "lab"].filter((kind) => radioOption(options, kind));
     if (/delivery|授课/.test(title) || deliveryKinds.length >= 2) {
-      const choices = [["delivery", "\u6309\u8BFE\u7A0B\u540D\u79F0\u81EA\u52A8\u9009"]];
-      for (const kind of deliveryKinds) choices.push([`delivery:${kind}`, `\u56FA\u5B9A\u9009 ${radioOption(options, kind)}`]);
+      const choices = [["delivery", t("courseKindAuto")]];
+      for (const kind of deliveryKinds) choices.push([`delivery:${kind}`, t("fixedOption", { option: radioOption(options, kind) })]);
       const courseKind = /(?:^|\W)(?:tut|tutorial)\b/i.test(course) ? "tutorial" : /(?:^|\W)(?:lab|laboratory)\b/i.test(course) ? "lab" : /(?:^|\W)(?:lec|lecture)\b/i.test(course) ? "lecture" : null;
-      return { choices: deliveryKinds.length ? choices : placeholder("\u8BFE\u7A0B\u7C7B\u578B\u9009\u9879\u4E0D\u53D7\u652F\u6301"), selected: courseKind && deliveryKinds.includes(courseKind) ? "delivery" : "" };
+      return { choices: deliveryKinds.length ? choices : placeholder(t("unsupportedCourseOptions")), selected: courseKind && deliveryKinds.includes(courseKind) ? "delivery" : "" };
     }
-    if (identityOption2(options, "local") && identityOption2(options, "international")) return { choices: [["local", "\u6309\u5B66\u751F\u8EAB\u4EFD\u81EA\u52A8\u9009 Local / International"], ["local:local", "\u56FA\u5B9A\u9009 Local"], ["local:international", "\u56FA\u5B9A\u9009 International"]], selected: "local" };
+    if (identityOption2(options, "local") && identityOption2(options, "international")) return { choices: [["local", t("studentTypeAuto")], ["local:local", t("fixedLocal")], ["local:international", t("fixedInternational")]], selected: "local" };
   }
-  return { choices: placeholder("\u6682\u4E0D\u652F\u6301\u8FD9\u9053\u9898"), selected: "" };
+  return { choices: placeholder(t("unsupportedQuestion")), selected: "" };
 }
 
 // src/bindings.js
@@ -39571,66 +42724,447 @@ function validateBindingForCourse(binding, course, profile2, date) {
   return plan;
 }
 
-// src/cloud.js
-var API_URL = "https://qckpwckfukyurkobrsig.supabase.co/functions/v1/device-api";
-async function call(action, body = {}, token = "") {
-  const headers = { "Content-Type": "application/json" };
-  if (token) headers.Authorization = `Bearer ${token}`;
-  const response = await fetch(API_URL, { method: "POST", headers, body: JSON.stringify({ action, ...body }) });
-  const data = await response.json().catch(() => ({}));
-  if (!response.ok) throw Error(data.error || `\u4E91\u7AEF\u8BF7\u6C42\u5931\u8D25\uFF08${response.status}\uFF09`);
-  return data;
-}
-async function ensureCloudDevice() {
-  const data = await chrome.storage.local.get(["attendanceCloudToken", "attendanceCloudDeviceId", "attendanceCloudDeviceKey", "attendanceNtfyTopic"]);
-  if (data.attendanceCloudToken && data.attendanceCloudDeviceId) {
-    if (data.attendanceNtfyTopic) return data;
-    const topic = await call("ntfy-topic", {}, data.attendanceCloudToken);
-    const next2 = { attendanceNtfyTopic: topic.ntfyTopic };
-    await chrome.storage.local.set(next2);
-    return { ...data, ...next2 };
+// src/cloud-client.js
+async function request(action, payload = {}) {
+  const result = await chrome.runtime.sendMessage({ type: "CLOUD_REQUEST", action, ...payload });
+  if (result?.error) {
+    const error = Error(result.error);
+    error.code = result.error;
+    error.retryAfterSeconds = result.retryAfterSeconds;
+    throw error;
   }
-  const deviceKey = data.attendanceCloudDeviceKey || `chrome-${crypto.randomUUID()}`;
-  const result = await call("register", { deviceKey, deviceName: "Soton Auto-Check \xB7 Chrome" });
-  const next = { attendanceCloudDeviceKey: deviceKey, attendanceCloudDeviceId: result.deviceId, attendanceCloudToken: result.deviceToken, attendanceNtfyTopic: result.ntfyTopic };
-  await chrome.storage.local.set(next);
-  return { ...data, ...next };
+  return result;
 }
-async function syncCloud({ sessions = [], bindings = {}, preferences = {} } = {}) {
-  const cloud = await ensureCloudDevice();
-  const schedules = [];
-  for (const session of sessions) {
-    const binding = bindings[moduleKey(session.course)] || bindings[session.course];
-    if (!binding?.verified || !binding.url) continue;
-    schedules.push({ courseCode: session.course, courseName: session.course, weekday: Number(session.weekday), startTime: session.time, endTime: session.endTime, formUrl: binding.url, enabled: true, timezone: "Asia/Kuala_Lumpur" });
+var ensureCloudDevice = () => request("device");
+var getEntitlementStatus = () => request("entitlement");
+var redeemActivationKey = (activationKey) => request("redeem", { activationKey });
+var startPhoneSubscriptionRecovery = (activationKey) => request("recovery-start", { activationKey });
+var completePhoneSubscriptionRecovery = (challengeId, code) => request("recovery-complete", { challengeId, code });
+var phoneSubscriptionRecoveryStatus = () => request("recovery-status");
+var cancelPhoneSubscriptionRecovery = () => request("recovery-cancel");
+
+// src/options-upgrade.js
+var import_qrcode = __toESM(require_browser2(), 1);
+
+// src/setup.js
+function coverageRevision(course, binding, profile2) {
+  const plan = validateBindingForCourse(binding, course, profile2, todayMalaysia());
+  if (!plan?.length) throw Error(`${moduleKey(course)} \u9700\u8981\u91CD\u65B0\u8BFB\u53D6\u5E76\u4FDD\u5B58\u8868\u5355\u9898\u76EE\u3002`);
+  return JSON.stringify({ profile: { student: profile2.student, name: profile2.name, studentType: profile2.studentType }, url: binding.url, title: binding.title, questions: binding.questions, mapping: binding.mapping, answers: plan.map((e) => e.type === "date" ? { ...e, value: "<today>" } : e) });
+}
+function buildVariants(tasks, bindings, profile2) {
+  const variants = /* @__PURE__ */ new Map();
+  for (const task of tasks) {
+    const course = task.course, binding = bindingForCourse(bindings, course);
+    const revision = coverageRevision(course, binding, profile2);
+    const plan = validateBindingForCourse(binding, course, profile2, todayMalaysia());
+    const delivery = plan.filter((e) => e.field.startsWith("delivery")).map((e) => e.value).join(" / ");
+    const key = JSON.stringify([moduleKey(course), String(course).trim().toUpperCase().replace(/\s+/g, " "), binding.url, delivery, revision]);
+    if (!variants.has(key)) variants.set(key, { id: crypto.randomUUID(), key, revision, course, delivery, state: "queued" });
   }
-  return call("sync", { schedules, preferences: { timezone: "Asia/Kuala_Lumpur", reminderTime: "19:30", remindersEnabled: preferences.remindersEnabled !== false, successNotificationsEnabled: true } }, cloud.attendanceCloudToken);
+  if (!variants.size) throw Error("\u8BF7\u5148\u6DFB\u52A0\u8BFE\u7A0B\u5E76\u6838\u5BF9\u8868\u5355\u7ED1\u5B9A\u3002");
+  if (variants.size > 200) throw Error("\u4E00\u6B21\u6700\u591A\u68C0\u67E5 200 \u4E2A\u8868\u5355\u8BFE\u578B\u3002");
+  return [...variants.values()];
 }
-async function getEntitlementStatus() {
-  const cloud = await ensureCloudDevice();
-  return call("entitlement-status", {}, cloud.attendanceCloudToken);
+
+// src/configuration.js
+function validateSession(input) {
+  if (!input || !["weekly", "dated"].includes(input.kind)) throw Error("\u4EFB\u52A1\u7C7B\u578B\u65E0\u6548\u3002");
+  if (input.kind === "weekly" && (!Number.isInteger(input.weekday) || input.weekday < 0 || input.weekday > 6)) throw Error("\u6BCF\u5468\u661F\u671F\u987B\u4E3A 0\u20136 \u7684\u6574\u6570\u3002");
+  if (input.kind === "dated" && !normalizeDate(input.date)) throw Error("\u4EFB\u52A1\u65E5\u671F\u65E0\u6548\u3002");
+  const row = { ...toWeeklySession(input), course: String(input.course || "").trim() };
+  if (!/^[A-Za-z0-9][A-Za-z0-9 _-]{1,63}$/.test(row.course)) throw Error("\u8BFE\u7A0B\u540D\u79F0\u987B\u4E3A 2\u201364 \u4E2A\u82F1\u6587\u5B57\u6BCD\u3001\u6570\u5B57\u3001\u7A7A\u683C\u3001\u4E0B\u5212\u7EBF\u6216\u8FDE\u5B57\u7B26\u3002");
+  if (!/^(?:[01]\d|2[0-3]):[0-5]\d$/.test(row.time) || !/^(?:[01]\d|2[0-3]):[0-5]\d$/.test(row.endTime) || row.endTime <= row.time) throw Error(`${row.course} \u7684\u8D77\u6B62\u65F6\u95F4\u65E0\u6548\u3002`);
+  if (!Array.isArray(input.exceptions || []) || (input.exceptions || []).length > 366) throw Error("\u505C\u8BFE\u65E5\u671F\u683C\u5F0F\u65E0\u6548\u3002");
+  row.exceptions = [...new Set((input.exceptions || []).map(normalizeDate))].sort();
+  if (row.exceptions.some((d) => !d)) throw Error(`${row.course} \u7684\u505C\u8BFE\u65E5\u671F\u65E0\u6548\u3002`);
+  if (input.enabled !== void 0 && typeof input.enabled !== "boolean") throw Error("\u4EFB\u52A1\u542F\u7528\u72B6\u6001\u65E0\u6548\u3002");
+  return row;
 }
-async function redeemActivationKey(activationKey) {
-  const cloud = await ensureCloudDevice();
-  return call("redeem-activation-key", { activationKey }, cloud.attendanceCloudToken);
+var sameLesson = (a, b) => a.course.trim().toLowerCase() === b.course.trim().toLowerCase() && a.weekday === b.weekday && a.time === b.time && a.endTime === b.endTime;
+function saveDraftTasks(existing, incoming, now = (/* @__PURE__ */ new Date()).toISOString()) {
+  let result = [...existing];
+  for (const input of incoming) {
+    const row = validateSession(input);
+    delete row.importChoice;
+    const target = result.find((s) => sameLesson(s, row));
+    if (target) {
+      if (JSON.stringify(target.exceptions || []) === JSON.stringify(row.exceptions) && target.enabled !== false) continue;
+      result = result.map((s) => s.id === target.id ? { ...row, id: target.id, enabled: true, createdAt: now } : s);
+    } else result.push({ ...row, id: row.id || crypto.randomUUID(), enabled: true, createdAt: now });
+  }
+  return result;
+}
+function nextTrigger(session, records = {}, now = Date.now()) {
+  const today = todayMalaysia(new Date(now)), end = /* @__PURE__ */ new Date(`${today}T00:00:00Z`);
+  end.setUTCDate(end.getUTCDate() + 370);
+  const next = occurrencesBetween([session], today, end.toISOString().slice(0, 10)).find((o) => !records[o.key] && triggerTimestamp(o) > now && triggerTimestamp(o) >= Date.parse(o.createdAt || "1970-01-01"));
+  return next ? { date: next.date, when: triggerTimestamp(next) } : null;
+}
+
+// src/backup.js
+var terminal = (state) => ["success", "failed", "unknown", "missed"].includes(state);
+function terminalRecords(records = {}) {
+  return Object.fromEntries(Object.entries(records).filter(([, r]) => terminal(r.state) && r.occ).map(([key, r]) => [key, { state: r.state, at: r.at, detail: r.detail || "", formUrl: r.formUrl, occ: { id: r.occ.id, course: r.occ.course, date: r.occ.date, time: r.occ.time, endTime: r.occ.endTime, key: r.occ.key, weekday: r.occ.weekday, kind: "weekly" } }]));
+}
+function createBackup(data) {
+  const p = data.attendanceProfile;
+  return { format: "soton-attendance-configuration", version: 1, exportedAt: (/* @__PURE__ */ new Date()).toISOString(), profile: p?.student && p?.name ? { student: p.student, name: p.name, studentType: p.studentType } : null, bindings: Object.fromEntries(Object.entries(data.attendanceBindings || {}).map(([key, b]) => [key, { scope: b.scope, url: b.url, title: b.title, questions: b.questions, mapping: b.mapping, verified: b.verified }])), sessions: (data.attendanceSessions || []).map((s) => ({ id: s.id, kind: "weekly", course: s.course, weekday: s.weekday, time: s.time, endTime: s.endTime, exceptions: s.exceptions || [], enabled: s.enabled !== false })), records: terminalRecords(data.attendanceRecords) };
+}
+function recoveryForRecord(record) {
+  if (record.state === "unknown") return { action: "inspect", label: "\u624B\u52A8\u6838\u5BF9\u539F\u8868\u5355", description: "\u5DF2\u5F00\u59CB\u63D0\u4EA4\u4F46\u7ED3\u679C\u4E0D\u660E\u3002\u8BF7\u624B\u52A8\u6838\u5BF9\u5B66\u6821\u8BB0\u5F55\uFF1B\u7CFB\u7EDF\u4E0D\u4F1A\u81EA\u52A8\u91CD\u8BD5\u3002" };
+  if (/题目|标题|映射|绑定|课型/.test(record.detail || "")) return { action: "binding", label: "\u4FEE\u590D\u8BFE\u7A0B\u8868\u5355\u7ED1\u5B9A", description: "\u91CD\u65B0\u6838\u5BF9\u8868\u5355\u548C\u8D44\u6599\u6620\u5C04\uFF0C\u518D\u8FD0\u884C\u8BBE\u7F6E\u68C0\u67E5\u3002" };
+  if (record.state === "failed") return { action: "login", label: "\u68C0\u67E5\u5B66\u6821\u767B\u5F55\u4E0E\u8868\u5355", description: "\u6253\u5F00\u539F\u8868\u5355\u68C0\u67E5\u5B66\u6821\u767B\u5F55\u3001\u5F00\u653E\u65F6\u95F4\u6216\u989D\u5916\u9A8C\u8BC1\u3002" };
+  if (record.state === "missed") return { action: "inspect", label: "\u6253\u5F00\u8868\u5355\u624B\u52A8\u5904\u7406", description: "\u6B64\u6B21\u672A\u81EA\u52A8\u63D0\u4EA4\u3002\u8BF7\u6309\u5B66\u6821\u8981\u6C42\u624B\u52A8\u5904\u7406\uFF0C\u5E76\u68C0\u67E5 Chrome \u4E0E\u7535\u8111\u4F11\u7720\u8BBE\u7F6E\u3002" };
+  return { action: "inspect", label: "\u67E5\u770B\u539F\u8868\u5355", description: record.state === "success" ? "\u539F\u8868\u5355\u5DF2\u663E\u793A\u6210\u529F\u53CD\u9988\u3002" : "\u8BF7\u67E5\u770B\u5F53\u524D\u8FD0\u884C\u9875\u9762\u3002" };
+}
+
+// src/profile.js
+function sameProfile(saved, current) {
+  if (!saved || !current) return false;
+  return ["student", "name", "studentType"].every((key) => {
+    const value = (profile2) => String(profile2[key] ?? (key === "studentType" ? "local" : "")).trim();
+    return value(saved) === value(current);
+  });
+}
+
+// src/options-upgrade.js
+var $ = (id) => document.getElementById(id);
+var node = (tag, text = "", className = "") => {
+  const n = document.createElement(tag);
+  n.textContent = text;
+  n.className = className;
+  return n;
+};
+var button = (text, fn) => {
+  const b = node("button", text, "secondary");
+  b.type = "button";
+  b.addEventListener("click", fn);
+  return b;
+};
+var malaysia = (when) => new Intl.DateTimeFormat(currentLanguage() === "en" ? "en-MY" : "zh-CN", { timeZone: "Asia/Kuala_Lumpur", dateStyle: "medium", timeStyle: "short" }).format(new Date(when));
+function download(name, value) {
+  const href = URL.createObjectURL(new Blob([JSON.stringify(value, null, 2)], { type: "application/json" }));
+  const a = document.createElement("a");
+  a.href = href;
+  a.download = name;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(href), 1e3);
+}
+async function message(type, extra = {}) {
+  const r = await chrome.runtime.sendMessage({ type, ...extra });
+  if (r?.error) throw Error(r.error);
+  return r;
+}
+function createOptionsUpgrade(api) {
+  let ready = false, writes = Promise.resolve(), renderId = 0, page = 0, draftRevision = 0;
+  const dock = document.querySelector(".workflow-dock");
+  const panel = $("workflow-panel");
+  const measureNav = new ResizeObserver(() => {
+    document.documentElement.style.setProperty("--workflow-space", `${Math.ceil(dock.getBoundingClientRect().height) + 36}px`);
+    document.documentElement.style.setProperty("--workflow-panel-height", `${Math.ceil(panel.getBoundingClientRect().height)}px`);
+  });
+  measureNav.observe(dock);
+  measureNav.observe(panel);
+  const guard = (fn) => async () => {
+    try {
+      await fn();
+    } catch (e) {
+      api.toast(localizeMessage(e.message), true);
+    }
+  };
+  function draftChanged() {
+    if (!ready) return;
+    draftRevision++;
+    $("review-draft").checked = false;
+    const rows = structuredClone(api.preview);
+    writes = writes.catch(() => {
+    }).then(() => chrome.storage.local.set({ attendanceDraft: { version: 1, rows, reviewedAt: null } })).catch((e) => api.toast(t("savingDraftFailed", { error: localizeMessage(e.message) }), true));
+    $("draft-status").textContent = t("draftSavedNeedsReview");
+    void writes.then(render);
+  }
+  function renderStatus(data) {
+    const p = data.attendanceProfile || {};
+    $("profile-summary").textContent = p.student && p.name ? t("profileSavedSummary") : t("profileSummaryEmpty");
+    const q = data.attendanceCloudOutbox || {}, errors = (q.items || []).filter((i) => i.lastError);
+    $("cloud-queue-status").textContent = `${t("queueStatus", { count: q.items?.length || 0 })}${errors.length ? t("queueError", { error: errors[0].lastError }) : q.lastSuccessAt ? t("queueSent", { date: malaysia(q.lastSuccessAt) }) : ""}`;
+  }
+  async function coverage(course, data) {
+    try {
+      validateBindingForCourse(bindingForCourse(data.attendanceBindings, course), course, data.attendanceProfile, todayMalaysia());
+      return true;
+    } catch {
+      return false;
+    }
+  }
+  async function renderSessions(data) {
+    const list = $("sessions");
+    list.replaceChildren();
+    const sessions = data.attendanceSessions || [];
+    if (!sessions.length) list.append(node("p", t("noTasks"), "muted"));
+    for (const s of sessions) {
+      const row = node("div", "", "saved-task"), head = node("div", "", "list-item"), label = node("div");
+      const covered = await coverage(s.course, data), next = nextTrigger(s, data.attendanceRecords);
+      const weekday = currentLanguage() === "en" ? ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"][s.weekday] : ["\u5468\u65E5", "\u5468\u4E00", "\u5468\u4E8C", "\u5468\u4E09", "\u5468\u56DB", "\u5468\u4E94", "\u5468\u516D"][s.weekday];
+      const state = s.enabled === false ? t("paused") : next ? t("nextRun", { date: malaysia(next.when) }) : t("noNextRun");
+      const check = covered ? t("checksComplete") : t("checksIncomplete");
+      label.append(node("strong", s.course), node("small", t("sessionSummary", { weekday, start: s.time, end: s.endTime, state, check })));
+      const pause = button(s.enabled === false ? t("enable") : t("pause"), guard(async () => {
+        const current = await api.getData(), task = current.attendanceSessions.find((t2) => t2.id === s.id);
+        if (!task) throw Error(t("noSuchTask"));
+        if (task.enabled === false && !await coverage(task.course, current)) throw Error(t("checkBeforeEnable"));
+        await chrome.storage.local.set({ attendanceSessions: current.attendanceSessions.map((t2) => t2.id === s.id ? { ...t2, enabled: t2.enabled === false, createdAt: (/* @__PURE__ */ new Date()).toISOString() } : t2) });
+        await api.rebuild();
+        await render();
+      }));
+      const remove = button(t("delete"), guard(async () => {
+        const current = await api.getData();
+        await chrome.storage.local.set({ attendanceSessions: current.attendanceSessions.filter((t2) => t2.id !== s.id) });
+        await api.rebuild();
+        await render();
+        await api.renderBindings();
+      }));
+      head.append(label, pause, remove);
+      row.append(head);
+      const details = document.createElement("details");
+      details.append(node("summary", t("editSession")));
+      const form = node("form", "", "session-editor"), inputs = {};
+      for (const [key, title, type, value] of [["course", t("fieldCourse"), "text", s.course], ["weekday", t("fieldWeekday"), "select", String(s.weekday)], ["time", t("fieldStartTime"), "time", s.time], ["endTime", t("fieldEndTime"), "time", s.endTime], ["exceptions", t("fieldExceptionsShort"), "text", (s.exceptions || []).join(", ")]]) {
+        const label2 = node("label", title, "session-field"), input = document.createElement(type === "select" ? "select" : "input");
+        if (type === "select") for (let n = 0; n < 7; n++) {
+          const option = node("option", currentLanguage() === "en" ? ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"][n] : `\u5468${"\u65E5\u4E00\u4E8C\u4E09\u56DB\u4E94\u516D"[n]}`);
+          option.value = String(n);
+          input.append(option);
+        }
+        else input.type = type;
+        input.value = value;
+        inputs[key] = input;
+        label2.append(input);
+        form.append(label2);
+      }
+      const save = node("button", t("saveChanges"));
+      save.type = "submit";
+      form.append(save);
+      details.append(form);
+      row.append(details);
+      list.append(row);
+      form.addEventListener("submit", (event) => {
+        event.preventDefault();
+        void guard(async () => {
+          const current = await api.getData(), task = current.attendanceSessions.find((t2) => t2.id === s.id);
+          if (!task) throw Error(t("noSuchTask"));
+          const changed = validateSession({ ...task, course: inputs.course.value, weekday: Number(inputs.weekday.value), time: inputs.time.value, endTime: inputs.endTime.value, exceptions: inputs.exceptions.value.split(/[,，\s]+/).filter(Boolean) });
+          const covered2 = await coverage(changed.course, current);
+          const duplicate = current.attendanceSessions.some((t2) => t2.id !== s.id && t2.course.toLowerCase() === changed.course.toLowerCase() && t2.weekday === changed.weekday && t2.time === changed.time && t2.endTime === changed.endTime);
+          if (duplicate) throw Error(t("duplicateTask"));
+          await chrome.storage.local.set({ attendanceSessions: current.attendanceSessions.map((t2) => t2.id === s.id ? { ...changed, enabled: task.enabled !== false && covered2, createdAt: (/* @__PURE__ */ new Date()).toISOString() } : t2) });
+          await api.rebuild();
+          await render();
+          await api.renderBindings();
+          api.toast(covered2 ? t("taskSavedRemovedTrigger") : t("savedPausedForReview"));
+        })();
+      });
+    }
+  }
+  async function renderRecords(data) {
+    const all = Object.values(data.attendanceRecords || {}).sort((a, b) => String(b.at).localeCompare(String(a.at))), filter = $("record-filter").value;
+    $("record-count").textContent = t("recordCount", { count: all.length });
+    const rows = all.filter((r) => filter === "all" || r.state === filter), pages = Math.max(1, Math.ceil(rows.length / 40));
+    page = Math.min(page, pages - 1);
+    const list = $("records");
+    list.replaceChildren();
+    for (const r of rows.slice(page * 40, page * 40 + 40)) {
+      const item = node("div", "", "list-item"), label = node("div"), recovery = recoveryForRecord(r);
+      const recoveryKey = recovery.action === "binding" ? "recoveryBinding" : recovery.action === "login" ? "recoveryLogin" : r.state === "missed" ? "recoveryMissed" : r.state === "success" ? "recoverySuccess" : "recoveryView";
+      const recordState = { success: t("recordSuccess"), unknown: t("recordUnknown"), failed: t("recordFailed"), missed: t("recordMissed"), launched: t("recordLaunched"), pending: t("recordPending") }[r.state] || r.state;
+      label.append(node("strong", `${r.occ?.course || t("lessonFallback")} \xB7 ${r.occ?.date || ""} ${r.occ?.time || ""} \xB7 ${recordState}`), node("small", localizeMessage(r.detail || r.at || "")), node("small", t(`${recoveryKey}Description`)));
+      const action = button(t(recoveryKey), guard(async () => {
+        if (recovery.action === "binding") {
+          document.getElementById("binding-heading").scrollIntoView();
+          return;
+        }
+        if (r.tabId) try {
+          await chrome.tabs.update(r.tabId, { active: true });
+          return;
+        } catch {
+        }
+        const binding = bindingForCourse(data.attendanceBindings, r.occ?.course), url = r.formUrl || binding?.url;
+        if (!url) throw Error(t("noOriginalForm"));
+        await chrome.tabs.create({ url: validateFormsUrl(url).href, active: true });
+      }));
+      item.append(label, action);
+      list.append(item);
+    }
+    if (!rows.length) list.append(node("p", filter === "all" ? t("noRecords") : t("noFilteredRecords"), "muted"));
+    $("records-page").textContent = t("recordsPage", { page: page + 1, pages, count: rows.length });
+    $("records-prev").disabled = page === 0;
+    $("records-next").disabled = page + 1 === pages;
+  }
+  async function render() {
+    const id = ++renderId, data = await api.getData();
+    if (id !== renderId) return;
+    renderStatus(data);
+    await renderSessions(data);
+    await renderRecords(data);
+  }
+  async function activateDraft() {
+    await writes;
+    const revision = draftRevision;
+    const data = await api.getData();
+    if (!api.preview.length) throw Error(t("noPreviewToActivate"));
+    if (api.preview.some((row) => row.type === "LAB" && !["1", "2", "skip"].includes(row.importChoice))) throw Error("\u8BF7\u5148\u4E3A\u6BCF\u6761 LAB \u8BB0\u5F55\u9009\u62E9 Group 1\u3001Group 2 \u6216\u4E0D\u52A0\u5165\u3002");
+    if (revision !== draftRevision || !$("review-draft").checked) throw Error(t("draftChangedReview"));
+    if (!data.attendanceDraft?.reviewedAt) throw Error(t("reviewBeforeEnable"));
+    const p = api.validateProfile(data.attendanceProfile || {});
+    if (!sameProfile(p, api.profile())) throw Error(t("saveProfileFirst"));
+    const selected = structuredClone(api.preview).filter((row) => row.importChoice !== "skip").map((row) => {
+      if (row.type === "LAB" && (row.importChoice === "1" || row.importChoice === "2")) {
+        row.group = row.importChoice;
+        row.course = `${row.code || row.course.split(/\s+-/)[0]}-${row.type} Group ${row.group}`;
+      }
+      return row;
+    });
+    buildVariants(selected, data.attendanceBindings, p);
+    const rows = selected.map(validateSession);
+    const sessions = saveDraftTasks(data.attendanceSessions || [], rows);
+    const commit = writes.then(async () => {
+      if (revision !== draftRevision) throw Error(t("draftChangedReview"));
+      await chrome.storage.local.set({ attendanceSessions: sessions, attendanceDraft: { version: 1, rows: [], reviewedAt: null } });
+      if (revision !== draftRevision) return false;
+      api.preview.length = 0;
+      ready = false;
+      api.renderPreview();
+      ready = true;
+      $("review-draft").checked = false;
+      $("draft-status").textContent = t("taskEnabledDraft");
+      return true;
+    });
+    writes = commit.catch(() => {
+    });
+    const cleared = await commit;
+    await api.rebuild();
+    await render();
+    await api.renderBindings();
+    api.toast(cleared ? t("enabledWeeklyTasks") : t("enabledReviewedDraft"));
+  }
+  $("review-draft").addEventListener("change", guard(async () => {
+    const rows = structuredClone(api.preview), checked = $("review-draft").checked, revision = draftRevision;
+    writes = writes.catch(() => {
+    }).then(() => revision === draftRevision ? chrome.storage.local.set({ attendanceDraft: { version: 1, rows, reviewedAt: checked ? (/* @__PURE__ */ new Date()).toISOString() : null } }) : void 0);
+    await writes;
+    if (revision === draftRevision) $("draft-status").textContent = checked ? t("draftReadyToRun") : t("draftUnreviewed");
+  }));
+  $("verify-all-bindings").addEventListener("click", guard(() => api.openAllBindings()));
+  $("record-filter").addEventListener("change", () => {
+    page = 0;
+    void render();
+  });
+  $("records-prev").addEventListener("click", () => {
+    page = Math.max(0, page - 1);
+    void render();
+  });
+  $("records-next").addEventListener("click", () => {
+    page++;
+    void render();
+  });
+  $("export-records").addEventListener("click", guard(async () => download("Attendance-terminal-records.json", createBackup(await api.getData()).records)));
+  $("retry-cloud").addEventListener("click", guard(async () => {
+    await message("RETRY_CLOUD");
+    const r = await message("CLOUD_REQUEST", { action: "device" });
+    $("cloud-status").textContent = r.attendanceCloudDeviceId ? t("connectionRestored") : t("waitingConnection");
+    if (r.attendanceNtfyTopic) $("ntfy-status").textContent = `${t("phoneTopicReady")} https://ntfy.sh/${r.attendanceNtfyTopic}`;
+    await render();
+  }));
+  async function topic() {
+    const { attendanceNtfyTopic: topicName } = await api.getData();
+    if (!/^soton-attendance-[a-f0-9]{40}$/.test(topicName || "")) throw Error(t("topicNotReady"));
+    return `https://ntfy.sh/${topicName}`;
+  }
+  $("copy-topic").addEventListener("click", guard(async () => {
+    await navigator.clipboard.writeText(await topic());
+    api.toast(t("copiedTopic"));
+  }));
+  const qrButton = $("show-topic-qr"), qrPanel = $("topic-qr-panel"), qrCanvas = $("topic-qr");
+  async function renderTopicQr(platform) {
+    const webTopic = await topic(), topicName = webTopic.slice("https://ntfy.sh/".length);
+    const target = platform === "android" ? `ntfy://ntfy.sh/${topicName}?display=Soton%20Attendance` : webTopic;
+    await import_qrcode.default.toCanvas(qrCanvas, target, { width: 220, margin: 2 });
+    qrCanvas.hidden = false;
+    $("topic-qr-android").setAttribute("aria-pressed", String(platform === "android"));
+    $("topic-qr-ios").setAttribute("aria-pressed", String(platform === "ios"));
+    $("topic-qr-help").textContent = platform === "android" ? t("qrAndroidHelp") : t("qrIosHelp", { topic: topicName });
+  }
+  qrButton.addEventListener("click", guard(async () => {
+    const opening = qrPanel.hidden;
+    qrPanel.hidden = !opening;
+    qrButton.setAttribute("aria-expanded", String(opening));
+    if (opening) await renderTopicQr("android");
+  }));
+  $("topic-qr-android").addEventListener("click", guard(() => renderTopicQr("android")));
+  $("topic-qr-ios").addEventListener("click", guard(() => renderTopicQr("ios")));
+  function refreshLocale() {
+    if (qrPanel.hidden || qrCanvas.hidden) return;
+    void guard(() => renderTopicQr($("topic-qr-ios").getAttribute("aria-pressed") === "true" ? "ios" : "android"))();
+  }
+  $("refresh-delivery").addEventListener("click", guard(async () => {
+    const result = await message("CLOUD_REQUEST", { action: "notifications" }), root = $("phone-notifications");
+    root.replaceChildren();
+    const rows = result.notifications || [];
+    $("delivery-status").textContent = rows.length ? t("deliveryRecorded") : t("deliveryEmpty");
+    for (const n of rows.slice(0, 10)) {
+      const row = node("div", "", "list-item"), status = n.phone_receipt_confirmed_at ? t("receiptConfirmed") : { queued: t("deliveryQueued"), sending: t("deliverySending"), accepted: t("deliveryAccepted"), uncertain: t("deliveryUncertain"), discarded: t("deliveryDiscarded") }[n.delivery_state] || t("deliveryUnknown");
+      row.append(node("span", `${n.title} \xB7 ${status}${n.last_error ? ` \xB7 ${n.last_error}` : ""}`));
+      if (!n.phone_receipt_confirmed_at && ["accepted", "uncertain"].includes(n.delivery_state)) row.append(button(t("confirmReceipt"), guard(async () => {
+        await message("CLOUD_REQUEST", { action: "confirm-receipt", notificationId: n.id });
+        $("refresh-delivery").click();
+      })));
+      root.append(row);
+    }
+  }));
+  async function init(data) {
+    if (data.attendanceDraft?.version === 1 && Array.isArray(data.attendanceDraft.rows)) api.preview.push(...data.attendanceDraft.rows);
+    $("review-draft").checked = Boolean(data.attendanceDraft?.reviewedAt);
+    api.renderPreview();
+    ready = true;
+    await render();
+    if (api.preview.length) $("draft-status").textContent = t("draftRestored");
+  }
+  return { init, draftChanged, render, activateDraft, refreshLocale };
 }
 
 // src/options.js
-var $ = (id) => document.getElementById(id);
+var $2 = (id) => document.getElementById(id);
 var preview = [];
 var cards = /* @__PURE__ */ new Map();
-var inspecting = null;
+var inspecting = /* @__PURE__ */ new Map();
+var scanRequests = /* @__PURE__ */ new Map();
+var bindingWrites = Promise.resolve();
+var batchScanning = false;
 var toastTimer;
 var importGeneration = 0;
-var profileForm = $("profile-form");
-function toast(message, error = false) {
-  const box = $("toast");
-  box.textContent = message;
+var recoveryCooldownUntil = 0;
+var recoveryCooldownTimer;
+var recoveryBusy = false;
+var recoveryChallengeId = "";
+var recoveryExpiresAt = 0;
+var recoveryRequestedAt = 0;
+var recoveryCanCancel = false;
+var subscriptionCurrency = "rm";
+var SUBSCRIPTION_RM_PRICE = 11.99;
+var SUBSCRIPTION_RMB_PRICE = 19.9;
+var profileForm = $2("profile-form");
+initWorkflowNav();
+var upgrade = createOptionsUpgrade({ preview, getData, rebuild, toast, renderPreview, renderBindings, profile, validateProfile, openAllBindings });
+function toast(message2, error = false) {
+  message2 = localizeMessage(message2);
+  const box = $2("toast");
+  box.textContent = message2;
   box.className = `toast visible${error ? " error" : ""}`;
+  $2("persistent-error").textContent = error ? message2 : "";
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => box.className = "toast", 6500);
 }
-function node(tag, props = {}) {
+function node2(tag, props = {}) {
   const el = document.createElement(tag);
   for (const [key, value] of Object.entries(props)) {
     if (key === "text") el.textContent = value;
@@ -39643,117 +43177,307 @@ function profile() {
   return { student: profileForm.elements.student.value.trim(), name: profileForm.elements.name.value.trim(), studentType: profileForm.elements.studentType.value };
 }
 function validateProfile(p) {
-  if (!p.student || p.student.length > 50 || !p.name || p.name.length > 100) throw Error("\u8BF7\u5148\u586B\u5199\u6709\u6548\u5B66\u53F7\u548C\u59D3\u540D\u3002");
+  if (!p.student || p.student.length > 50 || !p.name || p.name.length > 100) throw Error(t("profileInvalid"));
   return p;
 }
 async function getData() {
-  return chrome.storage.local.get(["attendanceProfile", "attendanceSessions", "attendanceBindings", "attendanceRecords"]);
+  return chrome.storage.local.get(["attendanceProfile", "attendanceSessions", "attendanceBindings", "attendanceRecords", "attendanceDraft", "attendanceSetupSession", "attendanceSetupHistory", "attendanceSetupCoverageEpoch", "attendanceCloudOutbox", "attendanceNtfyTopic", "attendanceLanguage", "attendanceSubscriptionCurrency"]);
 }
 async function rebuild() {
   const response = await chrome.runtime.sendMessage({ type: "REBUILD_SCHEDULE" });
   if (response?.error) throw Error(response.error);
 }
-async function syncCloudSafe(payload) {
-  try {
-    await syncCloud(payload);
-  } catch (error) {
-    console.warn("\u4E91\u7AEF\u540C\u6B65\u5931\u8D25", error);
-  }
+async function syncCloudSafe() {
+  await rebuild();
+  await upgrade.render();
 }
 async function showCloudStatus() {
-  const status = $("cloud-status");
+  const status = $2("cloud-status");
   if (!status) return;
   try {
     const data = await ensureCloudDevice();
-    await chrome.storage.local.remove(["attendanceCloudPairingCode", "attendanceCloudPairingExpiresAt"]);
-    status.textContent = "\u4E91\u7AEF\u63D0\u9192\u5DF2\u8FDE\u63A5";
+    status.textContent = t("cloudConnected");
     status.className = "status success";
-    const ntfy = $("ntfy-status");
-    if (ntfy && data.attendanceNtfyTopic) ntfy.textContent = `\u624B\u673A\u4E3B\u9898\u5DF2\u51C6\u5907\uFF08\u4E3B\u9898\u672C\u8EAB\u4E0D\u5305\u542B\u6388\u6743\uFF09\u3002\u5728 ntfy \u8BA2\u9605 https://ntfy.sh/${data.attendanceNtfyTopic}`;
+    const ntfy = $2("ntfy-status");
+    if (ntfy && data.attendanceNtfyTopic) ntfy.textContent = `${t("phoneTopicReady")} https://ntfy.sh/${data.attendanceNtfyTopic}`;
   } catch (error) {
-    status.textContent = "\u4E91\u7AEF\u63D0\u9192\u5C1A\u672A\u8FDE\u63A5\uFF1B\u672C\u673A\u81EA\u52A8\u6253\u5361\u4ECD\u53EF\u4F7F\u7528\u3002";
-    status.className = "status";
-    console.warn(error);
+    status.textContent = error.message === "cloud_setup_choice_required" ? t("recoveryChoice") : t("cloudFailed", { error: error.message });
+    status.className = "status error";
   }
 }
 var activationErrors = {
-  invalid_activation_key: "\u5BC6\u94A5\u65E0\u6548\uFF0C\u8BF7\u68C0\u67E5\u540E\u91CD\u8BD5\u3002",
-  activation_key_used: "\u8FD9\u628A\u5BC6\u94A5\u5DF2\u7ECF\u5151\u6362\u8FC7\u3002",
-  activation_key_revoked: "\u8FD9\u628A\u5BC6\u94A5\u5DF2\u64A4\u9500\uFF0C\u8BF7\u8054\u7CFB\u5E97\u94FA\u5904\u7406\u3002",
-  activation_key_expired: "\u8FD9\u628A\u5BC6\u94A5\u5BF9\u5E94\u7684\u5B66\u671F\u5DF2\u622A\u6B62\uFF0C\u65E0\u6CD5\u6FC0\u6D3B\u3002",
-  activation_redemption_failed: "\u6FC0\u6D3B\u670D\u52A1\u6682\u65F6\u4E0D\u53EF\u7528\uFF0C\u8BF7\u7A0D\u540E\u91CD\u8BD5\u3002",
-  entitlement_status_failed: "\u6682\u65F6\u65E0\u6CD5\u8BFB\u53D6\u624B\u673A\u63D0\u9192\u6388\u6743\uFF0C\u8BF7\u7A0D\u540E\u5237\u65B0\u3002",
-  unauthorized: "\u8BBE\u5907\u4E91\u7AEF\u6388\u6743\u5DF2\u5931\u6548\uFF0C\u8BF7\u91CD\u65B0\u8FDE\u63A5\u540E\u518D\u8BD5\u3002"
+  invalid_activation_key: "errInvalidKey",
+  activation_key_used: "errKeyUsed",
+  activation_key_revoked: "errKeyRevoked",
+  activation_key_expired: "errKeyExpired",
+  activation_redemption_failed: "errActivationFailed",
+  entitlement_status_failed: "entitlementFailed",
+  cloud_setup_choice_required: "recoveryChoice",
+  recovery_in_progress: "recoveryInProgress",
+  recovery_outcome_unknown: "recoveryOutcomeUnknown",
+  unauthorized: "errUnauthorized",
+  device_identifier_exists: "errDeviceExists"
 };
-function malaysiaTermEnd(expiresAt) {
+function entitlementTermEnd(expiresAt, plan) {
   const expiry = Date.parse(expiresAt);
   if (!Number.isFinite(expiry)) return "";
-  return new Intl.DateTimeFormat("zh-CN", { dateStyle: "long", timeZone: "Asia/Kuala_Lumpur" }).format(new Date(expiry - 1));
+  const chinaPlan = plan === "sem_subscription";
+  const locale = currentLanguage() === "en" ? chinaPlan ? "en-GB" : "en-MY" : "zh-CN";
+  const timeZone = chinaPlan ? "Asia/Shanghai" : "Asia/Kuala_Lumpur";
+  return new Intl.DateTimeFormat(locale, { dateStyle: "long", timeZone }).format(new Date(expiry - 1));
+}
+var entitlementExpiryTimer;
+function updatePhoneStatusVisibility(entitlement) {
+  const card = $2("phone-status-card");
+  if (!card) return false;
+  clearTimeout(entitlementExpiryTimer);
+  const startsAt = Date.parse(entitlement?.startsAt || ""), expiresAt = Date.parse(entitlement?.expiresAt || "");
+  const active = entitlement?.status === "active" && entitlement.phoneNotifications === true && Number.isFinite(startsAt) && startsAt <= Date.now() && Number.isFinite(expiresAt) && expiresAt > Date.now();
+  card.hidden = !active;
+  if (!active) card.open = false;
+  else entitlementExpiryTimer = setTimeout(() => void refreshEntitlementStatus(), Math.min(expiresAt - Date.now() + 25, 2147483647));
+  return active;
 }
 async function refreshEntitlementStatus() {
-  const status = $("entitlement-status"), button = $("refresh-entitlement");
-  if (button) button.disabled = true;
-  status.textContent = "\u6B63\u5728\u67E5\u8BE2\u624B\u673A\u63D0\u9192\u6388\u6743\u2026";
+  const status = $2("entitlement-status"), button2 = $2("refresh-entitlement");
+  if (button2) button2.disabled = true;
+  status.textContent = t("checkingEntitlement");
   status.className = "status";
   try {
     const result = await getEntitlementStatus(), entitlement = result.entitlement;
     if (!entitlement) {
-      status.textContent = "\u5F53\u524D\u6CA1\u6709\u624B\u673A\u63D0\u9192\u6388\u6743\u3002\u8D2D\u4E70\u5957\u9910\u540E\uFF0C\u5728\u4E0B\u65B9\u8F93\u5165\u5BC6\u94A5\u6FC0\u6D3B\u3002";
+      updatePhoneStatusVisibility(null);
+      status.textContent = t("noEntitlement");
       status.className = "status";
       return;
     }
-    const labels = { active: "\u6388\u6743\u6709\u6548", pending: "\u6388\u6743\u5C1A\u672A\u5F00\u59CB", expired: "\u6388\u6743\u5DF2\u5230\u671F", revoked: "\u6388\u6743\u5DF2\u64A4\u9500" };
-    const plans = { bundle: "\u9996\u5B66\u671F\u5957\u9910", phone_notifications: "\u624B\u673A\u63D0\u9192\u7EED\u671F" };
-    const end = malaysiaTermEnd(entitlement.expiresAt);
-    const expiryText = end ? ` \xB7 \u5B66\u671F\u622A\u6B62\uFF1A${end}` : "";
-    const permissionText = entitlement.phoneNotifications ? "" : " \xB7 \u624B\u673A\u63D0\u9192\u6743\u9650\u672A\u5F00\u542F";
-    status.textContent = `${plans[entitlement.plan] || "\u624B\u673A\u63D0\u9192"} \xB7 ${labels[entitlement.status] || "\u72B6\u6001\u672A\u77E5"}${expiryText}${permissionText}`;
-    status.className = `status${entitlement.status === "active" && entitlement.phoneNotifications ? " success" : ["expired", "revoked"].includes(entitlement.status) ? " error" : ""}`;
+    const phoneStatusVisible = updatePhoneStatusVisibility(entitlement);
+    const labels = { active: t("entitlementActive"), pending: t("entitlementPending"), expired: t("entitlementExpired"), revoked: t("entitlementRevoked") };
+    const plans = { bundle: t("firstTermPlan"), phone_notifications: t("phonePlan"), sem_subscription: t("semesterSubscriptionPlan") };
+    const end = entitlementTermEnd(entitlement.expiresAt, entitlement.plan);
+    const expiryText = end ? t("expiry", { date: end }) : "";
+    const permissionText = entitlement.phoneNotifications ? "" : t("permissionOff");
+    status.textContent = `${plans[entitlement.plan] || t("phoneFallback")} \xB7 ${labels[entitlement.status] || t("unknownStatus")}${expiryText}${permissionText}`;
+    status.className = `status${phoneStatusVisible ? " success" : ["expired", "revoked"].includes(entitlement.status) ? " error" : ""}`;
   } catch (error) {
+    updatePhoneStatusVisibility(null);
     const code = error instanceof Error ? error.message : "";
-    status.textContent = activationErrors[code] || "\u6682\u65F6\u65E0\u6CD5\u8BFB\u53D6\u624B\u673A\u63D0\u9192\u6388\u6743\uFF0C\u8BF7\u68C0\u67E5\u7F51\u7EDC\u540E\u91CD\u8BD5\u3002";
+    status.textContent = activationErrors[code] ? t(activationErrors[code]) : t("entitlementFailed");
     status.className = "status error";
   } finally {
-    if (button) button.disabled = false;
+    if (button2) button2.disabled = false;
   }
 }
-var activationForm = $("activation-form");
+var activationForm = $2("activation-form");
 activationForm?.addEventListener("submit", async (event) => {
   event.preventDefault();
-  const input = $("activation-key"), button = $("activate-key"), message = $("activation-message");
+  const input = $2("activation-key"), button2 = $2("activate-key"), message2 = $2("activation-message");
   if (!input.value) {
-    message.textContent = "\u8BF7\u8F93\u5165\u8D2D\u4E70\u540E\u6536\u5230\u7684\u5BC6\u94A5\u3002";
-    message.className = "status error";
+    message2.textContent = t("enterPurchaseKey");
+    message2.className = "status error";
     input.focus();
     return;
   }
-  button.disabled = true;
-  message.textContent = "\u6B63\u5728\u9A8C\u8BC1\u5E76\u6FC0\u6D3B\u5BC6\u94A5\u2026";
-  message.className = "status";
+  button2.disabled = true;
+  message2.textContent = t("activatingKey");
+  message2.className = "status";
   try {
     await redeemActivationKey(input.value);
-    message.textContent = "\u5BC6\u94A5\u5DF2\u6FC0\u6D3B\uFF0C\u6B63\u5728\u5237\u65B0\u6388\u6743\u72B6\u6001\u3002";
-    message.className = "status success";
+    message2.textContent = t("keyActivated");
+    message2.className = "status success";
     await refreshEntitlementStatus();
   } catch (error) {
     const code = error instanceof Error ? error.message : "";
-    message.textContent = activationErrors[code] || "\u6FC0\u6D3B\u5931\u8D25\uFF0C\u8BF7\u68C0\u67E5\u5BC6\u94A5\u548C\u7F51\u7EDC\u540E\u91CD\u8BD5\u3002";
-    message.className = "status error";
+    message2.textContent = activationErrors[code] ? t(activationErrors[code]) : t("activationFailed");
+    message2.className = "status error";
   } finally {
     input.value = "";
-    button.disabled = false;
+    button2.disabled = false;
   }
 });
-$("refresh-entitlement")?.addEventListener("click", refreshEntitlementStatus);
-var weekdays = ["\u5468\u65E5", "\u5468\u4E00", "\u5468\u4E8C", "\u5468\u4E09", "\u5468\u56DB", "\u5468\u4E94", "\u5468\u516D"];
-var lessonType = (course) => /(?:^|\W)lab\b/i.test(course || "") ? "Lab" : /(?:^|\W)(?:lec|lecture)\b/i.test(course || "") ? "Lecture" : /(?:^|\W)tut\b/i.test(course || "") ? "Tutorial" : "\u8BFE\u7A0B";
+$2("refresh-entitlement")?.addEventListener("click", refreshEntitlementStatus);
+async function setSubscriptionCurrency(currency, persist = true) {
+  subscriptionCurrency = currency === "rmb" ? "rmb" : "rm";
+  const rmb = subscriptionCurrency === "rmb", link = $2("purchase-subscription");
+  $2("subscription-price").textContent = rmb ? `\xA5${SUBSCRIPTION_RMB_PRICE.toFixed(1)}` : `RM ${SUBSCRIPTION_RM_PRICE.toFixed(2)}`;
+  link.href = rmb ? "https://shop.368fk.cn/shop/CFI5VKXO" : "https://vf-auto-check.vercel.app/?product=mobile_notification#hero";
+  link.textContent = t(rmb ? "purchaseRmb" : "purchaseRm");
+  $2("currency-rm").setAttribute("aria-pressed", String(!rmb));
+  $2("currency-rmb").setAttribute("aria-pressed", String(rmb));
+  $2("currency-rm").classList.toggle("selected", !rmb);
+  $2("currency-rmb").classList.toggle("selected", rmb);
+  if (persist) await chrome.storage.local.set({ attendanceSubscriptionCurrency: subscriptionCurrency });
+}
+$2("currency-rm").addEventListener("click", () => void setSubscriptionCurrency("rm"));
+$2("currency-rmb").addEventListener("click", () => void setSubscriptionCurrency("rmb"));
+function bindingUiState() {
+  return new Map([...cards].map(([key, info2]) => [key, {
+    url: info2.url.value,
+    schema: info2.schema,
+    selected: [...info2.card.querySelectorAll(".mapping select")].map((select) => select.value)
+  }]));
+}
+async function changeLanguage(language2) {
+  const preservedBindings = bindingUiState();
+  await setLanguage(language2);
+  await setSubscriptionCurrency(subscriptionCurrency, false);
+  renderPreview();
+  await renderBindings(preservedBindings);
+  await upgrade.render();
+  upgrade.refreshLocale();
+  if ($2("phone-subscription").open) {
+    void refreshEntitlementStatus();
+    void refreshRecoveryState();
+  }
+}
+$2("language-en").addEventListener("click", () => void changeLanguage("en"));
+$2("language-zh").addEventListener("click", () => void changeLanguage("zh"));
+var recoveryErrors = {
+  recovery_unavailable: "recoveryUnavailable",
+  recovery_delivery_failed: "recoveryDeliveryFailed",
+  recovery_rate_limited: "recoveryRateLimited",
+  recovery_code_invalid: "recoveryCodeInvalid",
+  recovery_code_expired: "recoveryCodeExpired",
+  recovery_attempts_exhausted: "recoveryAttemptsExhausted",
+  cloud_setup_choice_required: "recoveryChoice",
+  recovery_outcome_unknown: "recoveryOutcomeUnknown",
+  recovery_in_progress: "recoveryInProgress"
+};
+function updateRecoveryControls(status = {}) {
+  if (status.challengeId !== void 0) recoveryChallengeId = status.challengeId || "";
+  if (status.expiresAt !== void 0) recoveryExpiresAt = Date.parse(status.expiresAt || "") || 0;
+  if (status.requestedAt !== void 0) recoveryRequestedAt = Number(status.requestedAt) || 0;
+  if (status.canCancel !== void 0) recoveryCanCancel = Boolean(status.canCancel);
+  const isValid = Boolean(recoveryChallengeId && recoveryExpiresAt > Date.now());
+  const code = $2("recovery-code"), send = $2("send-recovery-code"), verify = $2("verify-recovery-code");
+  if (code) code.disabled = !isValid || recoveryBusy;
+  if (verify) verify.disabled = !isValid || recoveryBusy || !/^\d{6}$/.test(code?.value || "");
+  const retryUntil = Math.max(recoveryCooldownUntil, recoveryRequestedAt + 6e4);
+  const remaining = Math.max(0, Math.ceil((retryUntil - Date.now()) / 1e3));
+  if (send) {
+    send.disabled = recoveryBusy || remaining > 0;
+    send.textContent = recoveryBusy ? t("sendingCode") : remaining ? t("resendAfter", { seconds: remaining }) : recoveryChallengeId ? t("resendCode") : t("sendCode");
+  }
+  const cancel = $2("cancel-recovery");
+  if (cancel) {
+    cancel.hidden = !recoveryCanCancel;
+    cancel.disabled = recoveryBusy;
+  }
+  if (!isValid && recoveryChallengeId) {
+    recoveryChallengeId = "";
+    if (code) code.disabled = true;
+  }
+  if (remaining > 0 && !recoveryCooldownTimer) recoveryCooldownTimer = setInterval(() => {
+    updateRecoveryControls({});
+    if (Date.now() >= retryUntil) {
+      clearInterval(recoveryCooldownTimer);
+      recoveryCooldownTimer = null;
+    }
+  }, 1e3);
+  if (remaining === 0 && recoveryCooldownTimer) {
+    clearInterval(recoveryCooldownTimer);
+    recoveryCooldownTimer = null;
+  }
+}
+function recoveryMessage(message2, error = false) {
+  const status = $2("recovery-message");
+  status.textContent = message2;
+  status.className = `status${error ? " error" : " success"}`;
+}
+async function refreshRecoveryState() {
+  const state = await phoneSubscriptionRecoveryStatus();
+  if (state.requestedAt) recoveryCooldownUntil = Math.max(recoveryCooldownUntil, state.requestedAt + 6e4);
+  updateRecoveryControls(state);
+  const expiresAt = Date.parse(state.expiresAt || "");
+  if (state.setupChoice === "recovery-outcome-unknown") {
+    recoveryMessage(t("recoveryPending"), true);
+  } else if (state.challengeId && Number.isFinite(expiresAt)) {
+    const when = new Intl.DateTimeFormat(currentLanguage() === "en" ? "en-MY" : "zh-CN", { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Kuala_Lumpur" }).format(new Date(expiresAt));
+    recoveryMessage(expiresAt > Date.now() ? t("sentCode", { time: when }) : t("expiredCode"), expiresAt <= Date.now());
+  } else if (state.setupChoice === "recovery-starting") {
+    recoveryMessage(t("requestUnconfirmed"), true);
+  } else if (state.hasPending) {
+    recoveryMessage(t("recoveryIncomplete"), true);
+  }
+}
+$2("send-recovery-code")?.addEventListener("click", async () => {
+  const key = $2("recovery-key").value.trim();
+  if (!key) {
+    recoveryMessage(t("enterOldKey"), true);
+    $2("recovery-key").focus();
+    return;
+  }
+  recoveryBusy = true;
+  updateRecoveryControls({});
+  recoveryMessage(t("sendingRecovery"));
+  try {
+    await startPhoneSubscriptionRecovery(key);
+    $2("recovery-key").value = "";
+    $2("recovery-code").value = "";
+    recoveryCooldownUntil = Date.now() + 6e4;
+    await refreshRecoveryState();
+  } catch (error) {
+    const code = error.code || error.message || "";
+    if (error.retryAfterSeconds) recoveryCooldownUntil = Date.now() + Number(error.retryAfterSeconds) * 1e3;
+    await refreshRecoveryState();
+    recoveryMessage(recoveryErrors[code] ? t(recoveryErrors[code]) : t("recoverySendFailed"), true);
+  } finally {
+    recoveryBusy = false;
+    updateRecoveryControls(await phoneSubscriptionRecoveryStatus());
+  }
+});
+$2("recovery-code")?.addEventListener("input", () => updateRecoveryControls({}));
+$2("verify-recovery-code")?.addEventListener("click", async () => {
+  const code = $2("recovery-code").value.trim();
+  if (!/^\d{6}$/.test(code)) {
+    recoveryMessage(t("enterSixDigits"), true);
+    $2("recovery-code").focus();
+    return;
+  }
+  recoveryBusy = true;
+  updateRecoveryControls({});
+  recoveryMessage(t("verifyingRecover"));
+  try {
+    await completePhoneSubscriptionRecovery(recoveryChallengeId, code);
+    recoveryChallengeId = "";
+    $2("recovery-code").value = "";
+    recoveryMessage(t("recoverySuccess"));
+    await refreshEntitlementStatus();
+    await showCloudStatus();
+    await refreshRecoveryState();
+  } catch (error) {
+    const codeName = error.code || error.message || "";
+    await refreshRecoveryState();
+    recoveryMessage(recoveryErrors[codeName] ? t(recoveryErrors[codeName]) : t("recoveryUnknownStatus"), true);
+  } finally {
+    recoveryBusy = false;
+    updateRecoveryControls(await phoneSubscriptionRecoveryStatus());
+  }
+});
+$2("cancel-recovery")?.addEventListener("click", async () => {
+  try {
+    await cancelPhoneSubscriptionRecovery();
+    recoveryChallengeId = "";
+    $2("recovery-code").value = "";
+    recoveryMessage(t("recoveryCancelled"));
+    await refreshRecoveryState();
+  } catch (error) {
+    const key = recoveryErrors[error.code || error.message];
+    recoveryMessage(key ? t(key) : t("cancelFailed"), true);
+  }
+});
+var weekdaysZh = ["\u5468\u65E5", "\u5468\u4E00", "\u5468\u4E8C", "\u5468\u4E09", "\u5468\u56DB", "\u5468\u4E94", "\u5468\u516D"];
+var weekdaysEn = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+var weekdays = () => currentLanguage() === "en" ? weekdaysEn : weekdaysZh;
+var lessonType = (course) => /(?:^|\W)lab\b/i.test(course || "") ? "Lab" : /(?:^|\W)(?:lec|lecture)\b/i.test(course || "") ? "Lecture" : /(?:^|\W)tut\b/i.test(course || "") ? "Tutorial" : currentLanguage() === "en" ? "Lesson" : "\u8BFE\u7A0B";
 var field = (label, input) => {
-  const wrapper = node("label", { className: "session-field" });
-  wrapper.append(node("span", { text: label }), input);
+  const wrapper = node2("label", { className: "session-field" });
+  wrapper.append(node2("span", { text: label }), input);
   return wrapper;
 };
 function renderPreview(expandId) {
-  const root = $("preview-rows");
+  upgrade.draftChanged();
+  const root = $2("preview-rows");
   const openIds = new Set([...root.querySelectorAll(".session-card[open]")].map((card) => card.dataset.id));
   if (expandId) openIds.add(expandId);
   root.replaceChildren();
@@ -39763,74 +43487,139 @@ function renderPreview(expandId) {
     if (!groups.has(key)) groups.set(key, []);
     groups.get(key).push(row);
   }
-  const overview = $("preview-summary");
+  const overview = $2("preview-summary");
   overview.replaceChildren();
   if (!preview.length) {
-    overview.append(node("strong", { text: "\u7B49\u5F85\u4F60\u7684\u8BFE\u8868" }), node("span", { text: "\u4E0A\u4F20\u6587\u4EF6\u540E\uFF0C\u8FD9\u91CC\u4F1A\u6309\u661F\u671F\u5217\u51FA\u8BFE\u7A0B\u3002" }));
-    root.append(node("p", { className: "agenda-empty", text: "\u8FD8\u6CA1\u6709\u5F85\u6838\u5BF9\u7684\u8BFE\u7A0B\u3002\u4E5F\u53EF\u4EE5\u5148\u624B\u52A8\u6DFB\u52A0\u4E00\u8282\u3002" }));
+    overview.append(node2("strong", { text: t("emptyAgendaTitle") }), node2("span", { text: t("emptyAgendaCopy") }));
+    root.append(node2("p", { className: "agenda-empty", text: t("emptyAgenda") }));
     return;
   }
-  overview.append(node("strong", { text: `${preview.length} \u8282\u5F85\u6838\u5BF9\u8BFE\u7A0B` }), node("span", { text: `\u5206\u4E3A ${groups.size} \u4E2A\u4E0A\u8BFE\u65E5 \xB7 \u5C55\u5F00\u8BFE\u7A0B\u53EF\u4FEE\u6539\u661F\u671F\u4E0E\u65F6\u95F4` }));
+  overview.append(node2("strong", { text: t("previewCount", { count: preview.length }) }), node2("span", { text: t("previewDayCount", { count: groups.size }) }));
   const ordered = [...groups.entries()].sort(([a], [b]) => a.localeCompare(b));
   for (const [key, rows] of ordered) {
     const [, value] = key.split(":");
-    const day = node("section", { className: "agenda-day" }), heading = node("div", { className: "agenda-day-head" });
-    const title = `\u6BCF${weekdays[Number(value)] || "\u5468\u4E00"}`;
-    heading.append(node("h3", { text: title }), node("span", { className: "day-count", text: `${rows.length} \u8282\u8BFE` }));
-    const lessons = node("div", { className: "agenda-lessons" });
+    const day = node2("section", { className: "agenda-day" }), heading = node2("div", { className: "agenda-day-head" });
+    const title = `${t("weekdayPrefix")}${weekdays()[Number(value)] || t("weekdayFallback")}`;
+    heading.append(node2("h3", { text: title }), node2("span", { className: "day-count", text: t("lessonCount", { count: rows.length }) }));
+    const lessons = node2("div", { className: "agenda-lessons" });
     for (const row of rows.sort((a, b) => String(a.time).localeCompare(String(b.time)))) {
-      const card = node("details", { className: "session-card" });
+      const entry = node2("div", { className: "session-entry" });
+      const card = node2("details", { className: "session-card" });
       card.dataset.id = row.id;
       if (openIds.has(row.id)) card.open = true;
-      const summary = node("summary", { className: "session-summary" }), time = node("span", { className: "session-time" }), main = node("span", { className: "session-main" });
-      time.append(node("strong", { text: row.time || "--:--" }), node("small", { text: `${row.endTime || "--:--"} \u7ED3\u675F` }));
-      main.append(node("strong", { text: row.course || "\u672A\u547D\u540D\u8BFE\u7A0B" }), node("small", { text: "\u6BCF\u5468\u91CD\u590D" }));
-      const type = lessonType(row.course), badge = node("span", { className: `lesson-badge ${type.toLowerCase()}`, text: type });
-      summary.append(time, main, badge, node("span", { className: "session-chevron", text: "\u2304" }));
-      const editor = node("div", { className: "session-editor" });
-      const course = node("input", { value: row.course || "", placeholder: "\u8BFE\u7A0B\u540D" });
+      const summary = node2("summary", { className: "session-summary" }), time = node2("span", { className: "session-time" }), main = node2("span", { className: "session-main" });
+      time.append(node2("strong", { text: row.time || "--:--" }), node2("small", { text: `${row.endTime || "--:--"} ${t("endTimeSuffix")}` }));
+      main.append(node2("strong", { text: row.course || t("unnamedCourse") }), node2("small", { text: t("everyWeek") }));
+      const type = lessonType(row.course), badge = node2("span", { className: `lesson-badge ${type.toLowerCase()}`, text: type });
+      summary.append(time, main, badge, node2("span", { className: "session-chevron", text: "\u2304" }));
+      const editor = node2("div", { className: "session-editor" });
+      if (row.needsReview) editor.classList.add("needs-review");
+      const course = node2("input", { value: row.course || "", placeholder: t("coursePlaceholder") });
+      course.addEventListener("input", () => {
+        row.course = course.value.trim();
+        upgrade.draftChanged();
+      });
       course.addEventListener("change", () => {
         row.course = course.value.trim();
         renderPreview(row.id);
         renderBindings();
       });
-      editor.append(field("\u8BFE\u7A0B\u540D\u79F0", course));
-      const weekday = node("select");
-      for (const [index, label] of weekdays.entries()) weekday.append(node("option", { value: String(index), text: label }));
+      editor.append(field(t("fieldCourseName"), course));
+      const weekday = node2("select");
+      for (const [index, label] of weekdays().entries()) weekday.append(node2("option", { value: String(index), text: label }));
       weekday.value = String(row.weekday ?? 1);
       weekday.addEventListener("change", () => {
         row.weekday = Number(weekday.value);
         renderPreview(row.id);
       });
-      editor.append(field("\u6BCF\u5468\u661F\u671F", weekday));
-      const start = node("input", { type: "time", value: row.time || "09:00" });
+      editor.append(field(t("fieldWeekday"), weekday));
+      const start = node2("input", { type: "time", value: row.time || "09:00" });
+      start.addEventListener("input", () => {
+        row.time = start.value;
+        upgrade.draftChanged();
+      });
       start.addEventListener("change", () => {
         row.time = start.value;
         renderPreview(row.id);
       });
-      editor.append(field("\u5F00\u59CB\u65F6\u95F4", start));
-      const end = node("input", { type: "time", value: row.endTime || "10:00" });
+      editor.append(field(t("fieldStartTime"), start));
+      const end = node2("input", { type: "time", value: row.endTime || "10:00" });
+      end.addEventListener("input", () => {
+        row.endTime = end.value;
+        upgrade.draftChanged();
+      });
       end.addEventListener("change", () => {
         row.endTime = end.value;
         renderPreview(row.id);
       });
-      editor.append(field("\u7ED3\u675F\u65F6\u95F4", end));
-      const exceptions = node("input", { value: (row.exceptions || []).join(", "), placeholder: "YYYY-MM-DD, ..." });
-      exceptions.addEventListener("change", () => row.exceptions = exceptions.value.split(/[,，\s]+/).filter(Boolean));
-      const holder = field("\u505C\u8BFE\u65E5\u671F\uFF08\u53EF\u9009\uFF0C\u591A\u4E2A\u65E5\u671F\u7528\u9017\u53F7\u5206\u9694\uFF09", exceptions);
+      editor.append(field(t("fieldEndTime"), end));
+      if (row.code || row.type || row.room || row.lecturer || row.date || row.confidence) {
+        const metadata = node2("div", { className: "import-metadata" });
+        const editable = (key2, label) => {
+          const input = node2("input", { value: row[key2] || "" });
+          input.addEventListener("input", () => {
+            row[key2] = input.value.trim();
+            if (key2 === "code" || key2 === "type") row.course = `${row.code || ""}${row.type ? `-${row.type}` : ""}${row.group ? ` Group ${row.group}` : ""}`;
+            upgrade.draftChanged();
+          });
+          input.addEventListener("change", () => {
+            renderPreview(row.id);
+            renderBindings();
+          });
+          metadata.append(field(label, input));
+        };
+        if (row.code !== void 0) editable("code", "\u4EE3\u7801");
+        if (row.type !== void 0) editable("type", "\u8BFE\u578B");
+        if (row.group !== void 0) editable("group", "Group");
+        if (row.room !== void 0) editable("room", "\u623F\u95F4");
+        if (row.lecturer !== void 0) editable("lecturer", "\u6559\u5E08");
+        if (row.date !== void 0) editable("date", "\u65E5\u671F");
+        if (row.corrections?.length) metadata.append(node2("small", { className: "import-corrections", text: row.corrections.map((item) => `${item.raw} \u2192 ${item.corrected}`).join("\uFF1B") }));
+        if (row.confidence) metadata.append(node2("small", { className: "import-confidence", text: `\u7F6E\u4FE1\u5EA6\uFF1A${Object.entries(row.confidence).map(([key2, value2]) => `${key2} ${Math.round(value2 * 100)}%`).join(" \xB7 ")}` }));
+        if (row.type === "LAB") {
+          const choice = node2("select");
+          for (const [value2, label] of [["", "\u9009\u62E9\u81EA\u5DF1\u7684 Group"], ["1", "Group 1"], ["2", "Group 2"], ["skip", "\u4E0D\u52A0\u5165\u6B64 Group"]]) choice.append(node2("option", { value: value2, text: label }));
+          choice.value = row.importChoice || "";
+          choice.addEventListener("change", () => {
+            row.importChoice = choice.value;
+            if (choice.value === "1" || choice.value === "2") {
+              row.group = choice.value;
+              row.course = `${row.code || row.course.split(/\s+-/)[0]}-${row.type} Group ${choice.value}`;
+            }
+            upgrade.draftChanged();
+          });
+          metadata.append(field("\u9009\u62E9\u53C2\u52A0\u7684\u7EC4", choice));
+        }
+        editor.append(metadata);
+      }
+      const exceptions = node2("input", { value: (row.exceptions || []).join(", "), placeholder: "YYYY-MM-DD, ..." });
+      exceptions.addEventListener("input", () => {
+        row.exceptions = exceptions.value.split(/[,，\s]+/).filter(Boolean);
+        upgrade.draftChanged();
+      });
+      exceptions.addEventListener("change", () => {
+        row.exceptions = exceptions.value.split(/[,，\s]+/).filter(Boolean);
+        renderPreview(row.id);
+      });
+      const holder = field(t("fieldExceptions"), exceptions);
       holder.classList.add("wide");
       editor.append(holder);
-      const actions = node("div", { className: "session-actions" }), remove = node("button", { type: "button", text: "\u79FB\u9664\u6B64\u8BFE\u7A0B", className: "quiet" });
-      remove.setAttribute("aria-label", `\u5220\u9664 ${row.course || "\u672A\u547D\u540D\u8BFE\u7A0B"}`);
-      remove.addEventListener("click", () => {
-        preview.splice(preview.indexOf(row), 1);
+      const remove = node2("button", { type: "button", text: t("delete"), className: "quiet lesson-remove" });
+      remove.setAttribute("aria-label", `${t("delete")} ${row.course || t("unnamedCourse")}`);
+      remove.addEventListener("click", (event) => {
+        const index = preview.indexOf(row);
+        if (index < 0) return;
+        preview.splice(index, 1);
         renderPreview();
-        renderBindings();
+        void renderBindings();
+        if (event.detail === 0) {
+          const buttons = root.querySelectorAll(".lesson-remove");
+          (buttons[Math.min(index, buttons.length - 1)] || $2("add-row")).focus({ preventScroll: true });
+        }
       });
-      actions.append(remove);
-      editor.append(actions);
       card.append(summary, editor);
-      lessons.append(card);
+      entry.append(card, remove);
+      lessons.append(entry);
     }
     day.append(heading, lessons);
     root.append(day);
@@ -39848,300 +43637,371 @@ function moduleGroups(sessions = []) {
   }
   return [...groups.entries()].sort(([a], [b]) => a.localeCompare(b));
 }
-async function renderBindings() {
+async function renderBindings(preserved = bindingUiState()) {
   const { attendanceSessions: sessions = [], attendanceBindings: bindings = {}, attendanceProfile: p = {} } = await getData();
-  const root = $("bindings");
+  const root = $2("bindings");
   root.replaceChildren();
   cards.clear();
   const groups = moduleGroups(sessions);
   if (!groups.length) {
-    root.append(node("p", { className: "muted", text: "\u5148\u5BFC\u5165\u6216\u6DFB\u52A0\u8BFE\u7A0B\u3002" }));
+    root.append(node2("p", { className: "muted", text: t("emptyBindings") }));
     return;
   }
   for (const [key, courses] of groups) {
     const saved = bindings[key], legacy = legacyLinkSuggestion(bindings, courses);
     const ready = courses.every((course) => {
       try {
-        validateBindingForCourse(bindingForCourse(bindings, course), course, p, todayMalaysia());
+        validateBindingForCourse(bindingForCourse(bindings, course), course, { student: p.student || "Student ID", name: p.name || "Name", studentType: p.studentType || "local" }, todayMalaysia());
         return true;
       } catch {
         return false;
       }
     });
-    const card = node("article", { className: "binding" }), title = node("h3", { text: key });
-    const variants = node("p", { className: "binding-variants", text: `\u5171\u7528\u6B64\u94FE\u63A5\uFF1A${courses.join(" \xB7 ")}` });
-    const row = node("div", { className: "toolbar" }), url = node("input", { type: "url", placeholder: "\u7C98\u8D34 Forms \u94FE\u63A5\uFF0C\u6216\u4E0A\u4F20\u4E8C\u7EF4\u7801", value: saved?.url || legacy.url });
-    const fileLabel = node("label", { className: "file-button", text: "\u4E0A\u4F20\u4E8C\u7EF4\u7801" }), file = node("input", { type: "file", accept: ".png,.jpg,.jpeg,image/png,image/jpeg" });
+    const card = node2("article", { className: "binding" }), title = node2("h3", { text: key });
+    const variants = node2("p", { className: "binding-variants", text: t("inspectFormsCopy", { courses: courses.join(" \xB7 ") }) });
+    const previous = preserved.get(key);
+    const row = node2("div", { className: "toolbar" }), url = node2("input", { type: "url", placeholder: t("formsUrlPlaceholder"), value: previous?.url ?? saved?.url ?? legacy.url });
+    url.setAttribute("aria-label", t("formsUrlLabel", { key }));
+    const fileLabel = node2("label", { className: "file-button", text: t("uploadQr") }), file = node2("input", { type: "file", accept: ".png,.jpg,.jpeg,image/png,image/jpeg" });
     fileLabel.append(file);
-    const verify = node("button", { type: "button", text: "\u6253\u5F00\u5E76\u6838\u5BF9\u8868\u5355" });
-    const test = node("button", { type: "button", text: "\u6D4B\u8BD5\u6240\u9009\u8BFE\u578B \xB7 \u4E0D\u63D0\u4EA4", className: "secondary" });
-    const status = node("p", { className: "status", text: ready ? `\u5DF2\u6838\u5BF9\uFF1A${saved.title}` : legacy.conflict ? "\u65E7\u7248\u8BFE\u578B\u7ED1\u5B9A\u4E86\u4E0D\u540C\u94FE\u63A5\u3002\u8BF7\u4F7F\u7528\u8FD9\u4E00\u95E8\u8BFE\u7A0B\u5171\u7528\u7684\u94FE\u63A5\u91CD\u65B0\u6838\u5BF9\u3002" : "\u8BF7\u6838\u5BF9\u5E76\u4FDD\u5B58\u4E00\u6B21\u5171\u7528\u8868\u5355\u3002" });
-    const testCourse = node("select");
-    if (courses.length > 1) testCourse.append(node("option", { value: "", text: "\u5148\u9009\u62E9\u8981\u6D4B\u8BD5\u7684\u8BFE\u7A0B\u8BFE\u578B" }));
-    for (const course of courses) testCourse.append(node("option", { value: course, text: course }));
-    testCourse.setAttribute("aria-label", `${key} \u4EC5\u586B\u5199\u6D4B\u8BD5\u7684\u8BFE\u578B`);
-    row.append(url, fileLabel, verify);
+    const status = node2("p", { className: `status${ready ? " success" : ""}`, text: ready ? t("boundSuccessfully") : legacy.conflict ? t("legacyConflict") : t("bindingNeedsReview") });
+    status.setAttribute("role", "status");
+    status.setAttribute("aria-live", "polite");
+    row.append(url, fileLabel);
     card.append(title, variants, row, status);
-    const testRow = node("div", { className: "binding-test-row" });
-    if (courses.length > 1) {
-      const testLabel = node("label", { className: "binding-test-label", text: "\u4EC5\u586B\u5199\u6D4B\u8BD5\u7684\u8BFE\u7A0B\u8BFE\u578B" });
-      testLabel.append(testCourse);
-      testRow.append(testLabel);
-    }
-    testRow.append(test);
-    card.append(testRow);
     root.append(card);
-    cards.set(key, { card, url, status, courses });
-    verify.addEventListener("click", () => startInspection(key, url.value));
+    cards.set(key, { card, url, status, courses, schema: previous?.schema });
+    if (previous?.schema) renderInspection(key, previous.schema, previous.selected);
+    else if (saved?.verified && saved.questions) renderInspection(key, { url: saved.url, title: saved.title, questions: saved.questions }, saved.mapping.map((entry) => entry.field));
+    let debounce, qrRevision = 0;
+    const changed = () => {
+      qrRevision++;
+      clearTimeout(debounce);
+      cancelInspection(key);
+      infoStatus(key, t("bindingNeedsReview"));
+      cards.get(key).schema = void 0;
+      card.querySelector(".mapping")?.remove();
+      const value = url.value.trim();
+      void writeBinding(key, () => ({ url: value, title: "", verified: false, scope: "module" })).catch((error) => infoStatus(key, error.message, true));
+      if (value) debounce = setTimeout(() => void scanBinding(key).catch((error) => infoStatus(key, error.message, true)), 350);
+    };
+    url.addEventListener("input", changed);
+    url.addEventListener("change", () => {
+      clearTimeout(debounce);
+      if (url.value.trim()) void scanBinding(key).catch((error) => infoStatus(key, error.message, true));
+    });
     file.addEventListener("change", async () => {
+      const image = file.files?.[0];
+      if (!image) return;
+      let revision = ++qrRevision;
       try {
-        const decoded = await decodeQrFile(file.files[0]);
+        infoStatus(key, t("readingQr"));
+        const decoded = await decodeQrFile(image);
+        if (revision !== qrRevision) return;
         url.value = decoded;
-        await startInspection(key, decoded);
+        changed();
+        revision = qrRevision;
+        clearTimeout(debounce);
+        await scanBinding(key);
       } catch (error) {
-        toast(error.message, true);
-      }
-      file.value = "";
-    });
-    test.addEventListener("click", async () => {
-      try {
-        const course = testCourse.value;
-        if (!course) throw Error("\u8BF7\u5148\u9009\u62E9\u8981\u6D4B\u8BD5\u7684\u8BFE\u7A0B\u8BFE\u578B\u3002");
-        const binding = bindingForCourse((await getData()).attendanceBindings, course);
-        if (!binding?.verified) throw Error("\u8BF7\u5148\u6838\u5BF9\u5171\u7528\u8868\u5355\u3002");
-        validateBindingForCourse(binding, course, p, todayMalaysia());
-        const target = validateFormsUrl(binding.url);
-        target.hash = new URLSearchParams({ attendanceCheck: course }).toString();
-        await chrome.tabs.create({ url: target.href });
-      } catch (error) {
-        toast(error.message, true);
+        if (revision === qrRevision) infoStatus(key, error.message, true);
+      } finally {
+        file.value = "";
       }
     });
   }
 }
-async function startInspection(key, text) {
-  try {
-    const url = validateFormsUrl(text);
-    if (inspecting?.timer) clearTimeout(inspecting.timer);
-    const tab = await chrome.tabs.create({ url: "about:blank", active: true });
-    inspecting = { key, tabId: tab.id };
-    cards.get(key).status.textContent = "\u6B63\u5728\u6253\u5F00\u8868\u5355\uFF0C\u7B49\u5F85\u5B66\u6821\u767B\u5F55\u4E0E\u9898\u76EE\u52A0\u8F7D\u2026";
-    inspecting.timer = setTimeout(() => {
-      if (inspecting?.tabId === tab.id) {
-        cards.get(key).status.textContent = "\u672A\u80FD\u8BFB\u53D6\u8868\u5355\u3002\u8BF7\u68C0\u67E5\u5B66\u6821\u767B\u5F55\u72B6\u6001\u540E\u91CD\u8BD5\u3002";
-        inspecting = null;
-      }
-    }, 9e4);
-    await chrome.tabs.update(tab.id, { url: url.href });
-  } catch (error) {
-    toast(error.message, true);
-  }
-}
-function renderInspection(key, schema) {
+function infoStatus(key, message2, error = false, success = false) {
   const info2 = cards.get(key);
   if (!info2) return;
-  const courses = info2.courses, course = courses[0];
-  info2.card.querySelector(".mapping")?.remove();
-  const box = node("div", { className: "mapping" });
-  box.append(node("p", { text: `\u5B9E\u9645\u8868\u5355\uFF1A${schema.title} \xB7 ${schema.url}` }));
-  const code = key.match(/[A-Za-z]{2,}\d{3,}/)?.[0];
-  if (code && !schema.title.toLowerCase().includes(code.toLowerCase())) box.append(node("p", { className: "status", text: `\u6CE8\u610F\uFF1A\u8868\u5355\u6807\u9898\u4E2D\u672A\u627E\u5230\u8BFE\u7A0B\u4EE3\u7801 ${code}\uFF0C\u8BF7\u4ED4\u7EC6\u6838\u5BF9\u3002` }));
-  const selects = [];
-  for (const [i, q] of schema.questions.entries()) {
-    const title = /^\s*\d+[.)．、]/.test(q.title) ? q.title : `${i + 1}. ${q.title}`;
-    const line = node("div", { className: "mapping-row" }), label = node("span", { text: `${title}\uFF08${q.type}${q.options?.length ? `\uFF1A${q.options.join(" / ")}` : ""}\uFF09` }), select = node("select");
-    const { choices, selected } = fieldMappingForQuestion(q, course);
-    for (const [value, text] of choices) select.append(node("option", { value, text }));
-    select.value = selected;
-    selects.push(select);
-    line.append(label, select);
-    box.append(line);
-  }
-  const confirmLabel = node("label", { className: "checkbox" }), confirm2 = node("input", { type: "checkbox" });
-  confirmLabel.append(confirm2, node("span", { text: `\u6211\u5DF2\u6838\u5BF9\uFF1A\u8FD9\u662F ${key} \u7684\u5171\u7528\u6253\u5361\u8868\u5355\uFF0C\u9002\u7528\u4E8E ${courses.join("\u3001")}\u3002` }));
-  box.append(confirmLabel);
-  const save = node("button", { type: "button", text: "\u4FDD\u5B58\u8868\u5355\u7ED1\u5B9A" });
-  box.append(save);
-  info2.card.append(box);
-  save.addEventListener("click", async () => {
-    try {
-      if (!confirm2.checked) throw Error("\u8BF7\u5148\u6838\u5BF9\u8BFE\u7A0B\u4E0E\u8868\u5355\u3002");
-      const p = validateProfile(profile());
-      const mapping = schema.questions.map((q, i) => ({ title: q.title, type: q.type, options: q.options || [], field: selects[i].value }));
-      if (mapping.some((x) => !x.field)) throw Error("\u8BF7\u4E3A\u6BCF\u4E00\u9053\u9898\u9009\u62E9\u5BF9\u5E94\u8D44\u6599\u3002");
-      const binding = { url: validateFormsUrl(schema.url).href, title: schema.title, questions: schema.questions, mapping, verified: true, scope: "module" };
-      for (const variant of courses) validateBindingForCourse(binding, variant, p, todayMalaysia());
-      const { attendanceBindings: bindings = {} } = await getData();
-      bindings[key] = binding;
-      await chrome.storage.local.set({ attendanceBindings: bindings, attendanceProfile: p });
-      await syncCloudSafe({ sessions: (await getData()).attendanceSessions || [], bindings });
-      toast(`${key} \u5171\u7528\u8868\u5355\u5DF2\u7ED1\u5B9A\u3002`);
-      await renderBindings();
-    } catch (error) {
-      toast(error.message, true);
-    }
-  });
+  info2.status.textContent = localizeMessage(message2);
+  info2.status.className = `status${error ? " error" : success ? " success" : ""}`;
 }
-chrome.runtime.onMessage.addListener((message, sender) => {
-  if (!inspecting || sender.tab?.id !== inspecting.tabId) return;
-  const key = inspecting.key;
-  if (message.type === "FORM_SETUP_ERROR") {
-    cards.get(key).status.textContent = message.error;
+function writeBinding(key, create) {
+  const write = bindingWrites.catch(() => {
+  }).then(async () => {
+    const { attendanceBindings: bindings = {} } = await getData();
+    const binding = create();
+    if (!binding) return;
+    await chrome.storage.local.set({ attendanceBindings: { ...bindings, [key]: binding } });
+  });
+  bindingWrites = write;
+  return write;
+}
+function finishInspection(inspection, error) {
+  if (inspecting.get(inspection.tabId) !== inspection) return;
+  clearTimeout(inspection.timer);
+  inspecting.delete(inspection.tabId);
+  void chrome.tabs.remove(inspection.tabId).catch(() => {
+  });
+  if (error) {
+    infoStatus(inspection.key, error.message, true);
+    inspection.reject(error);
+  } else inspection.resolve();
+}
+function cancelInspection(key) {
+  for (const inspection of inspecting.values()) if (inspection.key === key) finishInspection(inspection, Error(t("scanCancelled")));
+}
+function clearInspections() {
+  for (const inspection of [...inspecting.values()]) finishInspection(inspection, Error(t("scanCancelled")));
+}
+function scanBinding(key) {
+  const source = cards.get(key)?.url.value.trim();
+  const existing = scanRequests.get(key);
+  if (existing?.source === source) return existing.promise;
+  const request2 = { source };
+  request2.promise = scanBindingNow(key).finally(() => {
+    if (scanRequests.get(key) === request2) scanRequests.delete(key);
+  });
+  scanRequests.set(key, request2);
+  return request2.promise;
+}
+async function scanBindingNow(key) {
+  const info2 = cards.get(key);
+  if (!info2) return;
+  const source = info2.url.value.trim(), url = validateFormsUrl(source).href;
+  const existing = [...inspecting.values()].find((item) => item.key === key && item.source === source);
+  if (existing) return existing.promise;
+  cancelInspection(key);
+  infoStatus(key, t("openingForm"));
+  await writeBinding(key, () => cards.get(key)?.url.value.trim() === source ? { url, title: "", verified: false, scope: "module" } : null);
+  const tab = await chrome.tabs.create({ url: "about:blank", active: false });
+  if (cards.get(key)?.url.value.trim() !== source) {
+    await chrome.tabs.remove(tab.id);
     return;
   }
-  if (message.type !== "FORM_READY") return;
+  const inspection = { key, source, tabId: tab.id };
+  inspection.promise = new Promise((resolve, reject) => {
+    inspection.resolve = resolve;
+    inspection.reject = reject;
+  });
+  inspecting.set(tab.id, inspection);
+  inspection.timer = setTimeout(() => finishInspection(inspection, Error(t("inspectionTimeout"))), 9e4);
+  void chrome.tabs.update(tab.id, { url }).catch((error) => finishInspection(inspection, error));
+  return inspection.promise;
+}
+async function openAllBindings() {
+  if (batchScanning) return;
+  const entries = [...cards.entries()].map(([key, info2]) => ({ key, url: info2.url.value })).filter((entry) => entry.url.trim());
+  if (!entries.length) throw Error(t("noFormLinks"));
+  const button2 = $2("verify-all-bindings");
+  batchScanning = true;
+  button2.disabled = true;
+  button2.textContent = t("scanningAll");
+  let succeeded = 0, failed = 0;
   try {
-    const url = validateFormsUrl(message.url);
-    if (!/^\/Pages\/ResponsePage\.aspx$/i.test(url.pathname) || !message.title || !message.questions?.length) throw Error("\u6CA1\u6709\u627E\u5230\u53EF\u914D\u7F6E\u7684 Microsoft Forms \u7B54\u9898\u9875\u3002");
-    clearTimeout(inspecting.timer);
-    inspecting = null;
-    cards.get(key).status.textContent = "\u8BF7\u6838\u5BF9\u8868\u5355\u6807\u9898\u4E0E\u6BCF\u9053\u9898\uFF0C\u518D\u4FDD\u5B58\u7ED1\u5B9A\u3002";
-    renderInspection(key, { url: url.href, title: message.title, questions: message.questions });
-  } catch (error) {
-    cards.get(key).status.textContent = error.message;
+    for (const entry of entries) {
+      try {
+        await scanBinding(entry.key);
+        succeeded++;
+      } catch (error) {
+        failed++;
+        infoStatus(entry.key, error.message, true);
+      }
+    }
+    await rebuild();
+    await upgrade.render();
+    toast(t("scanSummary", { succeeded, failed }), failed > 0);
+  } finally {
+    batchScanning = false;
+    button2.disabled = false;
+    button2.textContent = t("verifyAllForms");
   }
+}
+async function saveInspection(key, schema, selects) {
+  const info2 = cards.get(key);
+  if (!info2) return;
+  const source = info2.url.value.trim(), p = profile();
+  const mapping = schema.questions.map((q, i) => ({ title: q.title, type: q.type, required: q.required, options: q.options || [], field: selects[i].value }));
+  if (mapping.some((x) => !x.field)) throw Error(t("mapEveryQuestion"));
+  const binding = { url: validateFormsUrl(schema.url).href, title: schema.title, questions: schema.questions, mapping, verified: true, scope: "module" };
+  for (const variant of info2.courses) validateBindingForCourse(binding, variant, { student: p.student || "Student ID", name: p.name || "Name", studentType: p.studentType || "local" }, todayMalaysia());
+  await writeBinding(key, () => cards.get(key)?.url.value.trim() === source && cards.get(key)?.schema === schema ? binding : null);
+  if (cards.get(key)?.url.value.trim() !== source || cards.get(key)?.schema !== schema) return;
+  infoStatus(key, t("boundSuccessfully"), false, true);
+  await syncCloudSafe();
+}
+function renderInspection(key, schema, selectedValues = []) {
+  const info2 = cards.get(key);
+  if (!info2) return;
+  info2.schema = schema;
+  const courses = info2.courses, course = courses[0];
+  info2.card.querySelector(".mapping")?.remove();
+  const box = node2("div", { className: "mapping" });
+  box.append(node2("p", { text: t("actualForm", { title: schema.title, url: schema.url }) }));
+  const selects = [];
+  const fields = node2("details", { className: "mapping-fields" });
+  fields.append(node2("summary", { text: t("editMapping") }));
+  for (const [i, q] of schema.questions.entries()) {
+    const title = /^\s*\d+[.)．、]/.test(q.title) ? q.title : `${i + 1}. ${q.title}`;
+    const line = node2("div", { className: "mapping-row" }), label = node2("label", { text: `${title}\uFF08${q.type}${q.options?.length ? `\uFF1A${q.options.join(" / ")}` : ""}\uFF09` }), select = node2("select");
+    select.id = `mapping-${key}-${i}`;
+    label.htmlFor = select.id;
+    const { choices, selected } = fieldMappingForQuestion(q, course);
+    for (const [value, text] of choices) select.append(node2("option", { value, text }));
+    select.value = selectedValues[i] && choices.some(([value]) => value === selectedValues[i]) ? selectedValues[i] : selected;
+    selects.push(select);
+    line.append(label, select);
+    fields.append(line);
+    select.addEventListener("change", () => {
+      infoStatus(key, t("openingForm"));
+      void writeBinding(key, () => ({ ...schema, scope: "module", verified: false })).then(() => saveInspection(key, schema, selects)).catch((error) => infoStatus(key, error.message, true));
+    });
+  }
+  fields.open = selects.some((select) => !select.value);
+  box.append(fields);
+  info2.card.append(box);
+  return selects;
+}
+chrome.runtime.onMessage.addListener((message2, sender) => {
+  const inspection = inspecting.get(sender.tab?.id);
+  if (!inspection) return;
+  const key = inspection.key, info2 = cards.get(key);
+  if (!info2 || info2.url.value.trim() !== inspection.source) {
+    finishInspection(inspection, Error(t("scanCancelled")));
+    return;
+  }
+  if (message2.type === "FORM_SETUP_ERROR") {
+    finishInspection(inspection, Error(message2.error));
+    return;
+  }
+  if (message2.type !== "FORM_READY") return;
+  if (inspection.saving) return;
+  inspection.saving = true;
+  void (async () => {
+    try {
+      const url = validateFormsUrl(message2.url);
+      if (sender.tab.url && validateFormsUrl(sender.tab.url).href !== url.href || !message2.title || !message2.questions?.length) throw Error(t("formsNotFound"));
+      const schema = { url: url.href, title: message2.title, questions: message2.questions };
+      const selects = renderInspection(key, schema);
+      await saveInspection(key, schema, selects);
+      finishInspection(inspection);
+    } catch (error) {
+      finishInspection(inspection, error);
+    }
+  })();
 });
 async function renderSaved() {
-  const { attendanceSessions: sessions = [], attendanceRecords: records = {} } = await getData();
-  const list = $("sessions");
-  list.replaceChildren();
-  if (!sessions.length) list.append(node("p", { className: "muted", text: "\u8FD8\u6CA1\u6709\u4EFB\u52A1\u3002" }));
-  for (const s of sessions) {
-    const item = node("div", { className: "list-item" }), label = node("div"), deleteButton = node("button", { type: "button", text: "\u5220\u9664", className: "quiet" });
-    label.append(node("strong", { text: s.course }), node("small", { text: `\u6BCF\u5468${["\u65E5", "\u4E00", "\u4E8C", "\u4E09", "\u56DB", "\u4E94", "\u516D"][s.weekday]} ${s.time}\u2013${s.endTime} \xB7 \u7ED3\u675F\u524D 5 \u5206\u949F\u81EA\u52A8\u6267\u884C` }));
-    deleteButton.addEventListener("click", async () => {
-      const current = (await getData()).attendanceSessions || [];
-      await chrome.storage.local.set({ attendanceSessions: current.filter((x) => x.id !== s.id) });
-      await rebuild();
-      await renderSaved();
-      await renderBindings();
-    });
-    item.append(label, deleteButton);
-    list.append(item);
-  }
-  const recordList = $("records");
-  recordList.replaceChildren();
-  const recent = Object.values(records).sort((a, b) => String(b.at).localeCompare(String(a.at))).slice(0, 40);
-  if (!recent.length) recordList.append(node("p", { className: "muted", text: "\u8FD8\u6CA1\u6709\u6253\u5361\u8BB0\u5F55\u3002" }));
-  for (const r of recent) {
-    const item = node("div", { className: "list-item" }), label = node("div");
-    label.append(node("strong", { text: `${r.occ?.course || "\u8BFE\u7A0B"} \xB7 ${r.occ?.date || ""} ${r.occ?.time || ""}` }), node("small", { text: r.detail || r.at || "" }));
-    item.append(label, node("span", { text: { success: "\u6210\u529F", failed: "\u5931\u8D25", unknown: "\u7ED3\u679C\u4E0D\u660E", missed: "\u672A\u81EA\u52A8\u63D0\u4EA4", pending: "\u63D0\u4EA4\u4E2D", launched: "\u6253\u5F00\u4E2D" }[r.state] || r.state }));
-    recordList.append(item);
-  }
+  await upgrade.render();
 }
 profileForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   try {
     await chrome.storage.local.set({ attendanceProfile: validateProfile(profile()) });
-    toast("\u5B66\u751F\u8D44\u6599\u5DF2\u4FDD\u5B58\u3002");
+    await rebuild();
+    await renderBindings();
+    await upgrade.render();
+    $2("profile-details").open = false;
+    toast(t("profileSavedToast"));
   } catch (error) {
     toast(error.message, true);
   }
 });
-$("timetable-file").addEventListener("change", async (event) => {
+$2("timetable-file").addEventListener("change", async (event) => {
   const file = event.target.files?.[0];
   if (!file) return;
   const generation = ++importGeneration;
   try {
-    $("import-status").textContent = "\u6B63\u5728\u672C\u673A\u8BC6\u522B\u2026";
-    const rows = await importTimetable(file, (message) => {
-      if (generation === importGeneration) $("import-status").textContent = message;
+    $2("import-status").textContent = t("recognizingTimetable");
+    const rows = await importTimetable(file, (message2) => {
+      if (generation === importGeneration) $2("import-status").textContent = localizeMessage(message2);
     });
     if (generation !== importGeneration) return;
-    if (!rows.length) throw Error("\u6CA1\u6709\u53EF\u9760\u8BC6\u522B\u51FA\u8BFE\u7A0B\u3002\u8BF7\u624B\u52A8\u6DFB\u52A0\uFF0C\u6216\u4E0A\u4F20\u66F4\u6E05\u6670\u7684\u8BFE\u8868\u3002");
-    preview.push(...rows.map((r) => ({ ...toWeeklySession(r), id: crypto.randomUUID(), exceptions: [] })));
-    $("import-status").textContent = `\u8BC6\u522B\u51FA ${rows.length} \u884C\u3002${rows.some((r) => /\bGroup\s*\d+\b/i.test(r.course)) ? "\u8BF7\u5220\u9664\u4E0D\u5C5E\u4E8E\u81EA\u5DF1\u7684 Group \u8BFE\u7A0B\u3002" : ""}\u8BF7\u9010\u884C\u6838\u5BF9\uFF0C\u518D\u7ED1\u5B9A\u4E8C\u7EF4\u7801\u3002`;
+    if (!rows.length) throw Error(t("noRecognizedLessons"));
+    preview.push(...rows.map((r) => {
+      const dayNumber = { Mo: 1, Tu: 2, We: 3, Th: 4, Fr: 5 }[r.day] ?? r.weekday ?? 1;
+      const course = r.course || `${r.code || ""}${r.type ? `-${r.type}` : ""}${r.group ? ` Group ${r.group}` : ""}`;
+      const weekly = toWeeklySession({ kind: "weekly", weekday: dayNumber, course, time: r.start || r.time, endTime: r.end || r.endTime });
+      return { ...weekly, id: crypto.randomUUID(), exceptions: [], ...r, course, weekday: dayNumber, time: r.start || r.time, endTime: r.end || r.endTime };
+    }));
+    $2("import-status").textContent = t("recognizedLessons", { count: rows.length, groupWarning: rows.some((r) => /\bGroup\s*\d+\b/i.test(r.course)) ? t("groupWarning") : "" });
     renderPreview();
     await renderBindings();
   } catch (error) {
     if (generation === importGeneration) {
-      $("import-status").textContent = error.message;
+      $2("import-status").textContent = error.message;
       toast(error.message, true);
     }
   } finally {
     event.target.value = "";
   }
 });
-$("add-row").addEventListener("click", async () => {
+$2("add-row").addEventListener("click", async () => {
   const row = { id: crypto.randomUUID(), course: "", kind: "weekly", weekday: 1, time: "09:00", endTime: "10:00", exceptions: [] };
   preview.push(row);
   renderPreview(row.id);
 });
-$("clear-preview").addEventListener("click", async () => {
-  if (!confirm("\u6E05\u7A7A\u7B2C 2 \u533A\u6240\u6709\u5F85\u6838\u5BF9\u8BFE\u7A0B\uFF1F\u5DF2\u521B\u5EFA\u7684\u6BCF\u5468\u4EFB\u52A1\u4E0D\u4F1A\u5220\u9664\u3002")) return;
+$2("clear-preview").addEventListener("click", async () => {
+  if (!confirm(t("clearPreviewConfirm"))) return;
   importGeneration++;
   preview.length = 0;
-  $("timetable-file").value = "";
-  $("import-status").textContent = "\u8FD8\u6CA1\u6709\u5BFC\u5165\u8BFE\u8868\u3002";
+  $2("timetable-file").value = "";
+  $2("import-status").textContent = t("noImportYet");
   renderPreview();
   await renderBindings();
-  toast("\u7B2C 2 \u533A\u7684\u5F85\u6838\u5BF9\u8BFE\u7A0B\u5DF2\u6E05\u7A7A\u3002");
+  toast(t("draftCleared"));
 });
-$("clear-bindings").addEventListener("click", async () => {
-  if (!confirm("\u6E05\u7A7A\u7B2C 3 \u533A\u6240\u6709\u8BFE\u7A0B\u4E8C\u7EF4\u7801\u3001\u94FE\u63A5\u548C\u8868\u5355\u9898\u76EE\u6620\u5C04\uFF1F\u73B0\u6709\u4EFB\u52A1\u4F1A\u4FDD\u7559\uFF0C\u4F46\u91CD\u65B0\u7ED1\u5B9A\u524D\u65E0\u6CD5\u81EA\u52A8\u63D0\u4EA4\u3002")) return;
+$2("clear-bindings").addEventListener("click", async () => {
+  if (!confirm(t("clearBindingsConfirm"))) return;
   try {
-    if (inspecting?.timer) clearTimeout(inspecting.timer);
-    inspecting = null;
+    clearInspections();
+    await bindingWrites.catch(() => {
+    });
     await chrome.storage.local.set({ attendanceBindings: {} });
-    await renderBindings();
-    toast("\u7B2C 3 \u533A\u7684\u8BFE\u7A0B\u8868\u5355\u7ED1\u5B9A\u5DF2\u6E05\u7A7A\u3002");
+    await rebuild();
+    await upgrade.render();
+    await renderBindings(/* @__PURE__ */ new Map());
+    toast(t("bindingsCleared"));
   } catch (error) {
     toast(error.message, true);
   }
 });
-$("clear-sessions").addEventListener("click", async () => {
-  if (!confirm("\u5220\u9664\u7B2C 4 \u533A\u5168\u90E8\u6BCF\u5468\u81EA\u52A8\u6253\u5361\u4EFB\u52A1\uFF1F\u4E4B\u540E\u4E0D\u4F1A\u518D\u6309\u8FD9\u4E9B\u4EFB\u52A1\u5B89\u6392\u6253\u5361\u3002\u6253\u5361\u8BB0\u5F55\u4F1A\u4FDD\u7559\u3002")) return;
+$2("clear-sessions").addEventListener("click", async () => {
+  if (!confirm(t("clearTasksConfirm"))) return;
   try {
     await chrome.storage.local.set({ attendanceSessions: [] });
     await rebuild();
     await renderSaved();
     await renderBindings();
-    toast("\u7B2C 4 \u533A\u7684\u6BCF\u5468\u4EFB\u52A1\u5DF2\u6E05\u7A7A\u3002");
+    toast(t("tasksDeleted"));
   } catch (error) {
     toast(error.message, true);
   }
 });
-$("create-tasks").addEventListener("click", async () => {
+$2("create-tasks").addEventListener("click", async () => {
   try {
-    if (!preview.length) throw Error("\u8BF7\u5148\u5BFC\u5165\u6216\u6DFB\u52A0\u8BFE\u7A0B\u3002");
-    const { attendanceSessions: existing = [], attendanceBindings: bindings = {} } = await getData();
-    const p = validateProfile(profile());
-    const createdAt = (/* @__PURE__ */ new Date()).toISOString();
-    const rows = preview.map((row) => {
-      const r = { ...toWeeklySession(row), course: row.course?.trim(), createdAt };
-      if (!r.course || !r.time || !r.endTime || r.endTime <= r.time) throw Error("\u8BF7\u6838\u5BF9\u6BCF\u884C\u7684\u8BFE\u7A0B\u540D\u548C\u8D77\u6B62\u65F6\u95F4\u3002");
-      const binding = bindingForCourse(bindings, r.course);
-      validateBindingForCourse(binding, r.course, p, todayMalaysia());
-      r.exceptions = (r.exceptions || []).map(normalizeDate);
-      if (r.exceptions.some((x) => !x)) throw Error(`${r.course} \u7684\u505C\u8BFE\u65E5\u671F\u683C\u5F0F\u65E0\u6548\u3002`);
-      return r;
-    });
-    const merged = mergeSessions(existing, rows);
-    await chrome.storage.local.set({ attendanceSessions: merged });
-    await rebuild();
-    await syncCloudSafe({ sessions: merged, bindings });
-    const added = merged.length - existing.length;
-    preview.length = 0;
-    renderPreview();
-    await renderSaved();
-    await renderBindings();
-    toast(`\u5DF2\u521B\u5EFA ${added} \u4E2A\u6BCF\u5468\u81EA\u52A8\u4EFB\u52A1${added < rows.length ? `\uFF0C\u8DF3\u8FC7 ${rows.length - added} \u4E2A\u91CD\u590D\u9879` : ""}\u3002`);
+    await upgrade.activateDraft();
   } catch (error) {
     toast(error.message, true);
   }
 });
 chrome.storage.onChanged.addListener((changes, area) => {
-  if (area === "local" && "attendanceRecords" in changes) renderSaved().catch(console.error);
+  if (area === "local" && ["attendanceRecords", "attendanceSessions", "attendanceBindings", "attendanceProfile", "attendanceSetupSession", "attendanceSetupHistory", "attendanceCloudOutbox"].some((key) => key in changes)) renderSaved().catch(console.error);
+});
+var phoneInitialized = false;
+$2("phone-subscription").addEventListener("toggle", () => {
+  if (!$2("phone-subscription").open || phoneInitialized) return;
+  phoneInitialized = true;
+  void showCloudStatus();
+  void refreshEntitlementStatus();
+});
+$2("open-subscription").addEventListener("click", () => {
+  $2("phone-subscription").open = true;
+  $2("phone-subscription").querySelector("summary").focus({ preventScroll: true });
+});
+for (const link of document.querySelectorAll('a[href="#profile-heading"]')) link.addEventListener("click", () => {
+  $2("profile-details").open = true;
 });
 (async () => {
   const data = await getData(), p = data.attendanceProfile || {};
+  await setLanguage(data.attendanceLanguage || "zh", false);
+  await setSubscriptionCurrency(data.attendanceSubscriptionCurrency || "rm", false);
   profileForm.elements.student.value = p.student || "";
   profileForm.elements.name.value = p.name || "";
   profileForm.elements.studentType.value = p.studentType || "local";
-  renderPreview();
+  $2("profile-details").open = !(p.student && p.name);
+  await upgrade.init(data);
   await renderBindings();
   await renderSaved();
-  await showCloudStatus();
-  await refreshEntitlementStatus();
+  await refreshRecoveryState();
 })().catch((error) => toast(error.message, true));

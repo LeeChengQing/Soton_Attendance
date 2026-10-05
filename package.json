@@ -1,18 +1,24 @@
 {
   "name": "attendance-extension",
   "private": true,
-  "version": "2.4.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "test": "node --test",
     "build": "node scripts/build.mjs",
     "smoke": "node scripts/smoke.mjs",
-    "keys:generate": "node scripts/generate-activation-keys.mjs"
+    "keys:generate": "node scripts/generate-china-keys.js",
+    "test:mv3": "node scripts/extension-smoke.mjs",
+    "test:backend": "npx --yes deno@2.9.6 test --node-modules-dir=none --allow-env supabase/functions/_shared/activation.deno.ts supabase/functions/_shared/entitlement.deno.ts supabase/functions/_shared/reliability.deno.ts",
+    "candidate": "npm test && npm run build && npm run smoke && node scripts/package-candidate.mjs",
+    "release": "npm test && npm run build && npm run smoke && node scripts/package-candidate.mjs --release"
   },
   "dependencies": {
+    "@supabase/supabase-js": "2.117.2",
     "@tesseract.js-data/eng": "^1.0.0",
     "jsqr": "^1.4.0",
     "pdfjs-dist": "^6.3.289",
+    "stripe": "23.0.0",
     "tesseract.js": "^7.0.0"
   },
   "devDependencies": {

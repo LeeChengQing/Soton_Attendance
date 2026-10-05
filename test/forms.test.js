@@ -66,3 +66,12 @@ test('rejects legacy mappings that assign a field to the wrong question type', (
   assert.throws(()=>buildFillPlan([{title:'Student ID',type:'text',options:[]}],[{title:'Student ID',type:'text',options:[],field:'delivery'}],profile,'2026-10-02','COMP1311-LEC'),/题型/);
   assert.throws(()=>buildFillPlan([{title:'Module Delivery',type:'radio',options:['Lecture','Tutorial']}],[{title:'Module Delivery',type:'radio',options:['Lecture','Tutorial'],field:'student'}],profile,'2026-10-02','COMP1311-LEC'),/题型/);
 });
+
+test('skips optional Date questions without parsing or validating their date format',()=>{
+  const questions=[{title:'Student ID',type:'text',required:true},{title:'Date',type:'date',required:false,placeholder:''}];
+  const mapping=questions.map((q,i)=>({...q,field:i?'date':'student'}));
+  const plan=buildFillPlan(questions,mapping,{student:'123'},'2026-10-02','COMP1311-LEC');
+  assert.equal(plan[0].value,'123');
+  assert.equal(plan[1].skip,true);
+  assert.throws(()=>buildFillPlan([{...questions[1],required:true}],[mapping[1]],{},'2026-10-02','COMP1311-LEC'),/日期格式/);
+});

@@ -60,3 +60,21 @@ test("activation sends only the entered key with the device token and never stor
     assert.deepEqual(stored, []);
   });
 });
+
+test('registration replay retains durable ownership proof after a committed response is lost',async()=>{
+  const oldChrome=globalThis.chrome,oldFetch=globalThis.fetch,store={};let committedToken,requests=0;
+  globalThis.chrome={storage:{local:{get:async()=>({...store}),set:async v=>Object.assign(store,v),remove:async key=>{delete store[key];}}}};
+  globalThis.fetch=async(_url,options)=>{
+    requests++;
+    const token=options.headers.Authorization?.slice(7);
+    if(requests===1) {committedToken=token;throw Error('response lost after server commit');}
+    if(!token||token!==committedToken) return Response.json({error:'device_identifier_exists'},{status:409});
+    return Response.json({deviceId:'registered',deviceToken:token,ntfyTopic:'soton-attendance-'+'a'.repeat(40)});
+  };
+  try {
+    await assert.rejects(cloud.ensureCloudDevice(),/response lost/);
+    assert.match(store.attendanceCloudRegistrationToken||'',/^[a-f0-9]{64}$/);
+    const result=await cloud.ensureCloudDevice();assert.equal(result.attendanceCloudDeviceId,'registered');assert.equal(result.attendanceCloudToken,committedToken);
+    assert.equal(store.attendanceCloudRegistrationToken,undefined);
+  } finally {globalThis.chrome=oldChrome;globalThis.fetch=oldFetch;}
+});

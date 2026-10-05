@@ -11,7 +11,7 @@ export function sameDateValue(actual,expected) {
 export function validateFormsUrl(value) {
   let url;
   try {url=new URL(String(value).trim());} catch {throw Error('二维码或链接不是有效网址。');}
-  if(url.protocol!=='https:' || !HOSTS.has(url.hostname.toLowerCase()) || !(/^\/r\/[\w-]+\/?$/.test(url.pathname) || /^\/Pages\/ResponsePage\.aspx$/i.test(url.pathname))) throw Error('只接受 Microsoft Forms 的填写链接。');
+  if(url.protocol!=='https:' || url.username || url.password || url.port || !HOSTS.has(url.hostname.toLowerCase()) || !(/^\/r\/[\w-]+\/?$/.test(url.pathname) || /^\/Pages\/ResponsePage\.aspx$/i.test(url.pathname))) throw Error('只接受 Microsoft Forms 的填写链接。');
   if(/^\/Pages\//i.test(url.pathname) && !url.searchParams.get('id')) throw Error('表单链接缺少 ID。');
   url.hash='';
   return url;

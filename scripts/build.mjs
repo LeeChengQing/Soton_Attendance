@@ -1,8 +1,10 @@
-import {mkdir,rm,copyFile,writeFile} from 'node:fs/promises';
+import {mkdir,rm,copyFile,writeFile,readFile} from 'node:fs/promises';
 import {fileURLToPath} from 'node:url';
 import {build} from 'esbuild';
 
 const root=new URL('../',import.meta.url),out=new URL('../extension/',import.meta.url);
+const version=JSON.parse(await readFile(new URL('package.json',root))).version;
+const release=process.env.ATTENDANCE_RELEASE==='1';
 await rm(out,{recursive:true,force:true});
 await mkdir(new URL('assets/tesseract-core/',out),{recursive:true});
 await mkdir(new URL('assets/lang/',out),{recursive:true});
@@ -30,7 +32,7 @@ for(const [entry,outfile,format] of [['options','options.js','esm'],['background
 }
 
 await writeFile(new URL('manifest.json',out),JSON.stringify({
-  manifest_version:3,name:'Attendance 自动打卡',version:'2.4.0',description:'本机识别课表与二维码，按每周课程结束前五分钟自动填写 Microsoft Forms，并同步手机提醒。',
+  manifest_version:3,name:'Attendance 自动打卡',version,version_name:release?'V1.0 Release':version+' candidate',description:'本机识别课表与二维码，按每周课程结束前五分钟自动填写 Microsoft Forms，并同步手机提醒。',
   minimum_chrome_version:'120',permissions:['storage','alarms','notifications','tabs'],
   host_permissions:['https://forms.office.com/*','https://forms.cloud.microsoft/*','https://qckpwckfukyurkobrsig.supabase.co/*'],
   action:{default_title:'打开 Attendance 设置',default_icon:'icon.png'},options_page:'options.html',

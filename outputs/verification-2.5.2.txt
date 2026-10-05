@@ -1,0 +1,118 @@
+
+> attendance-extension@2.5.2 candidate
+> npm test && npm run build && npm run smoke && node scripts/package-candidate.mjs
+
+
+> attendance-extension@2.5.2 test
+> node --test
+
+✔ activation-batch creates unique 128-bit codes and hash-only import rows (7.5056ms)
+✔ activation-batch interprets term end as the inclusive Malaysia calendar date (0.2583ms)
+✔ activation-batch rejects invalid count, plan, or term end (0.3355ms)
+✔ activation-batch writes separate stock and hash files and refuses overwrite (171.0932ms)
+✔ backend validates exact Forms hosts, paths, calendar dates and time ranges (3.4331ms)
+✔ scheduler credential denies missing configuration and ordinary user bearer tokens (26.7298ms)
+✔ every send is gated and provider acceptance is separate from phone receipt (2.261ms)
+✔ network uncertainty stops active replay and provider rejection remains retryable (0.5695ms)
+✔ cloud calls from tabbed settings reach background networking and school scripts are refused (37.886ms)
+✔ a due class opens its form without nightly confirmation (29.335ms)
+✔ stalled cloud with real runtime ID cannot delay local authorization or watchdog (10.3831ms)
+✔ cloud event survives worker reconstruction and acknowledged replay never launches attendance (6.456ms)
+✔ restart resolves overdue pending as unknown without launching the occurrence again (5.8039ms)
+✔ all setup tabs open immediately, require independent confirmation and closing never passes (8.2829ms)
+✔ restart times out only the expired course tab and keeps the other check usable (6.8318ms)
+✔ setup rejects stale profile confirmation and restart records timeout (6.7383ms)
+✔ backup restore is serialized with terminal reports and keeps the newest result (7.0546ms)
+✔ an automatic task notifies success only after content reports verified submission (6.7559ms)
+✔ a tutorial occurrence launches the shared module form link (5.2639ms)
+✔ backup includes terminal history but excludes paid identity, secrets, tabs and in-flight records (2.6743ms)
+✔ restore retains local terminal records and schedules only future triggers without replacing credentials (0.9348ms)
+✔ unknown result offers manual inspection and never an automatic resubmit (0.5902ms)
+✔ lecture, lab and tutorial variants share one module binding key (1.0813ms)
+✔ old variant links can be suggested only when they agree (0.9563ms)
+✔ a legacy variant binding is not silently used as the shared module binding (0.3048ms)
+✔ a shared link still requires the right delivery answer for each course variant (2.3552ms)
+✔ entitlement status uses the existing device token without sending client access fields (31.3738ms)
+✔ activation sends only the entered key with the device token and never stores it (0.7309ms)
+✔ registration replay retains durable ownership proof after a committed response is lost (3.5904ms)
+✔ cancellation-only imports update the same intended task (2.0188ms)
+✔ same course at a different time saves both lessons without a comparison step (1.575ms)
+✔ session validation rejects invalid calendars/times and paused schedules have no next alarm (24.9236ms)
+✔ Forms crosses September to October by going to today before selecting the day (1142.6736ms)
+✔ Forms already on the current month can select today when Go to today is disabled (763.3074ms)
+✔ accepts Microsoft Forms response and short URLs but rejects unrelated hosts (2.0192ms)
+✔ stops if computer date and Malaysia date disagree with class date (0.4685ms)
+✔ compares calendar dates despite leading-zero differences and rejects yesterday (0.4351ms)
+✔ maps confirmed form questions and detects a later schema change (1.2796ms)
+✔ chooses Lecture, Tutorial or Laboratory from the course type (0.6262ms)
+✔ keeps supporting forms whose lab choice is written Lab (0.2992ms)
+✔ allows a course-specific fixed Lab choice (0.1572ms)
+✔ allows fixed Tutorial and student identity choices (0.3012ms)
+✔ rejects legacy mappings that assign a field to the wrong question type (0.3679ms)
+✔ each known question shows only choices from its own category (2.9704ms)
+✔ unknown questions do not offer unrelated field categories (0.4546ms)
+✔ snapshots coalesce but acknowledging an old in-flight snapshot retains the newest (6.9075ms)
+✔ logical terminal events deduplicate and retries retain identity with backoff (0.3878ms)
+✔ candidate ZIP is deterministic and preserves exact bytes in sorted portable entries (16.8205ms)
+✔ candidate rejects secrets, unexpected files and missing required assets (0.3816ms)
+✔ Chrome storage field order does not make a saved student profile dirty (0.9757ms)
+✔ profile matching normalizes edge whitespace and legacy local identity but detects real edits (0.2709ms)
+﹣ decodes supplied phone-photo QR samples with projection, glare and camera framing (0.6599ms) # SKIP
+✔ decodes an uploaded QR image into a Microsoft Forms link (24.347ms)
+✔ scans QR candidates inside a large photo instead of only the full frame (147.0662ms)
+✔ prefers grid cells and also retains dated rows found in extracted text (3.5599ms)
+✔ reads an aSc week grid with days down the page and hour slots across it (12.8993ms)
+✔ pairs OCR time words within each header cell (0.7924ms)
+✔ turns a dated timetable row into an unbounded weekly class (1.4142ms)
+✔ removes old term limits and deduplicates the same lesson across imported weeks (1.0909ms)
+✔ parses a weekly course row and a dated course row (1.7294ms)
+✔ expands weekly and dated sessions without excluding a second class on the same day (9.8469ms)
+✔ the same course occurrence keeps its submission key after reimport (0.287ms)
+✔ excludes semester exception dates and deduplicates imported sessions (0.193ms)
+✔ schedules automatic check-in five minutes before class end (0.2502ms)
+✔ parses a timetable grid by day columns and time rows (0.6993ms)
+✔ parses grid time ranges split into separate OCR words (0.4222ms)
+✔ settings in a real browser tab can use settings operations (1.2421ms)
+✔ school content scripts and other extensions cannot use settings operations (0.3975ms)
+✔ one setup action opens and fills Lecture, Laboratory and Tutorial tabs without submitting (3266.2289ms)
+✔ setup covers each delivery configuration once across all intended classes (20.8431ms)
+✔ all named course types remain independent even when their form has no delivery question (1.3585ms)
+✔ coverage excludes execution dates but changes for profile and binding revisions (1.0489ms)
+✔ filling alone cannot pass and stale confirmation is rejected (1.8693ms)
+✔ independent course tabs can finish in either order (1.0518ms)
+✔ only explicit form success can produce success state (1.4152ms)
+✔ late occurrences are marked missed rather than automatically submitted (0.1488ms)
+ℹ tests 76
+ℹ suites 0
+ℹ pass 75
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 1
+ℹ todo 0
+ℹ duration_ms 3878.2077
+
+> attendance-extension@2.5.2 build
+> node scripts/build.mjs
+
+Built extension/
+
+> attendance-extension@2.5.2 smoke
+> node scripts/smoke.mjs
+
+Options page, QR, PDF/JPG/PNG OCR, category-specific mapping, Lab/Tutorial selection, date selection, confirmed form submission, and independent section clearing passed.
+Candidate: C:\自动打卡系统\outputs\Soton-Auto-Check-v2.5.2-candidate-Windows-macOS.zip
+SHA-256: fd3609a64892b1d7b72077fce7b8bea5a70b4d111af5abea45d1392584b8f34b
+Verified 21 files, current bundles, deterministic ZIP.
+
+> attendance-extension@2.5.2 build
+> node scripts/build.mjs
+
+Built extension/
+
+> attendance-extension@2.5.2 smoke
+> node scripts/smoke.mjs
+
+Options page, QR, PDF/JPG/PNG OCR, category-specific mapping, Lab/Tutorial selection, date selection, confirmed form submission, and independent section clearing passed.
+Candidate: C:\自动打卡系统\outputs\Soton-Auto-Check-v2.5.2-candidate-Windows-macOS.zip
+SHA-256: 0c7017f7a5ff2a35c0f9b29f461f9a179f9ec93f9213fb0825c20df336d23e98
+Verified 21 files, current bundles, deterministic ZIP.

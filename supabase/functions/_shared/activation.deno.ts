@@ -34,6 +34,15 @@ Deno.test("activation key normalization rejects malformed values and non-boundar
   }
 });
 
+Deno.test("China semester keys normalize consistently with the generated raw-key hash", async () => {
+  const normalized = normalizeActivationKey("ac-cn-sem-abc12345");
+  assertEquals(normalized, "AC-CN-SEM-ABC12345");
+  assertEquals(
+    await hashActivationKey(normalized),
+    "0a1338bcd1cadc6429adee932c3cf4d5dadb1b00e8564cf64c89f449859a5cd1",
+  );
+});
+
 Deno.test("activation key hash is deterministic SHA-256 of its normalized form", async () => {
   assertEquals(
     await hashActivationKey("0123456789ABCDEF0123456789ABCDEF"),

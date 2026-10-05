@@ -41,3 +41,43 @@ test('pairs OCR time words within each header cell', () => {
     {kind:'dated',date:'2026-09-28',time:'10:00',endTime:'11:00',course:'COMP1313'}
   ]);
 });
+
+function datedMonday(title) {
+  const tokens=[
+    {text:title,x:100,y:0,width:180,height:18},
+    {text:'9:00-10:00',x:100,y:40,width:80,height:12},
+    {text:'10:00-11:00',x:200,y:40,width:90,height:12},
+    {text:'Mo',x:10,y:100,width:30,height:20},
+    {text:'Tu',x:10,y:200,width:30,height:20},
+    {text:'COMP1313',x:208,y:107,width:72,height:12},
+  ];
+  return rowsFromPage({text:title,tokens});
+}
+
+test('parses compact aSc day-day/month/two-digit-year week ranges', () => {
+  assert.equal(datedMonday('CS P1 - W2 (5-9/10/26) S1')[0].date,'2026-10-05');
+});
+
+test('parses compact aSc day-day/month/four-digit-year week ranges', () => {
+  assert.equal(datedMonday('5-9/10/2026')[0].date,'2026-10-05');
+});
+
+test('parses fully qualified aSc start and end dates', () => {
+  assert.equal(datedMonday('5/10-9/10/2026')[0].date,'2026-10-05');
+});
+
+test('parses cross-month aSc ranges into the correct weekday date', () => {
+  const tokens=[
+    {text:'28/9-2/10/26',x:100,y:0,width:180,height:18},
+    {text:'9:00-10:00',x:100,y:40,width:80,height:12},
+    {text:'10:00-11:00',x:200,y:40,width:90,height:12},
+    {text:'Mo',x:10,y:100,width:30,height:20},{text:'Tu',x:10,y:200,width:30,height:20},
+    {text:'We',x:10,y:300,width:30,height:20},
+    {text:'COMP1313',x:208,y:285,width:72,height:12},
+  ];
+  assert.equal(rowsFromPage({text:'28/9-2/10/26',tokens})[0].date,'2026-09-30');
+});
+
+test('accepts full-width aSc date separators', () => {
+  assert.equal(datedMonday('5－9／10／26')[0].date,'2026-10-05');
+});

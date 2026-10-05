@@ -1,5 +1,6 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { hashActivationKey, normalizeActivationKey } from "../_shared/activation.ts";
+import {normalizeSchedules,validateEvent} from "../_shared/validation.ts";
 
 const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
 const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -37,55 +38,57 @@ async function sha256(value: string) {
   return [...new Uint8Array(digest)].map((value) => value.toString(16).padStart(2, "0")).join("");
 }
 
+function recoveryCode() {
+  const limit = Math.floor(0x1_0000_0000 / 1_000_000) * 1_000_000;
+  const sample = new Uint32Array(1);
+  do crypto.getRandomValues(sample); while (sample[0] >= limit);
+  return String(sample[0] % 1_000_000).padStart(6, "0");
+}
+
+async function recoveryCodeHmac(code: string) {
+  const secret = Deno.env.get("ATTENDANCE_SCHEDULER_SECRET") ?? "";
+  if (secret.length < 32) throw Error("recovery_secret_unavailable");
+  const key = await crypto.subtle.importKey(
+    "raw",
+    new TextEncoder().encode(secret),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"],
+  );
+  const signature = await crypto.subtle.sign(
+    "HMAC",
+    key,
+    new TextEncoder().encode(`soton-phone-recovery:v1:${code}`),
+  );
+  return [...new Uint8Array(signature)].map((value) => value.toString(16).padStart(2, "0")).join("");
+}
+
 async function ensureNtfyTopic(deviceId: string) {
   const existing = await db.from("push_subscriptions").select("provider_token")
     .eq("device_id", deviceId).eq("provider", "ntfy").eq("enabled", true).maybeSingle();
+  if(existing.error) throw existing.error;
   if (existing.data?.provider_token) return existing.data.provider_token;
-  const topic = `soton-attendance-${randomHex(20)}`;
-  const { error } = await db.from("push_subscriptions").insert({
-    device_id: deviceId,
-    provider: "ntfy",
-    provider_token: topic,
-  });
-  if (error) throw error;
-  return topic;
+  throw Error('device_topic_missing_contact_support');
 }
 
 async function deviceForToken(token: string) {
   if (!token) return null;
   const hash = await sha256(token);
   const direct = await db.from("devices").select("id,device_key,device_name").eq("auth_token_hash", hash).maybeSingle();
+  if(direct.error) throw direct.error;
   return direct.data ?? null;
 }
 
-function validCourse(value: unknown) {
-  return typeof value === "string" && /^[A-Za-z0-9][A-Za-z0-9 _-]{1,63}$/.test(value.trim());
-}
-
-function validUrl(value: unknown) {
-  if (typeof value !== "string") return false;
-  try {
-    const url = new URL(value);
-    return url.protocol === "https:" && /microsoft\.com$|forms\.office\.com$|forms\.cloud\.microsoft$/.test(url.hostname);
-  } catch {
-    return false;
-  }
-}
-
-async function registerDevice(input: Record<string, unknown>) {
+async function registerDevice(input: Record<string, unknown>,request: Request) {
   const deviceKey = typeof input.deviceKey === "string" ? input.deviceKey.trim() : "";
   if (deviceKey.length < 8 || deviceKey.length > 160) return response({ error: "invalid_device_key" }, 400);
-  const deviceToken = randomHex(32);
-  const { data: device, error } = await db.from("devices").upsert({
-    device_key: deviceKey,
-    device_name: typeof input.deviceName === "string" ? input.deviceName.slice(0, 100) : null,
-    auth_token_hash: await sha256(deviceToken),
-    last_seen_at: new Date().toISOString(),
-  }, { onConflict: "device_key" }).select("id,device_key,device_name").single();
-  if (error || !device) return response({ error: "device_register_failed" }, 500);
-  await db.from("notification_preferences").upsert({ device_id: device.id }, { onConflict: "device_id" });
-  const ntfyTopic = await ensureNtfyTopic(device.id);
-  return response({ deviceId: device.id, deviceToken, ntfyTopic });
+  const proof=bearer(request);
+  if(proof&&!/^[a-f0-9]{64}$/.test(proof)) return response({error:'invalid_registration_proof'},400);
+  const deviceToken = proof||randomHex(32);
+  const {data,error}=await db.rpc('register_attendance_device',{p_key:deviceKey,p_name:typeof input.deviceName==='string'?input.deviceName.slice(0,100):null,p_token_hash:await sha256(deviceToken),p_topic:`soton-attendance-${randomHex(20)}`});
+  if(error||!data) return response({error:'device_register_failed'},500);
+  if(data.error) return response({error:data.error},409);
+  return response({...data,deviceToken});
 }
 
 async function getNtfyTopic(request: Request) {
@@ -162,6 +165,113 @@ async function redeemActivationKey(request: Request, input: Record<string, unkno
   return response({ error: code }, statusCode[code]);
 }
 
+async function startPhoneSubscriptionRecovery(input: Record<string, unknown>) {
+  let normalized: string;
+  try {
+    normalized = normalizeActivationKey(input.activationKey);
+  } catch {
+    return response({ error: "recovery_unavailable" }, 400);
+  }
+  const targetDeviceKey = typeof input.targetDeviceKey === "string" ? input.targetDeviceKey : "";
+  const targetTokenHash = typeof input.targetTokenHash === "string" ? input.targetTokenHash : "";
+  if (!/^chrome-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(targetDeviceKey)
+    || !/^[0-9a-f]{64}$/.test(targetTokenHash)) {
+    return response({ error: "recovery_unavailable" }, 400);
+  }
+
+  const code = recoveryCode();
+  const codeHmac = await recoveryCodeHmac(code);
+  const { data, error } = await db.rpc("begin_phone_subscription_recovery", {
+    p_key_hash: await hashActivationKey(normalized),
+    p_target_device_key: targetDeviceKey,
+    p_target_token_hash: targetTokenHash,
+    p_code_hmac: codeHmac,
+  });
+  if (error) {
+    console.error("phone subscription recovery start RPC failed");
+    return response({ error: "recovery_unavailable" }, 503);
+  }
+  if (!data || typeof data !== "object") return response({ error: "recovery_unavailable" }, 503);
+  const result = data as Record<string, unknown>;
+  if (result.ok !== true) {
+    if (result.error === "recovery_rate_limited") {
+      const retryAfterSeconds = Number.isInteger(result.retryAfterSeconds)
+        ? Math.max(1, Math.min(86_400, Number(result.retryAfterSeconds)))
+        : 60;
+      return response({ error: "recovery_rate_limited", retryAfterSeconds }, 429);
+    }
+    return response({ error: "recovery_unavailable" }, 400);
+  }
+
+  const challengeId = typeof result.challengeId === "string" ? result.challengeId : "";
+  const expiresAt = typeof result.expiresAt === "string" ? result.expiresAt : "";
+  const topic = typeof result.ntfyTopic === "string" ? result.ntfyTopic : "";
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(challengeId)
+    || !Number.isFinite(Date.parse(expiresAt))
+    || !/^soton-attendance-[a-f0-9]{40}$/.test(topic)) {
+    console.error("phone subscription recovery start returned invalid server data");
+    return response({ error: "recovery_unavailable" }, 503);
+  }
+
+  try {
+    const sent = await fetch(`https://ntfy.sh/${topic}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "text/plain; charset=utf-8",
+        "Title": "Soton Auto-Check Recovery Code",
+        "Priority": "3",
+      },
+      body: `手机提醒订阅恢复验证码：${code}\n验证码 30 分钟内有效。如非本人操作，请忽略此消息。`,
+      signal: AbortSignal.timeout(8_000),
+    });
+    if (!sent.ok) return response({ error: "recovery_delivery_failed" }, 502);
+  } catch {
+    return response({ error: "recovery_delivery_failed" }, 502);
+  }
+  return response({ ok: true, challengeId, expiresAt });
+}
+
+async function completePhoneSubscriptionRecovery(request: Request, input: Record<string, unknown>) {
+  const challengeId = typeof input.challengeId === "string" ? input.challengeId : "";
+  const code = typeof input.code === "string" ? input.code : "";
+  const token = bearer(request);
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(challengeId)
+    || !/^\d{6}$/.test(code)
+    || !/^[0-9a-f]{64}$/.test(token)) {
+    return response({ error: "recovery_unavailable" }, 400);
+  }
+
+  const { data, error } = await db.rpc("complete_phone_subscription_recovery", {
+    p_challenge_id: challengeId,
+    p_code_hmac: await recoveryCodeHmac(code),
+    p_target_token_hash: await sha256(token),
+  });
+  if (error) {
+    console.error("phone subscription recovery completion RPC failed");
+    return response({ error: "recovery_unavailable" }, 503);
+  }
+  if (!data || typeof data !== "object") return response({ error: "recovery_unavailable" }, 503);
+  const result = data as Record<string, unknown>;
+  if (result.ok !== true) {
+    const codeStatus: Record<string, number> = {
+      recovery_code_invalid: 400,
+      recovery_code_expired: 410,
+      recovery_attempts_exhausted: 429,
+    };
+    const codeError = typeof result.error === "string" ? result.error : "";
+    if (codeStatus[codeError]) return response({ error: codeError }, codeStatus[codeError]);
+    return response({ error: "recovery_unavailable" }, 400);
+  }
+  const deviceId = typeof result.deviceId === "string" ? result.deviceId : "";
+  const topic = typeof result.ntfyTopic === "string" ? result.ntfyTopic : "";
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(deviceId)
+    || !/^soton-attendance-[a-f0-9]{40}$/.test(topic)) {
+    console.error("phone subscription recovery completion returned invalid server data");
+    return response({ error: "recovery_unavailable" }, 503);
+  }
+  return response({ ok: true, deviceId, ntfyTopic: topic, entitlement: result.entitlement ?? null });
+}
+
 async function authenticatedDevice(request: Request) {
   const device = await deviceForToken(bearer(request));
   if (!device) return null;
@@ -172,79 +282,32 @@ async function authenticatedDevice(request: Request) {
 async function syncDevice(request: Request, input: Record<string, unknown>) {
   const device = await authenticatedDevice(request);
   if (!device) return response({ error: "unauthorized" }, 401);
-  const schedules = Array.isArray(input.schedules) ? input.schedules : [];
-  if (schedules.length > 200) return response({ error: "too_many_schedules" }, 400);
-  const normalized = schedules.map((item) => ({
-    device_id: device.id,
-    course_code: typeof item?.courseCode === "string" ? item.courseCode.trim().toUpperCase() : "",
-    course_name: typeof item?.courseName === "string" ? item.courseName.slice(0, 160) : null,
-    weekday: Number(item?.weekday),
-    start_time: item?.startTime,
-    end_time: item?.endTime,
-    form_url: item?.formUrl,
-    timezone: typeof item?.timezone === "string" ? item.timezone : "Asia/Kuala_Lumpur",
-    enabled: item?.enabled !== false,
-  }));
-  if (normalized.some((item) => !validCourse(item.course_code) || !Number.isInteger(item.weekday) || item.weekday < 0 || item.weekday > 6 || typeof item.start_time !== "string" || typeof item.end_time !== "string" || !validUrl(item.form_url))) {
-    return response({ error: "invalid_schedule" }, 400);
-  }
-  const { error: deleteError } = await db.from("schedules").delete().eq("device_id", device.id);
-  if (deleteError) return response({ error: "schedule_replace_failed" }, 500);
-  if (normalized.length) {
-    const { error } = await db.from("schedules").insert(normalized);
-    if (error) return response({ error: "schedule_save_failed" }, 500);
-  }
+  let normalized;
+  try {normalized=normalizeSchedules(input.schedules);} catch(error) {return response({error:error instanceof Error?error.message:'invalid_schedule'},400);}
+  if(!Number.isSafeInteger(input.version)||Number(input.version)<=0) return response({error:'invalid_snapshot_version'},400);
   const preferences = input.preferences && typeof input.preferences === "object" ? input.preferences as Record<string, unknown> : {};
-  await db.from("notification_preferences").upsert({
-    device_id: device.id,
-    timezone: typeof preferences.timezone === "string" ? preferences.timezone : "Asia/Kuala_Lumpur",
-    reminder_time: typeof preferences.reminderTime === "string" ? preferences.reminderTime : "19:30",
-    reminders_enabled: preferences.remindersEnabled !== false,
-    success_notifications_enabled: preferences.successNotificationsEnabled !== false,
-  }, { onConflict: "device_id" });
-  return response({ ok: true, scheduleCount: normalized.length });
+  if(preferences.timezone!==undefined&&preferences.timezone!=='Asia/Kuala_Lumpur'||preferences.reminderTime!==undefined&&preferences.reminderTime!=='19:30'||preferences.remindersEnabled!==undefined&&typeof preferences.remindersEnabled!=='boolean'||preferences.successNotificationsEnabled!==undefined&&typeof preferences.successNotificationsEnabled!=='boolean') return response({error:'invalid_preferences'},400);
+  const {data,error}=await db.rpc('replace_attendance_schedules',{p_device:device.id,p_version:input.version,p_schedules:normalized,p_preferences:{timezone:'Asia/Kuala_Lumpur',reminder_time:'19:30',reminders_enabled:preferences.remindersEnabled!==false,success_notifications_enabled:preferences.successNotificationsEnabled!==false}});
+  if(error) return response({error:'schedule_replace_failed'},500);
+  return response(data);
 }
 
 async function reportEvent(request: Request, input: Record<string, unknown>) {
-  const device = await authenticatedDevice(request);
-  if (!device) return response({ error: "unauthorized" }, 401);
-  const status = input.status;
-  if (!["scheduled", "launched", "success", "failed", "unknown", "missed"].includes(String(status))) return response({ error: "invalid_status" }, 400);
-  const courseCode = typeof input.courseCode === "string" ? input.courseCode.trim().toUpperCase() : "";
-  const occurrenceKey = typeof input.occurrenceKey === "string" ? input.occurrenceKey.slice(0, 180) : "";
-  if (!validCourse(courseCode) || !occurrenceKey || typeof input.classDate !== "string") return response({ error: "invalid_event" }, 400);
-  const row = {
-    device_id: device.id,
-    occurrence_key: occurrenceKey,
-    course_code: courseCode,
-    class_date: input.classDate,
-    start_time: input.startTime ?? null,
-    end_time: input.endTime ?? null,
-    form_url: validUrl(input.formUrl) ? input.formUrl : null,
-    status,
-    detail: typeof input.detail === "string" ? input.detail.slice(0, 500) : null,
-    source: "extension",
-    occurred_at: new Date().toISOString(),
-  };
-  const { error } = await db.from("attendance_logs").upsert(row, { onConflict: "device_id,occurrence_key" });
-  if (error) return response({ error: "event_save_failed" }, 500);
-  if (["success", "failed", "unknown", "missed"].includes(String(status))) {
-    const labels: Record<string, [string, string, string]> = {
-      success: ["打卡成功", `${courseCode} 已完成自动打卡。`, "attendance_success"],
-      failed: ["自动打卡失败", `${courseCode} 自动打卡失败，请检查浏览器登录状态。`, "attendance_failed"],
-      unknown: ["打卡结果不明", `${courseCode} 的提交结果无法确认，请手动核对。`, "attendance_unknown"],
-      missed: ["错过打卡时间", `${courseCode} 未在可用时间内完成打卡，请手动处理。`, "attendance_missed"],
-    };
-    const [title, body, kind] = labels[String(status)];
-    await db.from("notification_outbox").insert({
-      device_id: device.id,
-      kind,
-      title,
-      body,
-      payload: { courseCode, occurrenceKey, classDate: input.classDate, status },
-    });
-  }
-  return response({ ok: true });
+  const device=await authenticatedDevice(request);
+  if(!device) return response({error:'unauthorized'},401);
+  let row;
+  try {row=validateEvent(input);} catch {return response({error:'invalid_event'},400);}
+  const {data,error}=await db.rpc('record_attendance_event',{p_device:device.id,p_event:row});
+  if(error) return response({error:'event_save_failed'},500);
+  return response(data);
+}
+async function setupSummary(request: Request,input: Record<string,unknown>) {
+  const device=await authenticatedDevice(request);
+  if(!device) return response({error:'unauthorized'},401);
+  if(typeof input.sessionId!=='string'||!/^[A-Za-z0-9-]{8,100}$/.test(input.sessionId)||!Number.isInteger(input.count)||!Number.isInteger(input.passed)||Number(input.count)<1||Number(input.count)>200||Number(input.passed)<0||Number(input.passed)>Number(input.count)) return response({error:'invalid_setup_summary'},400);
+  const {data,error}=await db.rpc('record_setup_summary',{p_device:device.id,p_session:input.sessionId,p_summary:{count:input.count,passed:input.passed}});
+  if(error) return response({error:'setup_summary_failed'},500);
+  return response(data);
 }
 
 async function readLogs(request: Request) {
@@ -256,37 +319,24 @@ async function readLogs(request: Request) {
 }
 
 async function readNotifications(request: Request) {
-  const device = await authenticatedDevice(request);
-  if (!device) return response({ error: "unauthorized" }, 401);
-  const { data, error } = await db.from("notification_outbox")
-    .select("id,kind,title,body,payload,created_at")
-    .eq("device_id", device.id).is("sent_at", null)
-    .is("discarded_at", null)
-    .order("created_at", { ascending: true }).limit(50);
-  if (error) return response({ error: "notifications_read_failed" }, 500);
-  const ids = (data ?? []).map((item) => item.id);
-  if (ids.length) await db.from("notification_outbox").update({ sent_at: new Date().toISOString() }).in("id", ids);
-  return response({ notifications: data ?? [] });
+  const device=await authenticatedDevice(request);
+  if(!device) return response({error:'unauthorized'},401);
+  const {data,error}=await db.from('notification_outbox').select('id,kind,title,body,delivery_state,created_at,provider_accepted_at,phone_receipt_confirmed_at,last_error,sent_at').eq('device_id',device.id).order('created_at',{ascending:false}).limit(100);
+  if(error) return response({error:'notifications_read_failed'},500);
+  const notifications=(data??[]).map(item=>{
+    // The currently deployed worker predates delivery_state and records provider acceptance in sent_at.
+    const legacyAccepted=item.delivery_state==='queued'&&Boolean(item.sent_at);
+    return {...item,delivery_state:legacyAccepted?'accepted':item.delivery_state,provider_accepted_at:item.provider_accepted_at??(legacyAccepted?item.sent_at:null)};
+  });
+  return response({notifications});
 }
-
-async function subscribe(request: Request, input: Record<string, unknown>) {
-  const device = await authenticatedDevice(request);
-  if (!device) return response({ error: "unauthorized" }, 401);
-  const provider = String(input.provider ?? "");
-  if (!["web_push", "fcm", "telegram", "ntfy"].includes(provider)) return response({ error: "invalid_provider" }, 400);
-  const row = {
-    device_id: device.id,
-    provider,
-    endpoint: typeof input.endpoint === "string" ? input.endpoint : null,
-    p256dh: typeof input.p256dh === "string" ? input.p256dh : null,
-    auth: typeof input.auth === "string" ? input.auth : null,
-    provider_token: typeof input.providerToken === "string" ? input.providerToken.slice(0, 300) : null,
-    enabled: true,
-    last_error: null,
-  };
-  const { error } = await db.from("push_subscriptions").upsert(row, { onConflict: "device_id,provider,endpoint" });
-  if (error) return response({ error: "subscription_save_failed" }, 500);
-  return response({ ok: true });
+async function confirmPhoneReceipt(request: Request,input: Record<string,unknown>) {
+  const device=await authenticatedDevice(request);
+  if(!device) return response({error:'unauthorized'},401);
+  if(typeof input.notificationId!=='string'||!/^[a-f0-9-]{36}$/.test(input.notificationId)) return response({error:'invalid_notification'},400);
+  const {data,error}=await db.from('notification_outbox').update({phone_receipt_confirmed_at:new Date().toISOString()}).eq('device_id',device.id).eq('id',input.notificationId).select('id').maybeSingle();
+  if(error||!data) return response({error:'receipt_update_failed'},400);
+  return response({ok:true});
 }
 
 Deno.serve(async (request) => {
@@ -295,24 +345,33 @@ Deno.serve(async (request) => {
   let input: Record<string, unknown>;
   try {
     input = await request.json();
+    if(!input||typeof input!=="object"||Array.isArray(input)) return response({error:"invalid_json"},400);
   } catch {
     return response({ error: "invalid_json" }, 400);
   }
   try {
     switch (input.action) {
-      case "register": return await registerDevice(input);
+      case "register": return await registerDevice(input,request);
       case "ntfy-topic": return await getNtfyTopic(request);
       case "entitlement-status": return await entitlementStatus(request);
       case "redeem-activation-key": return await redeemActivationKey(request, input);
+      case "recovery-start": return await startPhoneSubscriptionRecovery(input);
+      case "recovery-complete": return await completePhoneSubscriptionRecovery(request,input);
       case "sync": return await syncDevice(request, input);
       case "event": return await reportEvent(request, input);
+      case "setup-summary": return await setupSummary(request,input);
+      case "confirm-receipt": return await confirmPhoneReceipt(request,input);
       case "logs": return await readLogs(request);
       case "notifications": return await readNotifications(request);
-      case "subscribe": return await subscribe(request, input);
+
       default: return response({ error: "unknown_action" }, 400);
     }
   } catch (error) {
-    console.error(error);
+    if (input.action === "recovery-start" || input.action === "recovery-complete") {
+      console.error("phone subscription recovery request failed");
+    } else {
+      console.error(error);
+    }
     return response({ error: "server_error" }, 500);
   }
 });

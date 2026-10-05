@@ -14,9 +14,11 @@
     "release": "npm test && npm run build && npm run smoke && node scripts/package-candidate.mjs --release"
   },
   "dependencies": {
+    "@supabase/supabase-js": "2.117.2",
     "@tesseract.js-data/eng": "^1.0.0",
     "jsqr": "^1.4.0",
     "pdfjs-dist": "^6.3.289",
+    "stripe": "23.0.0",
     "tesseract.js": "^7.0.0"
   },
   "devDependencies": {

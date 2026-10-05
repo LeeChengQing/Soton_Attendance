@@ -43300,7 +43300,7 @@ async function setSubscriptionCurrency(currency, persist = true) {
   subscriptionCurrency = currency === "rmb" ? "rmb" : "rm";
   const rmb = subscriptionCurrency === "rmb", link = $2("purchase-subscription");
   $2("subscription-price").textContent = rmb ? `\xA5${SUBSCRIPTION_RMB_PRICE.toFixed(1)}` : `RM ${SUBSCRIPTION_RM_PRICE.toFixed(2)}`;
-  link.href = rmb ? "https://shop.368fk.cn/shop/CFI5VKXO" : "https://vf-auto-check.vercel.app/";
+  link.href = rmb ? "https://shop.368fk.cn/shop/CFI5VKXO" : "https://vf-auto-check.vercel.app/?product=mobile_notification#hero";
   link.textContent = t(rmb ? "purchaseRmb" : "purchaseRm");
   $2("currency-rm").setAttribute("aria-pressed", String(!rmb));
   $2("currency-rmb").setAttribute("aria-pressed", String(rmb));

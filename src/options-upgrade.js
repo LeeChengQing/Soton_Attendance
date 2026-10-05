@@ -89,16 +89,22 @@ export function createOptionsUpgrade(api) {
     const list=$('records');list.replaceChildren();
     for(const r of rows.slice(page*40,page*40+40)) {
       const item=node('div','','list-item'),label=node('div'),recovery=recoveryForRecord(r);
-      const recoveryKey=recovery.action==='binding'?'recoveryBinding':recovery.action==='login'?'recoveryLogin':r.state==='missed'?'recoveryMissed':r.state==='success'?'recoverySuccess':'recoveryView';
-      const recordState={success:t('recordSuccess'),unknown:t('recordUnknown'),failed:t('recordFailed'),missed:t('recordMissed'),launched:t('recordLaunched'),pending:t('recordPending')}[r.state]||r.state;
+      const recoveryKey=recovery.action==='binding'?'recoveryBinding':recovery.action==='login'?'recoveryLogin':r.state==='missed'||r.state==='missed_sleep'?'recoveryMissed':r.state==='success'?'recoverySuccess':r.state==='submitted_pending_confirmation'?'recoverySubmittedPending':'recoveryView';
+      const recordState={success:t('recordSuccess'),unknown:t('recordUnknown'),submitted_pending_confirmation:t('recordSubmittedPending'),failed:t('recordFailed'),missed:t('recordMissed'),missed_sleep:t('recordMissedSleep'),launched:t('recordLaunched'),pending:t('recordPending')}[r.state]||r.state;
       label.append(node('strong',`${r.occ?.course||t('lessonFallback')} · ${r.occ?.date||''} ${r.occ?.time||''} · ${recordState}`),node('small',localizeMessage(r.detail||r.at||'')),node('small',t(`${recoveryKey}Description`)));
-      const action=button(t(recoveryKey),guard(async()=>{
+      const openOriginal=guard(async()=>{
         if(recovery.action==='binding') {document.getElementById('binding-heading').scrollIntoView();return;}
         if(r.tabId) try {await chrome.tabs.update(r.tabId,{active:true});return;} catch { /* original tab closed */ }
         const binding=bindingForCourse(data.attendanceBindings,r.occ?.course),url=r.formUrl||binding?.url;
         if(!url) throw Error(t('noOriginalForm'));
         await chrome.tabs.create({url:validateFormsUrl(url).href,active:true});
-      }));item.append(label,action);list.append(item);
+      });
+      const actions=[];
+      if(['unknown','submitted_pending_confirmation'].includes(r.state)) {
+        actions.push(button(t('markSubmitted'),guard(async()=>{await message('MARK_SUBMITTED',{key:r.occ.key});await render();})));
+        actions.push(button(t('allowResubmit'),guard(async()=>{if(!confirm(t('allowResubmitConfirm'))) return;await message('RELEASE_SUBMISSION',{key:r.occ.key,confirm:true});api.toast(t('resubmitProtectionReleased'));await render();})));
+      }
+      actions.push(button(t(recoveryKey),openOriginal));item.append(label,...actions);list.append(item);
     }
     if(!rows.length) list.append(node('p',filter==='all'?t('noRecords'):t('noFilteredRecords'),'muted'));
     $('records-page').textContent=t('recordsPage',{page:page+1,pages,count:rows.length});$('records-prev').disabled=page===0;$('records-next').disabled=page+1===pages;

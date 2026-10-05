@@ -30,9 +30,9 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
   mod
 ));
 
-// node_modules/.deno/regenerator-runtime@0.13.11/node_modules/regenerator-runtime/runtime.js
+// node_modules/regenerator-runtime/runtime.js
 var require_runtime = __commonJS({
-  "node_modules/.deno/regenerator-runtime@0.13.11/node_modules/regenerator-runtime/runtime.js"(exports, module) {
+  "node_modules/regenerator-runtime/runtime.js"(exports, module) {
     var runtime = (function(exports2) {
       "use strict";
       var Op = Object.prototype;
@@ -547,17 +547,17 @@ var require_runtime = __commonJS({
   }
 });
 
-// node_modules/.deno/tesseract.js@7.0.0/node_modules/tesseract.js/src/utils/getId.js
+// node_modules/tesseract.js/src/utils/getId.js
 var require_getId = __commonJS({
-  "node_modules/.deno/tesseract.js@7.0.0/node_modules/tesseract.js/src/utils/getId.js"(exports, module) {
+  "node_modules/tesseract.js/src/utils/getId.js"(exports, module) {
     "use strict";
     module.exports = (prefix, cnt) => `${prefix}-${cnt}-${Math.random().toString(16).slice(3, 8)}`;
   }
 });
 
-// node_modules/.deno/tesseract.js@7.0.0/node_modules/tesseract.js/src/createJob.js
+// node_modules/tesseract.js/src/createJob.js
 var require_createJob = __commonJS({
-  "node_modules/.deno/tesseract.js@7.0.0/node_modules/tesseract.js/src/createJob.js"(exports, module) {
+  "node_modules/tesseract.js/src/createJob.js"(exports, module) {
     "use strict";
     var getId = require_getId();
     var jobCounter = 0;
@@ -580,9 +580,9 @@ var require_createJob = __commonJS({
   }
 });
 
-// node_modules/.deno/tesseract.js@7.0.0/node_modules/tesseract.js/src/utils/log.js
+// node_modules/tesseract.js/src/utils/log.js
 var require_log = __commonJS({
-  "node_modules/.deno/tesseract.js@7.0.0/node_modules/tesseract.js/src/utils/log.js"(exports) {
+  "node_modules/tesseract.js/src/utils/log.js"(exports) {
     "use strict";
     var logging = false;
     exports.logging = logging;
@@ -593,9 +593,9 @@ var require_log = __commonJS({
   }
 });
 
-// node_modules/.deno/tesseract.js@7.0.0/node_modules/tesseract.js/src/createScheduler.js
+// node_modules/tesseract.js/src/createScheduler.js
 var require_createScheduler = __commonJS({
-  "node_modules/.deno/tesseract.js@7.0.0/node_modules/tesseract.js/src/createScheduler.js"(exports, module) {
+  "node_modules/tesseract.js/src/createScheduler.js"(exports, module) {
     "use strict";
     var createJob = require_createJob();
     var { log } = require_log();
@@ -668,9 +668,9 @@ var require_createScheduler = __commonJS({
   }
 });
 
-// node_modules/.deno/tesseract.js@7.0.0/node_modules/tesseract.js/src/utils/getEnvironment.js
+// node_modules/tesseract.js/src/utils/getEnvironment.js
 var require_getEnvironment = __commonJS({
-  "node_modules/.deno/tesseract.js@7.0.0/node_modules/tesseract.js/src/utils/getEnvironment.js"(exports, module) {
+  "node_modules/tesseract.js/src/utils/getEnvironment.js"(exports, module) {
     "use strict";
     module.exports = (key) => {
       const env = {};
@@ -689,9 +689,9 @@ var require_getEnvironment = __commonJS({
   }
 });
 
-// node_modules/.deno/tesseract.js@7.0.0/node_modules/tesseract.js/src/utils/resolvePaths.js
+// node_modules/tesseract.js/src/utils/resolvePaths.js
 var require_resolvePaths = __commonJS({
-  "node_modules/.deno/tesseract.js@7.0.0/node_modules/tesseract.js/src/utils/resolvePaths.js"(exports, module) {
+  "node_modules/tesseract.js/src/utils/resolvePaths.js"(exports, module) {
     "use strict";
     var isBrowser = require_getEnvironment()("type") === "browser";
     var resolveURL = isBrowser ? (s) => new URL(s, window.location.href).href : (s) => s;
@@ -707,9 +707,9 @@ var require_resolvePaths = __commonJS({
   }
 });
 
-// node_modules/.deno/tesseract.js@7.0.0/node_modules/tesseract.js/src/constants/OEM.js
+// node_modules/tesseract.js/src/constants/OEM.js
 var require_OEM = __commonJS({
-  "node_modules/.deno/tesseract.js@7.0.0/node_modules/tesseract.js/src/constants/OEM.js"(exports, module) {
+  "node_modules/tesseract.js/src/constants/OEM.js"(exports, module) {
     "use strict";
     module.exports = {
       TESSERACT_ONLY: 0,
@@ -720,9 +720,9 @@ var require_OEM = __commonJS({
   }
 });
 
-// node_modules/.deno/tesseract.js@7.0.0/node_modules/tesseract.js/package.json
+// node_modules/tesseract.js/package.json
 var require_package = __commonJS({
-  "node_modules/.deno/tesseract.js@7.0.0/node_modules/tesseract.js/package.json"(exports, module) {
+  "node_modules/tesseract.js/package.json"(exports, module) {
     module.exports = {
       name: "tesseract.js",
       version: "7.0.0",
@@ -817,9 +817,9 @@ var require_package = __commonJS({
   }
 });
 
-// node_modules/.deno/tesseract.js@7.0.0/node_modules/tesseract.js/src/constants/defaultOptions.js
+// node_modules/tesseract.js/src/constants/defaultOptions.js
 var require_defaultOptions = __commonJS({
-  "node_modules/.deno/tesseract.js@7.0.0/node_modules/tesseract.js/src/constants/defaultOptions.js"(exports, module) {
+  "node_modules/tesseract.js/src/constants/defaultOptions.js"(exports, module) {
     "use strict";
     module.exports = {
       /*
@@ -834,9 +834,9 @@ var require_defaultOptions = __commonJS({
   }
 });
 
-// node_modules/.deno/tesseract.js@7.0.0/node_modules/tesseract.js/src/worker/browser/defaultOptions.js
+// node_modules/tesseract.js/src/worker/browser/defaultOptions.js
 var require_defaultOptions2 = __commonJS({
-  "node_modules/.deno/tesseract.js@7.0.0/node_modules/tesseract.js/src/worker/browser/defaultOptions.js"(exports, module) {
+  "node_modules/tesseract.js/src/worker/browser/defaultOptions.js"(exports, module) {
     "use strict";
     var version2 = require_package().version;
     var defaultOptions = require_defaultOptions();
@@ -847,9 +847,9 @@ var require_defaultOptions2 = __commonJS({
   }
 });
 
-// node_modules/.deno/tesseract.js@7.0.0/node_modules/tesseract.js/src/worker/browser/spawnWorker.js
+// node_modules/tesseract.js/src/worker/browser/spawnWorker.js
 var require_spawnWorker = __commonJS({
-  "node_modules/.deno/tesseract.js@7.0.0/node_modules/tesseract.js/src/worker/browser/spawnWorker.js"(exports, module) {
+  "node_modules/tesseract.js/src/worker/browser/spawnWorker.js"(exports, module) {
     "use strict";
     module.exports = ({ workerPath, workerBlobURL }) => {
       let worker;
@@ -866,9 +866,9 @@ var require_spawnWorker = __commonJS({
   }
 });
 
-// node_modules/.deno/tesseract.js@7.0.0/node_modules/tesseract.js/src/worker/browser/terminateWorker.js
+// node_modules/tesseract.js/src/worker/browser/terminateWorker.js
 var require_terminateWorker = __commonJS({
-  "node_modules/.deno/tesseract.js@7.0.0/node_modules/tesseract.js/src/worker/browser/terminateWorker.js"(exports, module) {
+  "node_modules/tesseract.js/src/worker/browser/terminateWorker.js"(exports, module) {
     "use strict";
     module.exports = (worker) => {
       worker.terminate();
@@ -876,9 +876,9 @@ var require_terminateWorker = __commonJS({
   }
 });
 
-// node_modules/.deno/tesseract.js@7.0.0/node_modules/tesseract.js/src/worker/browser/onMessage.js
+// node_modules/tesseract.js/src/worker/browser/onMessage.js
 var require_onMessage = __commonJS({
-  "node_modules/.deno/tesseract.js@7.0.0/node_modules/tesseract.js/src/worker/browser/onMessage.js"(exports, module) {
+  "node_modules/tesseract.js/src/worker/browser/onMessage.js"(exports, module) {
     "use strict";
     module.exports = (worker, handler) => {
       worker.onmessage = ({ data }) => {
@@ -888,9 +888,9 @@ var require_onMessage = __commonJS({
   }
 });
 
-// node_modules/.deno/tesseract.js@7.0.0/node_modules/tesseract.js/src/worker/browser/send.js
+// node_modules/tesseract.js/src/worker/browser/send.js
 var require_send = __commonJS({
-  "node_modules/.deno/tesseract.js@7.0.0/node_modules/tesseract.js/src/worker/browser/send.js"(exports, module) {
+  "node_modules/tesseract.js/src/worker/browser/send.js"(exports, module) {
     "use strict";
     module.exports = async (worker, packet) => {
       worker.postMessage(packet);
@@ -898,9 +898,9 @@ var require_send = __commonJS({
   }
 });
 
-// node_modules/.deno/tesseract.js@7.0.0/node_modules/tesseract.js/src/worker/browser/loadImage.js
+// node_modules/tesseract.js/src/worker/browser/loadImage.js
 var require_loadImage = __commonJS({
-  "node_modules/.deno/tesseract.js@7.0.0/node_modules/tesseract.js/src/worker/browser/loadImage.js"(exports, module) {
+  "node_modules/tesseract.js/src/worker/browser/loadImage.js"(exports, module) {
     "use strict";
     var readFromBlobOrFile = (blob) => new Promise((resolve, reject) => {
       const fileReader = new FileReader();
@@ -951,9 +951,9 @@ var require_loadImage = __commonJS({
   }
 });
 
-// node_modules/.deno/tesseract.js@7.0.0/node_modules/tesseract.js/src/worker/browser/index.js
+// node_modules/tesseract.js/src/worker/browser/index.js
 var require_browser = __commonJS({
-  "node_modules/.deno/tesseract.js@7.0.0/node_modules/tesseract.js/src/worker/browser/index.js"(exports, module) {
+  "node_modules/tesseract.js/src/worker/browser/index.js"(exports, module) {
     "use strict";
     var defaultOptions = require_defaultOptions2();
     var spawnWorker = require_spawnWorker();
@@ -972,9 +972,9 @@ var require_browser = __commonJS({
   }
 });
 
-// node_modules/.deno/tesseract.js@7.0.0/node_modules/tesseract.js/src/createWorker.js
+// node_modules/tesseract.js/src/createWorker.js
 var require_createWorker = __commonJS({
-  "node_modules/.deno/tesseract.js@7.0.0/node_modules/tesseract.js/src/createWorker.js"(exports, module) {
+  "node_modules/tesseract.js/src/createWorker.js"(exports, module) {
     "use strict";
     var resolvePaths = require_resolvePaths();
     var createJob = require_createJob();
@@ -1161,9 +1161,9 @@ var require_createWorker = __commonJS({
   }
 });
 
-// node_modules/.deno/tesseract.js@7.0.0/node_modules/tesseract.js/src/Tesseract.js
+// node_modules/tesseract.js/src/Tesseract.js
 var require_Tesseract = __commonJS({
-  "node_modules/.deno/tesseract.js@7.0.0/node_modules/tesseract.js/src/Tesseract.js"(exports, module) {
+  "node_modules/tesseract.js/src/Tesseract.js"(exports, module) {
     "use strict";
     var createWorker2 = require_createWorker();
     var recognize = async (image, langs, options) => {
@@ -1185,9 +1185,9 @@ var require_Tesseract = __commonJS({
   }
 });
 
-// node_modules/.deno/tesseract.js@7.0.0/node_modules/tesseract.js/src/constants/languages.js
+// node_modules/tesseract.js/src/constants/languages.js
 var require_languages = __commonJS({
-  "node_modules/.deno/tesseract.js@7.0.0/node_modules/tesseract.js/src/constants/languages.js"(exports, module) {
+  "node_modules/tesseract.js/src/constants/languages.js"(exports, module) {
     "use strict";
     module.exports = {
       AFR: "afr",
@@ -1296,9 +1296,9 @@ var require_languages = __commonJS({
   }
 });
 
-// node_modules/.deno/tesseract.js@7.0.0/node_modules/tesseract.js/src/constants/PSM.js
+// node_modules/tesseract.js/src/constants/PSM.js
 var require_PSM = __commonJS({
-  "node_modules/.deno/tesseract.js@7.0.0/node_modules/tesseract.js/src/constants/PSM.js"(exports, module) {
+  "node_modules/tesseract.js/src/constants/PSM.js"(exports, module) {
     "use strict";
     module.exports = {
       OSD_ONLY: "0",
@@ -1319,9 +1319,9 @@ var require_PSM = __commonJS({
   }
 });
 
-// node_modules/.deno/tesseract.js@7.0.0/node_modules/tesseract.js/src/index.js
+// node_modules/tesseract.js/src/index.js
 var require_src = __commonJS({
-  "node_modules/.deno/tesseract.js@7.0.0/node_modules/tesseract.js/src/index.js"(exports, module) {
+  "node_modules/tesseract.js/src/index.js"(exports, module) {
     "use strict";
     require_runtime();
     var createScheduler = require_createScheduler();
@@ -1343,9 +1343,9 @@ var require_src = __commonJS({
   }
 });
 
-// node_modules/.deno/jsqr@1.4.0/node_modules/jsqr/dist/jsQR.js
+// node_modules/jsqr/dist/jsQR.js
 var require_jsQR = __commonJS({
-  "node_modules/.deno/jsqr@1.4.0/node_modules/jsqr/dist/jsQR.js"(exports, module) {
+  "node_modules/jsqr/dist/jsQR.js"(exports, module) {
     (function webpackUniversalModuleDefinition(root, factory) {
       if (typeof exports === "object" && typeof module === "object")
         module.exports = factory();
@@ -11362,18 +11362,18 @@ var require_jsQR = __commonJS({
   }
 });
 
-// node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/can-promise.js
+// node_modules/qrcode/lib/can-promise.js
 var require_can_promise = __commonJS({
-  "node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/can-promise.js"(exports, module) {
+  "node_modules/qrcode/lib/can-promise.js"(exports, module) {
     module.exports = function() {
       return typeof Promise === "function" && Promise.prototype && Promise.prototype.then;
     };
   }
 });
 
-// node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/core/utils.js
+// node_modules/qrcode/lib/core/utils.js
 var require_utils = __commonJS({
-  "node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/core/utils.js"(exports) {
+  "node_modules/qrcode/lib/core/utils.js"(exports) {
     var toSJISFunction;
     var CODEWORDS_COUNT = [
       0,
@@ -11450,9 +11450,9 @@ var require_utils = __commonJS({
   }
 });
 
-// node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/core/error-correction-level.js
+// node_modules/qrcode/lib/core/error-correction-level.js
 var require_error_correction_level = __commonJS({
-  "node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/core/error-correction-level.js"(exports) {
+  "node_modules/qrcode/lib/core/error-correction-level.js"(exports) {
     exports.L = { bit: 1 };
     exports.M = { bit: 0 };
     exports.Q = { bit: 3 };
@@ -11495,9 +11495,9 @@ var require_error_correction_level = __commonJS({
   }
 });
 
-// node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/core/bit-buffer.js
+// node_modules/qrcode/lib/core/bit-buffer.js
 var require_bit_buffer = __commonJS({
-  "node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/core/bit-buffer.js"(exports, module) {
+  "node_modules/qrcode/lib/core/bit-buffer.js"(exports, module) {
     function BitBuffer() {
       this.buffer = [];
       this.length = 0;
@@ -11530,9 +11530,9 @@ var require_bit_buffer = __commonJS({
   }
 });
 
-// node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/core/bit-matrix.js
+// node_modules/qrcode/lib/core/bit-matrix.js
 var require_bit_matrix = __commonJS({
-  "node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/core/bit-matrix.js"(exports, module) {
+  "node_modules/qrcode/lib/core/bit-matrix.js"(exports, module) {
     function BitMatrix(size) {
       if (!size || size < 1) {
         throw new Error("BitMatrix size must be defined and greater than 0");
@@ -11559,9 +11559,9 @@ var require_bit_matrix = __commonJS({
   }
 });
 
-// node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/core/alignment-pattern.js
+// node_modules/qrcode/lib/core/alignment-pattern.js
 var require_alignment_pattern = __commonJS({
-  "node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/core/alignment-pattern.js"(exports) {
+  "node_modules/qrcode/lib/core/alignment-pattern.js"(exports) {
     var getSymbolSize = require_utils().getSymbolSize;
     exports.getRowColCoords = function getRowColCoords(version2) {
       if (version2 === 1) return [];
@@ -11594,9 +11594,9 @@ var require_alignment_pattern = __commonJS({
   }
 });
 
-// node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/core/finder-pattern.js
+// node_modules/qrcode/lib/core/finder-pattern.js
 var require_finder_pattern = __commonJS({
-  "node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/core/finder-pattern.js"(exports) {
+  "node_modules/qrcode/lib/core/finder-pattern.js"(exports) {
     var getSymbolSize = require_utils().getSymbolSize;
     var FINDER_PATTERN_SIZE = 7;
     exports.getPositions = function getPositions(version2) {
@@ -11613,9 +11613,9 @@ var require_finder_pattern = __commonJS({
   }
 });
 
-// node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/core/mask-pattern.js
+// node_modules/qrcode/lib/core/mask-pattern.js
 var require_mask_pattern = __commonJS({
-  "node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/core/mask-pattern.js"(exports) {
+  "node_modules/qrcode/lib/core/mask-pattern.js"(exports) {
     exports.Patterns = {
       PATTERN000: 0,
       PATTERN001: 1,
@@ -11755,9 +11755,9 @@ var require_mask_pattern = __commonJS({
   }
 });
 
-// node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/core/error-correction-code.js
+// node_modules/qrcode/lib/core/error-correction-code.js
 var require_error_correction_code = __commonJS({
-  "node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/core/error-correction-code.js"(exports) {
+  "node_modules/qrcode/lib/core/error-correction-code.js"(exports) {
     var ECLevel = require_error_correction_level();
     var EC_BLOCKS_TABLE = [
       // L  M  Q  H
@@ -12116,9 +12116,9 @@ var require_error_correction_code = __commonJS({
   }
 });
 
-// node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/core/galois-field.js
+// node_modules/qrcode/lib/core/galois-field.js
 var require_galois_field = __commonJS({
-  "node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/core/galois-field.js"(exports) {
+  "node_modules/qrcode/lib/core/galois-field.js"(exports) {
     var EXP_TABLE = new Uint8Array(512);
     var LOG_TABLE = new Uint8Array(256);
     (function initTables() {
@@ -12149,9 +12149,9 @@ var require_galois_field = __commonJS({
   }
 });
 
-// node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/core/polynomial.js
+// node_modules/qrcode/lib/core/polynomial.js
 var require_polynomial = __commonJS({
-  "node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/core/polynomial.js"(exports) {
+  "node_modules/qrcode/lib/core/polynomial.js"(exports) {
     var GF = require_galois_field();
     exports.mul = function mul(p1, p2) {
       const coeff = new Uint8Array(p1.length + p2.length - 1);
@@ -12185,9 +12185,9 @@ var require_polynomial = __commonJS({
   }
 });
 
-// node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/core/reed-solomon-encoder.js
+// node_modules/qrcode/lib/core/reed-solomon-encoder.js
 var require_reed_solomon_encoder = __commonJS({
-  "node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/core/reed-solomon-encoder.js"(exports, module) {
+  "node_modules/qrcode/lib/core/reed-solomon-encoder.js"(exports, module) {
     var Polynomial = require_polynomial();
     function ReedSolomonEncoder(degree) {
       this.genPoly = void 0;
@@ -12217,18 +12217,18 @@ var require_reed_solomon_encoder = __commonJS({
   }
 });
 
-// node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/core/version-check.js
+// node_modules/qrcode/lib/core/version-check.js
 var require_version_check = __commonJS({
-  "node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/core/version-check.js"(exports) {
+  "node_modules/qrcode/lib/core/version-check.js"(exports) {
     exports.isValid = function isValid(version2) {
       return !isNaN(version2) && version2 >= 1 && version2 <= 40;
     };
   }
 });
 
-// node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/core/regex.js
+// node_modules/qrcode/lib/core/regex.js
 var require_regex = __commonJS({
-  "node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/core/regex.js"(exports) {
+  "node_modules/qrcode/lib/core/regex.js"(exports) {
     var numeric = "[0-9]+";
     var alphanumeric = "[A-Z $%*+\\-./:]+";
     var kanji = "(?:[u3000-u303F]|[u3040-u309F]|[u30A0-u30FF]|[uFF00-uFFEF]|[u4E00-u9FAF]|[u2605-u2606]|[u2190-u2195]|u203B|[u2010u2015u2018u2019u2025u2026u201Cu201Du2225u2260]|[u0391-u0451]|[u00A7u00A8u00B1u00B4u00D7u00F7])+";
@@ -12254,9 +12254,9 @@ var require_regex = __commonJS({
   }
 });
 
-// node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/core/mode.js
+// node_modules/qrcode/lib/core/mode.js
 var require_mode = __commonJS({
-  "node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/core/mode.js"(exports) {
+  "node_modules/qrcode/lib/core/mode.js"(exports) {
     var VersionCheck = require_version_check();
     var Regex = require_regex();
     exports.NUMERIC = {
@@ -12335,9 +12335,9 @@ var require_mode = __commonJS({
   }
 });
 
-// node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/core/version.js
+// node_modules/qrcode/lib/core/version.js
 var require_version = __commonJS({
-  "node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/core/version.js"(exports) {
+  "node_modules/qrcode/lib/core/version.js"(exports) {
     var Utils = require_utils();
     var ECCode = require_error_correction_code();
     var ECLevel = require_error_correction_level();
@@ -12430,9 +12430,9 @@ var require_version = __commonJS({
   }
 });
 
-// node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/core/format-info.js
+// node_modules/qrcode/lib/core/format-info.js
 var require_format_info = __commonJS({
-  "node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/core/format-info.js"(exports) {
+  "node_modules/qrcode/lib/core/format-info.js"(exports) {
     var Utils = require_utils();
     var G15 = 1 << 10 | 1 << 8 | 1 << 5 | 1 << 4 | 1 << 2 | 1 << 1 | 1 << 0;
     var G15_MASK = 1 << 14 | 1 << 12 | 1 << 10 | 1 << 4 | 1 << 1;
@@ -12448,9 +12448,9 @@ var require_format_info = __commonJS({
   }
 });
 
-// node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/core/numeric-data.js
+// node_modules/qrcode/lib/core/numeric-data.js
 var require_numeric_data = __commonJS({
-  "node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/core/numeric-data.js"(exports, module) {
+  "node_modules/qrcode/lib/core/numeric-data.js"(exports, module) {
     var Mode = require_mode();
     function NumericData(data) {
       this.mode = Mode.NUMERIC;
@@ -12483,9 +12483,9 @@ var require_numeric_data = __commonJS({
   }
 });
 
-// node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/core/alphanumeric-data.js
+// node_modules/qrcode/lib/core/alphanumeric-data.js
 var require_alphanumeric_data = __commonJS({
-  "node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/core/alphanumeric-data.js"(exports, module) {
+  "node_modules/qrcode/lib/core/alphanumeric-data.js"(exports, module) {
     var Mode = require_mode();
     var ALPHA_NUM_CHARS = [
       "0",
@@ -12562,9 +12562,9 @@ var require_alphanumeric_data = __commonJS({
   }
 });
 
-// node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/core/byte-data.js
+// node_modules/qrcode/lib/core/byte-data.js
 var require_byte_data = __commonJS({
-  "node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/core/byte-data.js"(exports, module) {
+  "node_modules/qrcode/lib/core/byte-data.js"(exports, module) {
     var Mode = require_mode();
     function ByteData(data) {
       this.mode = Mode.BYTE;
@@ -12592,9 +12592,9 @@ var require_byte_data = __commonJS({
   }
 });
 
-// node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/core/kanji-data.js
+// node_modules/qrcode/lib/core/kanji-data.js
 var require_kanji_data = __commonJS({
-  "node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/core/kanji-data.js"(exports, module) {
+  "node_modules/qrcode/lib/core/kanji-data.js"(exports, module) {
     var Mode = require_mode();
     var Utils = require_utils();
     function KanjiData(data) {
@@ -12631,9 +12631,9 @@ var require_kanji_data = __commonJS({
   }
 });
 
-// node_modules/.deno/dijkstrajs@1.0.3/node_modules/dijkstrajs/dijkstra.js
+// node_modules/dijkstrajs/dijkstra.js
 var require_dijkstra = __commonJS({
-  "node_modules/.deno/dijkstrajs@1.0.3/node_modules/dijkstrajs/dijkstra.js"(exports, module) {
+  "node_modules/dijkstrajs/dijkstra.js"(exports, module) {
     "use strict";
     var dijkstra = {
       single_source_shortest_paths: function(graph, s, d) {
@@ -12732,9 +12732,9 @@ var require_dijkstra = __commonJS({
   }
 });
 
-// node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/core/segments.js
+// node_modules/qrcode/lib/core/segments.js
 var require_segments = __commonJS({
-  "node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/core/segments.js"(exports) {
+  "node_modules/qrcode/lib/core/segments.js"(exports) {
     var Mode = require_mode();
     var NumericData = require_numeric_data();
     var AlphanumericData = require_alphanumeric_data();
@@ -12918,9 +12918,9 @@ var require_segments = __commonJS({
   }
 });
 
-// node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/core/qrcode.js
+// node_modules/qrcode/lib/core/qrcode.js
 var require_qrcode = __commonJS({
-  "node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/core/qrcode.js"(exports) {
+  "node_modules/qrcode/lib/core/qrcode.js"(exports) {
     var Utils = require_utils();
     var ECLevel = require_error_correction_level();
     var BitBuffer = require_bit_buffer();
@@ -13179,9 +13179,9 @@ var require_qrcode = __commonJS({
   }
 });
 
-// node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/renderer/utils.js
+// node_modules/qrcode/lib/renderer/utils.js
 var require_utils2 = __commonJS({
-  "node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/renderer/utils.js"(exports) {
+  "node_modules/qrcode/lib/renderer/utils.js"(exports) {
     function hex2rgba(hex) {
       if (typeof hex === "number") {
         hex = hex.toString();
@@ -13259,9 +13259,9 @@ var require_utils2 = __commonJS({
   }
 });
 
-// node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/renderer/canvas.js
+// node_modules/qrcode/lib/renderer/canvas.js
 var require_canvas = __commonJS({
-  "node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/renderer/canvas.js"(exports) {
+  "node_modules/qrcode/lib/renderer/canvas.js"(exports) {
     var Utils = require_utils2();
     function clearCanvas(ctx, canvas, size) {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -13312,9 +13312,9 @@ var require_canvas = __commonJS({
   }
 });
 
-// node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/renderer/svg-tag.js
+// node_modules/qrcode/lib/renderer/svg-tag.js
 var require_svg_tag = __commonJS({
-  "node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/renderer/svg-tag.js"(exports) {
+  "node_modules/qrcode/lib/renderer/svg-tag.js"(exports) {
     var Utils = require_utils2();
     function getColorAttrib(color, attrib) {
       const alpha = color.a / 255;
@@ -13370,9 +13370,9 @@ var require_svg_tag = __commonJS({
   }
 });
 
-// node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/browser.js
+// node_modules/qrcode/lib/browser.js
 var require_browser2 = __commonJS({
-  "node_modules/.deno/qrcode@1.5.4/node_modules/qrcode/lib/browser.js"(exports) {
+  "node_modules/qrcode/lib/browser.js"(exports) {
     var canPromise = require_can_promise();
     var QRCode2 = require_qrcode();
     var CanvasRenderer = require_canvas();
@@ -13480,7 +13480,7 @@ function initWorkflowNav() {
   });
 }
 
-// node_modules/.deno/pdfjs-dist@6.3.289/node_modules/pdfjs-dist/build/pdf.mjs
+// node_modules/pdfjs-dist/build/pdf.mjs
 var isNodeJS = typeof process === "object" && process + "" === "[object process]" && !process.versions.nw && !(process.versions.electron && process.type && process.type !== "browser");
 var BBOX_INIT = [Infinity, Infinity, -Infinity, -Infinity];
 var F32_BBOX_INIT = new Float32Array(BBOX_INIT);
@@ -41869,10 +41869,16 @@ var copy = {
     lessonFallback: "\u8BFE\u7A0B",
     recordSuccess: "\u6210\u529F",
     recordUnknown: "\u7ED3\u679C\u4E0D\u660E",
+    recordSubmittedPending: "\u5DF2\u63D0\u4EA4\uFF0C\u5F85\u786E\u8BA4",
     recordFailed: "\u5931\u8D25",
     recordMissed: "\u672A\u81EA\u52A8\u63D0\u4EA4",
+    recordMissedSleep: "\u5DF2\u9519\u8FC7\uFF08\u8BBE\u5907\u4F11\u7720\uFF09",
     recordLaunched: "\u6253\u5F00\u4E2D",
     recordPending: "\u63D0\u4EA4\u4E2D",
+    markSubmitted: "\u6807\u8BB0\u4E3A\u5DF2\u63D0\u4EA4",
+    allowResubmit: "\u5141\u8BB8\u91CD\u65B0\u63D0\u4EA4",
+    allowResubmitConfirm: "\u8FD9\u53EF\u80FD\u9020\u6210\u91CD\u590D\u6253\u5361\u3002\u4EC5\u5728\u4F60\u786E\u8BA4\u5B66\u6821\u8BB0\u5F55\u672A\u63D0\u4EA4\u65F6\u7EE7\u7EED\uFF0C\u4E14\u7CFB\u7EDF\u4E0D\u4F1A\u81EA\u52A8\u91CD\u8BD5\u3002\u786E\u5B9A\u89E3\u9664\u4FDD\u62A4\u5417\uFF1F",
+    resubmitProtectionReleased: "\u5DF2\u89E3\u9664\u63D0\u4EA4\u4FDD\u62A4\uFF1B\u7CFB\u7EDF\u4E0D\u4F1A\u81EA\u52A8\u91CD\u65B0\u63D0\u4EA4\u3002",
     noOriginalForm: "\u5C1A\u65E0\u539F\u8868\u5355\u94FE\u63A5\uFF0C\u8BF7\u5148\u4FEE\u590D\u8BFE\u7A0B\u8868\u5355\u7ED1\u5B9A\u3002",
     noRecords: "\u8FD8\u6CA1\u6709\u6253\u5361\u8BB0\u5F55\u3002",
     noFilteredRecords: "\u6CA1\u6709\u6B64\u7C7B\u578B\u7684\u8BB0\u5F55\uFF0C\u8BF7\u8C03\u6574\u7B5B\u9009\u3002",
@@ -41910,6 +41916,8 @@ var copy = {
     fixedInternational: "\u56FA\u5B9A\u9009 International",
     recoveryInspect: "\u624B\u52A8\u6838\u5BF9\u539F\u8868\u5355",
     recoveryInspectDescription: "\u5DF2\u5F00\u59CB\u63D0\u4EA4\u4F46\u7ED3\u679C\u4E0D\u660E\u3002\u8BF7\u624B\u52A8\u6838\u5BF9\u5B66\u6821\u8BB0\u5F55\uFF1B\u7CFB\u7EDF\u4E0D\u4F1A\u81EA\u52A8\u91CD\u8BD5\u3002",
+    recoverySubmittedPending: "\u6211\u8981\u624B\u52A8\u68C0\u67E5",
+    recoverySubmittedPendingDescription: "\u5DF2\u70B9\u51FB\u63D0\u4EA4\u4F46\u5C1A\u672A\u786E\u8BA4\u3002\u8BF7\u68C0\u67E5\u5B66\u6821\u8BB0\u5F55\uFF1B\u7CFB\u7EDF\u4E0D\u4F1A\u91CD\u590D\u63D0\u4EA4\u3002",
     recoveryBinding: "\u4FEE\u590D\u8BFE\u7A0B\u8868\u5355\u7ED1\u5B9A",
     recoveryBindingDescription: "\u91CD\u65B0\u6838\u5BF9\u8868\u5355\u548C\u8D44\u6599\u6620\u5C04\uFF0C\u518D\u8FD0\u884C\u8BBE\u7F6E\u68C0\u67E5\u3002",
     recoveryLogin: "\u68C0\u67E5\u5B66\u6821\u767B\u5F55\u4E0E\u8868\u5355",
@@ -42175,13 +42183,19 @@ var copy = {
     lessonFallback: "Lesson",
     recordSuccess: "Succeeded",
     recordUnknown: "Unknown",
+    recordSubmittedPending: "Submitted, awaiting confirmation",
     recordFailed: "Failed",
     recordMissed: "Not submitted automatically",
+    recordMissedSleep: "Missed because the device slept",
     recordLaunched: "Opening",
     recordPending: "Submitting",
+    markSubmitted: "Mark as submitted",
+    allowResubmit: "Allow resubmission",
+    allowResubmitConfirm: "This may cause a duplicate check-in. Continue only if you confirmed the school record was not submitted; the system will not retry automatically. Release the protection?",
+    resubmitProtectionReleased: "Submission protection released; the system will not submit automatically.",
     noOriginalForm: "No original form link is saved. Repair the course binding first.",
     noRecords: "No check-in records yet.",
-    noFilteredRecords: "No records match this filter. Choose another filter.",
+    noFilteredRecords: "No records match this filter.",
     recordsPage: "Page {page} of {pages} \xB7 {count} item(s)",
     noPreviewToActivate: "Import or add a lesson first.",
     draftChangedReview: "The timetable changed. Review it again and confirm.",
@@ -42216,6 +42230,8 @@ var copy = {
     fixedInternational: "Select International",
     recoveryInspect: "Check original form manually",
     recoveryInspectDescription: "Submission started but the result is unknown. Check the school record manually; the system will not retry.",
+    recoverySubmittedPending: "I will check manually",
+    recoverySubmittedPendingDescription: "Submission was clicked but not confirmed. Check the school record; the system will not submit again.",
     recoveryBinding: "Repair course form binding",
     recoveryBindingDescription: "Review the form and profile mappings, then run the setup check again.",
     recoveryLogin: "Check school sign-in and form",
@@ -42610,6 +42626,7 @@ async function importTimetable(file, onProgress) {
 // src/forms.js
 var HOSTS = /* @__PURE__ */ new Set(["forms.office.com", "forms.cloud.microsoft"]);
 var normalize = (s) => String(s || "").replace(/\s+/g, " ").trim().toLowerCase();
+var normalizeComparable = (value) => normalize(String(value ?? "").normalize("NFKC"));
 function validateFormsUrl(value) {
   let url;
   try {
@@ -42623,7 +42640,42 @@ function validateFormsUrl(value) {
   return url;
 }
 function verifyQuestions(questions, mapping) {
-  return Array.isArray(questions) && questions.length === mapping?.length && questions.every((q, i) => normalize(q.title) === normalize(mapping[i].title) && q.type === mapping[i].type && (q.type !== "radio" || JSON.stringify((q.options || []).map(normalize)) === JSON.stringify((mapping[i].options || []).map(normalize))));
+  if (!Array.isArray(questions) || questions.length !== mapping?.length) return false;
+  const actual = new Map(questions.map((q) => [normalizeComparable(q.title), q]));
+  return mapping.every((entry) => {
+    const q = actual.get(normalizeComparable(entry.title));
+    if (!q || q.type !== entry.type) return false;
+    if (q.type !== "radio") return true;
+    return JSON.stringify([...new Set(optionList(q))].sort()) === JSON.stringify([...new Set(optionList(entry))].sort());
+  });
+}
+var questionKey = (question) => normalizeComparable(question?.title);
+var optionList = (question) => [...question?.options || []].map(normalizeComparable);
+function questionSignature(question) {
+  return `${question?.type || ""}|${[...new Set(optionList(question))].sort().join("")}`;
+}
+function questionDiff(expected = [], actual = []) {
+  const left = new Map(expected.map((q) => [questionKey(q), q])), right = new Map(actual.map((q) => [questionKey(q), q]));
+  const added = [], deleted = [], renamed = [], options = [];
+  for (const key of left.keys()) if (!right.has(key)) deleted.push(key);
+  for (const key of right.keys()) if (!left.has(key)) added.push(key);
+  for (const key of left.keys()) {
+    const q = right.get(key);
+    if (!q) continue;
+    if (q.type !== left.get(key).type) renamed.push({ from: key, to: key });
+    const before = [...new Set(optionList(left.get(key)))].sort(), after = [...new Set(optionList(q))].sort();
+    if (JSON.stringify(before) !== JSON.stringify(after)) options.push({ title: key, added: after.filter((v) => !before.includes(v)), removed: before.filter((v) => !after.includes(v)) });
+  }
+  const unmatchedLeft = deleted.map((key) => left.get(key)), unmatchedRight = added.map((key) => right.get(key));
+  for (const oldQuestion of unmatchedLeft) {
+    const index = unmatchedRight.findIndex((q) => questionSignature(q) === questionSignature(oldQuestion));
+    if (index < 0) continue;
+    const [newQuestion] = unmatchedRight.splice(index, 1), oldKey = questionKey(oldQuestion), newKey = questionKey(newQuestion);
+    deleted.splice(deleted.indexOf(oldKey), 1);
+    added.splice(added.indexOf(newKey), 1);
+    renamed.push({ from: oldKey, to: newKey });
+  }
+  return { added: added.sort(), deleted: deleted.sort(), renamed: renamed.sort((a, b) => a.from.localeCompare(b.from)), options: options.sort((a, b) => a.title.localeCompare(b.title)) };
 }
 function formatDate(placeholder2, date) {
   const [y, m, d] = date.split("-");
@@ -42644,9 +42696,14 @@ function identityOption(options, target) {
   return options.find((value) => target === "international" ? /international/i.test(value) : /\blocal\b/i.test(value) && !/international/i.test(value));
 }
 function buildFillPlan(questions, mapping, profile2, date, course) {
-  if (!verifyQuestions(questions, mapping)) throw Error("\u8868\u5355\u9898\u76EE\u53D1\u751F\u53D8\u5316\uFF0C\u5DF2\u505C\u6B62\u3002");
+  if (!verifyQuestions(questions, mapping)) {
+    const error = Error("\u8868\u5355\u9898\u76EE\u53D1\u751F\u53D8\u5316\uFF0C\u5DF2\u505C\u6B62\u3002");
+    error.code = "form_schema_changed";
+    error.diff = questionDiff(mapping, questions);
+    throw error;
+  }
   return mapping.map((entry, i) => {
-    const q = questions[i];
+    const q = questions.find((item) => normalizeComparable(item.title) === normalizeComparable(entry.title));
     let value;
     if (q.type === "date" && q.required === false) return { type: "date", field: entry.field, skip: true };
     const expectedType = ["student", "name"].includes(entry.field) ? "text" : entry.field === "date" ? "date" : /^(?:delivery|local)(?::|$)/.test(entry.field) ? "radio" : null;
@@ -42662,7 +42719,7 @@ function buildFillPlan(questions, mapping, profile2, date, course) {
       value = identityOption(q.options || [], target);
     } else throw Error(`\u672A\u914D\u7F6E\u7B2C ${i + 1} \u9898\u3002`);
     if (!value) throw Error(`\u7B2C ${i + 1} \u9898\u6CA1\u6709\u5339\u914D\u7684\u7B54\u6848\u3002`);
-    return { type: q.type, value, field: entry.field };
+    return { type: q.type, value, field: entry.field, questionTitle: q.title };
   });
 }
 
@@ -42803,7 +42860,7 @@ function nextTrigger(session, records = {}, now = Date.now()) {
 }
 
 // src/backup.js
-var terminal = (state) => ["success", "failed", "unknown", "missed"].includes(state);
+var terminal = (state) => ["success", "failed", "unknown", "missed", "missed_sleep", "submitted_pending_confirmation"].includes(state);
 function terminalRecords(records = {}) {
   return Object.fromEntries(Object.entries(records).filter(([, r]) => terminal(r.state) && r.occ).map(([key, r]) => [key, { state: r.state, at: r.at, detail: r.detail || "", formUrl: r.formUrl, occ: { id: r.occ.id, course: r.occ.course, date: r.occ.date, time: r.occ.time, endTime: r.occ.endTime, key: r.occ.key, weekday: r.occ.weekday, kind: "weekly" } }]));
 }
@@ -42812,10 +42869,11 @@ function createBackup(data) {
   return { format: "soton-attendance-configuration", version: 1, exportedAt: (/* @__PURE__ */ new Date()).toISOString(), profile: p?.student && p?.name ? { student: p.student, name: p.name, studentType: p.studentType } : null, bindings: Object.fromEntries(Object.entries(data.attendanceBindings || {}).map(([key, b]) => [key, { scope: b.scope, url: b.url, title: b.title, questions: b.questions, mapping: b.mapping, verified: b.verified }])), sessions: (data.attendanceSessions || []).map((s) => ({ id: s.id, kind: "weekly", course: s.course, weekday: s.weekday, time: s.time, endTime: s.endTime, exceptions: s.exceptions || [], enabled: s.enabled !== false })), records: terminalRecords(data.attendanceRecords) };
 }
 function recoveryForRecord(record) {
+  if (record.state === "submitted_pending_confirmation") return { action: "inspect", label: "\u6211\u8981\u624B\u52A8\u68C0\u67E5", description: "\u5DF2\u63D0\u4EA4\u4F46\u5C1A\u672A\u786E\u8BA4\u3002\u8BF7\u68C0\u67E5\u5B66\u6821\u8BB0\u5F55\uFF1B\u7CFB\u7EDF\u4E0D\u4F1A\u91CD\u590D\u63D0\u4EA4\u3002" };
   if (record.state === "unknown") return { action: "inspect", label: "\u624B\u52A8\u6838\u5BF9\u539F\u8868\u5355", description: "\u5DF2\u5F00\u59CB\u63D0\u4EA4\u4F46\u7ED3\u679C\u4E0D\u660E\u3002\u8BF7\u624B\u52A8\u6838\u5BF9\u5B66\u6821\u8BB0\u5F55\uFF1B\u7CFB\u7EDF\u4E0D\u4F1A\u81EA\u52A8\u91CD\u8BD5\u3002" };
   if (/题目|标题|映射|绑定|课型/.test(record.detail || "")) return { action: "binding", label: "\u4FEE\u590D\u8BFE\u7A0B\u8868\u5355\u7ED1\u5B9A", description: "\u91CD\u65B0\u6838\u5BF9\u8868\u5355\u548C\u8D44\u6599\u6620\u5C04\uFF0C\u518D\u8FD0\u884C\u8BBE\u7F6E\u68C0\u67E5\u3002" };
   if (record.state === "failed") return { action: "login", label: "\u68C0\u67E5\u5B66\u6821\u767B\u5F55\u4E0E\u8868\u5355", description: "\u6253\u5F00\u539F\u8868\u5355\u68C0\u67E5\u5B66\u6821\u767B\u5F55\u3001\u5F00\u653E\u65F6\u95F4\u6216\u989D\u5916\u9A8C\u8BC1\u3002" };
-  if (record.state === "missed") return { action: "inspect", label: "\u6253\u5F00\u8868\u5355\u624B\u52A8\u5904\u7406", description: "\u6B64\u6B21\u672A\u81EA\u52A8\u63D0\u4EA4\u3002\u8BF7\u6309\u5B66\u6821\u8981\u6C42\u624B\u52A8\u5904\u7406\uFF0C\u5E76\u68C0\u67E5 Chrome \u4E0E\u7535\u8111\u4F11\u7720\u8BBE\u7F6E\u3002" };
+  if (record.state === "missed" || record.state === "missed_sleep") return { action: "inspect", label: "\u6253\u5F00\u8868\u5355\u624B\u52A8\u5904\u7406", description: record.state === "missed_sleep" ? "\u8BBE\u5907\u4F11\u7720\u5BFC\u81F4\u9519\u8FC7\u6B64\u6B21\u81EA\u52A8\u63D0\u4EA4\u3002\u8BF7\u624B\u52A8\u5904\u7406\u3002" : "\u6B64\u6B21\u672A\u81EA\u52A8\u63D0\u4EA4\u3002\u8BF7\u6309\u5B66\u6821\u8981\u6C42\u624B\u52A8\u5904\u7406\uFF0C\u5E76\u68C0\u67E5 Chrome \u4E0E\u7535\u8111\u4F11\u7720\u8BBE\u7F6E\u3002" };
   return { action: "inspect", label: "\u67E5\u770B\u539F\u8868\u5355", description: record.state === "success" ? "\u539F\u8868\u5355\u5DF2\u663E\u793A\u6210\u529F\u53CD\u9988\u3002" : "\u8BF7\u67E5\u770B\u5F53\u524D\u8FD0\u884C\u9875\u9762\u3002" };
 }
 
@@ -42975,10 +43033,10 @@ function createOptionsUpgrade(api) {
     list.replaceChildren();
     for (const r of rows.slice(page * 40, page * 40 + 40)) {
       const item = node("div", "", "list-item"), label = node("div"), recovery = recoveryForRecord(r);
-      const recoveryKey = recovery.action === "binding" ? "recoveryBinding" : recovery.action === "login" ? "recoveryLogin" : r.state === "missed" ? "recoveryMissed" : r.state === "success" ? "recoverySuccess" : "recoveryView";
-      const recordState = { success: t("recordSuccess"), unknown: t("recordUnknown"), failed: t("recordFailed"), missed: t("recordMissed"), launched: t("recordLaunched"), pending: t("recordPending") }[r.state] || r.state;
+      const recoveryKey = recovery.action === "binding" ? "recoveryBinding" : recovery.action === "login" ? "recoveryLogin" : r.state === "missed" || r.state === "missed_sleep" ? "recoveryMissed" : r.state === "success" ? "recoverySuccess" : r.state === "submitted_pending_confirmation" ? "recoverySubmittedPending" : "recoveryView";
+      const recordState = { success: t("recordSuccess"), unknown: t("recordUnknown"), submitted_pending_confirmation: t("recordSubmittedPending"), failed: t("recordFailed"), missed: t("recordMissed"), missed_sleep: t("recordMissedSleep"), launched: t("recordLaunched"), pending: t("recordPending") }[r.state] || r.state;
       label.append(node("strong", `${r.occ?.course || t("lessonFallback")} \xB7 ${r.occ?.date || ""} ${r.occ?.time || ""} \xB7 ${recordState}`), node("small", localizeMessage(r.detail || r.at || "")), node("small", t(`${recoveryKey}Description`)));
-      const action = button(t(recoveryKey), guard(async () => {
+      const openOriginal = guard(async () => {
         if (recovery.action === "binding") {
           document.getElementById("binding-heading").scrollIntoView();
           return;
@@ -42991,8 +43049,22 @@ function createOptionsUpgrade(api) {
         const binding = bindingForCourse(data.attendanceBindings, r.occ?.course), url = r.formUrl || binding?.url;
         if (!url) throw Error(t("noOriginalForm"));
         await chrome.tabs.create({ url: validateFormsUrl(url).href, active: true });
-      }));
-      item.append(label, action);
+      });
+      const actions = [];
+      if (["unknown", "submitted_pending_confirmation"].includes(r.state)) {
+        actions.push(button(t("markSubmitted"), guard(async () => {
+          await message("MARK_SUBMITTED", { key: r.occ.key });
+          await render();
+        })));
+        actions.push(button(t("allowResubmit"), guard(async () => {
+          if (!confirm(t("allowResubmitConfirm"))) return;
+          await message("RELEASE_SUBMISSION", { key: r.occ.key, confirm: true });
+          api.toast(t("resubmitProtectionReleased"));
+          await render();
+        })));
+      }
+      actions.push(button(t(recoveryKey), openOriginal));
+      item.append(label, ...actions);
       list.append(item);
     }
     if (!rows.length) list.append(node("p", filter === "all" ? t("noRecords") : t("noFilteredRecords"), "muted"));

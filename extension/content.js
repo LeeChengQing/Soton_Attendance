@@ -2,6 +2,7 @@
   // src/forms.js
   var HOSTS = /* @__PURE__ */ new Set(["forms.office.com", "forms.cloud.microsoft"]);
   var normalize = (s) => String(s || "").replace(/\s+/g, " ").trim().toLowerCase();
+  var normalizeComparable = (value) => normalize(String(value ?? "").normalize("NFKC"));
   function sameDateValue(actual, expected) {
     const pattern = /^\s*\d{1,4}\s*[/.-]\s*\d{1,2}\s*[/.-]\s*\d{1,4}\s*$/;
     if (!pattern.test(String(actual || "")) || !pattern.test(String(expected || ""))) return false;
@@ -21,7 +22,64 @@
     return url;
   }
   function verifyQuestions(questions, mapping) {
-    return Array.isArray(questions) && questions.length === mapping?.length && questions.every((q, i) => normalize(q.title) === normalize(mapping[i].title) && q.type === mapping[i].type && (q.type !== "radio" || JSON.stringify((q.options || []).map(normalize)) === JSON.stringify((mapping[i].options || []).map(normalize))));
+    if (!Array.isArray(questions) || questions.length !== mapping?.length) return false;
+    const actual = new Map(questions.map((q) => [normalizeComparable(q.title), q]));
+    return mapping.every((entry) => {
+      const q = actual.get(normalizeComparable(entry.title));
+      if (!q || q.type !== entry.type) return false;
+      if (q.type !== "radio") return true;
+      return JSON.stringify([...new Set(optionList(q))].sort()) === JSON.stringify([...new Set(optionList(entry))].sort());
+    });
+  }
+  var successRules = [
+    ["en_answers_submitted", /\byour answers? have been submitted successfully\b/i],
+    ["en_response_submitted", /\byour response was submitted\b/i],
+    ["en_response_recorded", /\byour response has been (?:submitted|recorded)\b/i],
+    ["zh_response_submitted", /(?:你的|您的)(?:响应|答复|回复)已(?:成功)?(?:提交|记录)/i],
+    ["ms_response_submitted", /(?:respons|jawapan)\s+(?:anda|awak)\s+(?:telah|sudah)\s+(?:dihantar|dihantar(?:kan)?|direkodkan)/i],
+    ["ms_thanks_submitted", /terima kasih[\s,，]*(?:respons|jawapan).*?(?:dihantar|direkodkan)/i]
+  ];
+  function isExplicitSuccess(text) {
+    const value = String(text || "");
+    return successRules.find(([, rule]) => rule.test(value))?.[0] || null;
+  }
+  function structureChanged(before = {}, after = {}, enabled = false) {
+    if (!enabled) return false;
+    return before.questionCount !== after.questionCount || before.submitVisible !== after.submitVisible;
+  }
+  function submissionSignals(before = {}, after = {}, options = {}) {
+    const textSignal = isExplicitSuccess(after.text);
+    if (textSignal) return { state: "success", signal: textSignal };
+    if (structureChanged(before, after, options.structureSelectorsEnabled === true)) return { state: "submitted_pending_confirmation", signal: "structure_change" };
+    return { state: "submitted_pending_confirmation", signal: "none" };
+  }
+  var questionKey = (question) => normalizeComparable(question?.title);
+  var optionList = (question) => [...question?.options || []].map(normalizeComparable);
+  function questionSignature(question) {
+    return `${question?.type || ""}|${[...new Set(optionList(question))].sort().join("")}`;
+  }
+  function questionDiff(expected = [], actual = []) {
+    const left = new Map(expected.map((q) => [questionKey(q), q])), right = new Map(actual.map((q) => [questionKey(q), q]));
+    const added = [], deleted = [], renamed = [], options = [];
+    for (const key of left.keys()) if (!right.has(key)) deleted.push(key);
+    for (const key of right.keys()) if (!left.has(key)) added.push(key);
+    for (const key of left.keys()) {
+      const q = right.get(key);
+      if (!q) continue;
+      if (q.type !== left.get(key).type) renamed.push({ from: key, to: key });
+      const before = [...new Set(optionList(left.get(key)))].sort(), after = [...new Set(optionList(q))].sort();
+      if (JSON.stringify(before) !== JSON.stringify(after)) options.push({ title: key, added: after.filter((v) => !before.includes(v)), removed: before.filter((v) => !after.includes(v)) });
+    }
+    const unmatchedLeft = deleted.map((key) => left.get(key)), unmatchedRight = added.map((key) => right.get(key));
+    for (const oldQuestion of unmatchedLeft) {
+      const index = unmatchedRight.findIndex((q) => questionSignature(q) === questionSignature(oldQuestion));
+      if (index < 0) continue;
+      const [newQuestion] = unmatchedRight.splice(index, 1), oldKey = questionKey(oldQuestion), newKey = questionKey(newQuestion);
+      deleted.splice(deleted.indexOf(oldKey), 1);
+      added.splice(added.indexOf(newKey), 1);
+      renamed.push({ from: oldKey, to: newKey });
+    }
+    return { added: added.sort(), deleted: deleted.sort(), renamed: renamed.sort((a, b) => a.from.localeCompare(b.from)), options: options.sort((a, b) => a.title.localeCompare(b.title)) };
   }
   function formatDate(placeholder, date) {
     const [y, m, d] = date.split("-");
@@ -42,9 +100,14 @@
     return options.find((value) => target === "international" ? /international/i.test(value) : /\blocal\b/i.test(value) && !/international/i.test(value));
   }
   function buildFillPlan(questions, mapping, profile, date, course) {
-    if (!verifyQuestions(questions, mapping)) throw Error("\u8868\u5355\u9898\u76EE\u53D1\u751F\u53D8\u5316\uFF0C\u5DF2\u505C\u6B62\u3002");
+    if (!verifyQuestions(questions, mapping)) {
+      const error = Error("\u8868\u5355\u9898\u76EE\u53D1\u751F\u53D8\u5316\uFF0C\u5DF2\u505C\u6B62\u3002");
+      error.code = "form_schema_changed";
+      error.diff = questionDiff(mapping, questions);
+      throw error;
+    }
     return mapping.map((entry, i) => {
-      const q = questions[i];
+      const q = questions.find((item) => normalizeComparable(item.title) === normalizeComparable(entry.title));
       let value;
       if (q.type === "date" && q.required === false) return { type: "date", field: entry.field, skip: true };
       const expectedType = ["student", "name"].includes(entry.field) ? "text" : entry.field === "date" ? "date" : /^(?:delivery|local)(?::|$)/.test(entry.field) ? "radio" : null;
@@ -60,10 +123,9 @@
         value = identityOption(q.options || [], target);
       } else throw Error(`\u672A\u914D\u7F6E\u7B2C ${i + 1} \u9898\u3002`);
       if (!value) throw Error(`\u7B2C ${i + 1} \u9898\u6CA1\u6709\u5339\u914D\u7684\u7B54\u6848\u3002`);
-      return { type: q.type, value, field: entry.field };
+      return { type: q.type, value, field: entry.field, questionTitle: q.title };
     });
   }
-  var isSuccess = (text) => /(?:your response (?:was submitted|has been (?:submitted|recorded))|你的(?:响应|答复|回复)已(?:提交|记录)|您的(?:响应|答复|回复)已(?:提交|记录)|已成功提交)/i.test(String(text));
   function assertDateAgreement(occDate, malaysiaDate, computerDate) {
     if (occDate !== malaysiaDate) throw Error("\u4EFB\u52A1\u65E5\u671F\u4E0E\u9A6C\u6765\u897F\u4E9A\u5F53\u5929\u65E5\u671F\u4E0D\u4E00\u81F4\uFF0C\u5DF2\u505C\u6B62\u3002");
     if (computerDate !== malaysiaDate) throw Error("\u7535\u8111\u672C\u5730\u65E5\u671F\u4E0E\u9A6C\u6765\u897F\u4E9A\u65E5\u671F\u4E0D\u4E00\u81F4\uFF0C\u5DF2\u505C\u6B62\u3002");
@@ -180,7 +242,7 @@
     });
   }
   function control(index, entry) {
-    const item = items()[index];
+    const item = items().find((candidate) => normalizeComparable(candidate.querySelector('[data-automation-id="questionTitle"]')?.textContent || "") === normalizeComparable(entry.questionTitle)) || items()[index];
     if (!item) return null;
     if (entry.type === "radio") return [...item.querySelectorAll('input[type="radio"]')].find((e) => e.value === entry.value);
     return item.querySelector(entry.type === "date" ? 'input[role="combobox"],input[type="date"]' : 'input[data-automation-id="textInput"]');
@@ -236,8 +298,19 @@
     const result = await chrome.runtime.sendMessage({ type: "REPORT_RUN", key, state, detail });
     if (result?.error) throw Error(result.error);
   }
+  async function reportPhase(key, phase) {
+    const result = await chrome.runtime.sendMessage({ type: "REPORT_PHASE", key, phase });
+    if (result?.error) throw Error(result.error);
+  }
+  var safeRunDetail = (value) => String(value || "").replace(/https?:\/\/\S+/gi, "[url]").replace(/\b\d{6,}\b/g, "[redacted]").slice(0, 500);
+  var diffDescription = (diff) => [
+    diff?.added?.length ? `\u65B0\u589E\uFF1A${diff.added.join("\u3001")}` : "",
+    diff?.deleted?.length ? `\u5220\u9664\uFF1A${diff.deleted.join("\u3001")}` : "",
+    diff?.renamed?.length ? `\u6539\u540D\uFF1A${diff.renamed.map((item) => `${item.from} \u2192 ${item.to}`).join("\u3001")}` : "",
+    diff?.options?.length ? `\u9009\u9879\u53D8\u5316\uFF1A${diff.options.map((item) => item.title).join("\u3001")}` : ""
+  ].filter(Boolean).join("\n");
   async function run(key, checkCourse, setupId, itemId) {
-    let pending = false;
+    let reserved = false;
     const setupMessage = async (type, extra = {}) => {
       const result = await chrome.runtime.sendMessage({ type, sessionId: setupId, itemId, ...extra });
       if (result?.error) throw Error(result.error);
@@ -272,6 +345,8 @@
       if (requiresDate) assertDateAgreement(occ.date, todayMalaysia(now), computerDate);
       show(`${occ.course}
 \u6B63\u5728\u586B\u5199\u5E76\u6838\u5BF9\u8D44\u6599${requiresDate ? "\u4E0E\u5F53\u65E5\u65E5\u671F" : ""}\u2026`);
+      if (key) await reportPhase(key, "checking");
+      if (key) await reportPhase(key, "filling");
       await fill(plan);
       if (!answersMatch(plan)) throw Error("\u8868\u5355\u7B54\u6848\u5DF2\u53D8\u5316\uFF0C\u672A\u901A\u8FC7\u6838\u5BF9\uFF1B\u672A\u63D0\u4EA4\u3002");
       if (!key) {
@@ -307,8 +382,14 @@ ${occ.course}${delivery ? ` \xB7 Module Delivery: ${delivery}` : ""}${setupId ? 
       if (todayMalaysia() !== occ.date) throw Error("\u63D0\u4EA4\u524D\u65E5\u671F\u5DF2\u53D8\u5316\uFF0C\u672A\u63D0\u4EA4\u3002");
       if (!answersMatch(plan)) throw Error("\u63D0\u4EA4\u524D\u8868\u5355\u7B54\u6848\u5DF2\u53D8\u5316\uFF0C\u672A\u63D0\u4EA4\u3002");
       if (!submitButton() || submitButton().disabled) throw Error("\u8868\u5355\u65E0\u6CD5\u63D0\u4EA4\u3002");
-      await report(key, "pending");
-      pending = true;
+      const reservation = await chrome.runtime.sendMessage({ type: "RESERVE_SUBMISSION", key });
+      if (reservation?.error) throw Error(reservation.error);
+      if (!reservation?.granted) {
+        show(`${occ.course}
+\u6B64\u65F6\u6BB5\u5DF2\u7ECF\u5C1D\u8BD5\u63D0\u4EA4\u8FC7\uFF0C\u4E3A\u907F\u514D\u91CD\u590D\u6253\u5361\u4E0D\u4F1A\u518D\u6B21\u70B9\u51FB\u63D0\u4EA4\u3002`);
+        return;
+      }
+      reserved = true;
       buildFillPlan(readQuestions(), binding.mapping, profile, occ.date, occ.course);
       if (todayMalaysia() !== occ.date || !answersMatch(plan) || formTitle() !== binding.title || !submitButton() || submitButton().disabled) throw Error("\u6388\u6743\u540E\u8868\u5355\u6216\u65E5\u671F\u5DF2\u53D8\u5316\uFF0C\u505C\u6B62\u63D0\u4EA4\u3002");
       const submitDelay = randomSubmitDelay();
@@ -316,50 +397,59 @@ ${occ.course}${delivery ? ` \xB7 Module Delivery: ${delivery}` : ""}${setupId ? 
 \u8D44\u6599\u4E0E\u65E5\u671F\u6838\u5BF9\u901A\u8FC7\uFF0C\u5C06\u5728 ${Math.round(submitDelay / 1e3)} \u79D2\u540E\u63D0\u4EA4\u2026`);
       await pause2(submitDelay);
       if (todayMalaysia() !== occ.date || !answersMatch(plan) || formTitle() !== binding.title || !submitButton() || submitButton().disabled) throw Error("\u7B49\u5F85\u671F\u95F4\u8868\u5355\u6216\u65E5\u671F\u53D1\u751F\u53D8\u5316\uFF0C\u505C\u6B62\u63D0\u4EA4\u3002");
+      await reportPhase(key, "confirming");
+      const before = { questionCount: items().length, submitVisible: Boolean(submitButton()) };
       show(`${occ.course}
 \u8D44\u6599\u4E0E\u65E5\u671F\u6838\u5BF9\u901A\u8FC7\uFF0C\u6B63\u5728\u63D0\u4EA4\u2026`);
       submitButton().click();
+      let structureSeen = false;
       for (let i = 0; i < 60; i++) {
         await pause2(500);
-        const visible = document.body.innerText.replace(document.getElementById("attendance-helper-status")?.innerText || "", "");
-        if (!submitButton() && isSuccess(visible)) {
-          await report(key, "success");
+        const after = { text: document.body.innerText.replace(document.getElementById("attendance-helper-status")?.innerText || "", ""), questionCount: items().length, submitVisible: Boolean(submitButton()) };
+        const outcome = submissionSignals(before, after, { structureSelectorsEnabled: false });
+        structureSeen = structureSeen || outcome.signal === "structure_change";
+        if (outcome.state === "success") {
+          await report(key, "success", outcome.signal);
           show(`\u6253\u5361\u6210\u529F
 ${occ.course}`, true);
           return;
         }
       }
-      await report(key, "unknown", "\u5DF2\u70B9\u51FB\u63D0\u4EA4\uFF0C\u4F46\u672A\u6536\u5230\u660E\u786E\u6210\u529F\u53CD\u9988\u3002");
+      await report(key, "submitted_pending_confirmation", structureSeen ? "structure_change" : "none");
       show(`${occ.course}
-\u6253\u5361\u7ED3\u679C\u4E0D\u660E\uFF0C\u8BF7\u67E5\u770B\u539F\u8868\u5355\uFF1B\u4E0D\u4F1A\u81EA\u52A8\u91CD\u8BD5\u3002`);
+\u5DF2\u70B9\u51FB\u63D0\u4EA4\u4F46\u5C1A\u672A\u786E\u8BA4\u7ED3\u679C\uFF0C\u8BF7\u624B\u52A8\u68C0\u67E5\uFF1B\u4E0D\u4F1A\u91CD\u590D\u63D0\u4EA4\u3002`);
     } catch (error) {
       show(`${checkCourse || key}
-${error.message}`);
+${error.message}${error.diff ? `
+${diffDescription(error.diff)}` : ""}`);
       if (setupId) await setupMessage("REPORT_SETUP_ITEM", { state: "failed", detail: error.message }).catch(() => {
       });
       if (key) try {
-        await report(key, pending ? "unknown" : "failed", error.message);
+        await report(key, reserved ? "submitted_pending_confirmation" : "failed", reserved ? "phase_error" : error.code === "form_schema_changed" ? "schema_changed" : safeRunDetail(error.message));
       } catch {
       }
     }
   }
-  (async () => {
-    const hash = new URLSearchParams(location.hash.slice(1));
-    const key = hash.get("attendanceRun"), checkCourse = hash.get("attendanceCheck");
-    const setupId = hash.get("attendanceSetup"), itemId = hash.get("attendanceItem");
-    if (key || checkCourse || setupId) history.replaceState(null, "", location.pathname + location.search);
-    for (let i = 0; i < 120 && !submitButton(); i++) await pause2(500);
-    if (!submitButton()) {
-      if (key || setupId) await run(key, null, setupId, itemId);
-      return;
-    }
-    try {
-      chrome.runtime.sendMessage({ type: "FORM_READY", url: location.href, title: formTitle(), questions: readQuestions() }).catch(() => {
-      });
-    } catch (error) {
-      chrome.runtime.sendMessage({ type: "FORM_SETUP_ERROR", error: error.message }).catch(() => {
-      });
-    }
-    if (key || checkCourse || setupId) await run(setupId ? null : key, checkCourse, setupId, itemId);
-  })();
+  if (!globalThis.__attendanceContentLoaded) {
+    globalThis.__attendanceContentLoaded = true;
+    (async () => {
+      const hash = new URLSearchParams(location.hash.slice(1));
+      const key = hash.get("attendanceRun"), checkCourse = hash.get("attendanceCheck");
+      const setupId = hash.get("attendanceSetup"), itemId = hash.get("attendanceItem");
+      if (key || checkCourse || setupId) history.replaceState(null, "", location.pathname + location.search);
+      for (let i = 0; i < 120 && !submitButton(); i++) await pause2(500);
+      if (!submitButton()) {
+        if (key || setupId) await run(key, null, setupId, itemId);
+        return;
+      }
+      try {
+        chrome.runtime.sendMessage({ type: "FORM_READY", url: location.href, title: formTitle(), questions: readQuestions() }).catch(() => {
+        });
+      } catch (error) {
+        chrome.runtime.sendMessage({ type: "FORM_SETUP_ERROR", error: error.message }).catch(() => {
+        });
+      }
+      if (key || checkCourse || setupId) await run(setupId ? null : key, checkCourse, setupId, itemId);
+    })();
+  }
 })();

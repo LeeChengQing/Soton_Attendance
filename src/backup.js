@@ -1,7 +1,7 @@
 import {validateSession} from './configuration.js';
 import {validateFormsUrl,verifyQuestions} from './forms.js';
 import {normalizeDate} from './schedule.js';
-const terminal=state=>['success','failed','unknown','missed'].includes(state);
+const terminal=state=>['success','failed','unknown','missed','missed_sleep','submitted_pending_confirmation'].includes(state);
 function terminalRecords(records={}) {
   return Object.fromEntries(Object.entries(records).filter(([,r])=>terminal(r.state)&&r.occ).map(([key,r])=>[key,{state:r.state,at:r.at,detail:r.detail||'',formUrl:r.formUrl,occ:{id:r.occ.id,course:r.occ.course,date:r.occ.date,time:r.occ.time,endTime:r.occ.endTime,key:r.occ.key,weekday:r.occ.weekday,kind:'weekly'}}]));
 }
@@ -38,9 +38,10 @@ export function restoreBackup(input,current,now=new Date().toISOString()) {
   return {attendanceProfile:b.profile||{},attendanceBindings:b.bindings,attendanceSessions:b.sessions.map(s=>({...validateSession(s),createdAt:now,enabled:false})),attendanceRecords:records,attendanceScheduleMode:'weekly',attendanceDraft:{version:1,rows:[],reviewedAt:null},attendanceSetupCoverageEpoch:now,attendanceSetupSession:null};
 }
 export function recoveryForRecord(record) {
+  if(record.state==='submitted_pending_confirmation') return {action:'inspect',label:'我要手动检查',description:'已提交但尚未确认。请检查学校记录；系统不会重复提交。'};
   if(record.state==='unknown') return {action:'inspect',label:'手动核对原表单',description:'已开始提交但结果不明。请手动核对学校记录；系统不会自动重试。'};
   if(/题目|标题|映射|绑定|课型/.test(record.detail||'')) return {action:'binding',label:'修复课程表单绑定',description:'重新核对表单和资料映射，再运行设置检查。'};
   if(record.state==='failed') return {action:'login',label:'检查学校登录与表单',description:'打开原表单检查学校登录、开放时间或额外验证。'};
-  if(record.state==='missed') return {action:'inspect',label:'打开表单手动处理',description:'此次未自动提交。请按学校要求手动处理，并检查 Chrome 与电脑休眠设置。'};
+  if(record.state==='missed'||record.state==='missed_sleep') return {action:'inspect',label:'打开表单手动处理',description:record.state==='missed_sleep'?'设备休眠导致错过此次自动提交。请手动处理。':'此次未自动提交。请按学校要求手动处理，并检查 Chrome 与电脑休眠设置。'};
   return {action:'inspect',label:'查看原表单',description:record.state==='success'?'原表单已显示成功反馈。':'请查看当前运行页面。'};
 }

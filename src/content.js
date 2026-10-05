@@ -1,5 +1,5 @@
 import {fillDate} from './form-date.js';
-import {buildFillPlan,isSuccess,assertDateAgreement,validateFormsUrl,sameDateValue} from './forms.js';
+import {buildFillPlan,submissionSignals,assertDateAgreement,validateFormsUrl,sameDateValue,normalizeComparable} from './forms.js';
 import {todayMalaysia} from './schedule.js';
 import {bindingForCourse,validateBindingForCourse} from './bindings.js';
 import {randomSubmitDelay} from './submit-delay.js';
@@ -32,7 +32,7 @@ function readQuestions() {
 }
 
 function control(index,entry) {
-  const item=items()[index];
+  const item=items().find(candidate=>normalizeComparable(candidate.querySelector('[data-automation-id="questionTitle"]')?.textContent||'')===normalizeComparable(entry.questionTitle))||items()[index];
   if(!item) return null;
   if(entry.type==='radio') return [...item.querySelectorAll('input[type="radio"]')].find(e=>e.value===entry.value);
   return item.querySelector(entry.type==='date'?'input[role="combobox"],input[type="date"]':'input[data-automation-id="textInput"]');
@@ -89,9 +89,20 @@ async function report(key,state,detail='') {
   const result=await chrome.runtime.sendMessage({type:'REPORT_RUN',key,state,detail});
   if(result?.error) throw Error(result.error);
 }
+async function reportPhase(key,phase) {
+  const result=await chrome.runtime.sendMessage({type:'REPORT_PHASE',key,phase});
+  if(result?.error) throw Error(result.error);
+}
+const safeRunDetail=value=>String(value||'').replace(/https?:\/\/\S+/gi,'[url]').replace(/\b\d{6,}\b/g,'[redacted]').slice(0,500);
+const diffDescription=diff=>[
+  diff?.added?.length?`新增：${diff.added.join('、')}`:'',
+  diff?.deleted?.length?`删除：${diff.deleted.join('、')}`:'',
+  diff?.renamed?.length?`改名：${diff.renamed.map(item=>`${item.from} → ${item.to}`).join('、')}`:'',
+  diff?.options?.length?`选项变化：${diff.options.map(item=>item.title).join('、')}`:''
+].filter(Boolean).join('\n');
 
 async function run(key,checkCourse,setupId,itemId) {
-  let pending=false;
+  let reserved=false;
   const setupMessage=async(type,extra={})=>{
     const result=await chrome.runtime.sendMessage({type,sessionId:setupId,itemId,...extra});
     if(result?.error) throw Error(result.error);return result;
@@ -121,6 +132,8 @@ async function run(key,checkCourse,setupId,itemId) {
     const requiresDate=plan.some(entry=>entry.type==='date'&&!entry.skip);
     if(requiresDate) assertDateAgreement(occ.date,todayMalaysia(now),computerDate);
     show(`${occ.course}\n正在填写并核对资料${requiresDate?'与当日日期':''}…`);
+    if(key) await reportPhase(key,'checking');
+    if(key) await reportPhase(key,'filling');
     await fill(plan);
     if(!answersMatch(plan)) throw Error('表单答案已变化，未通过核对；未提交。');
     if(!key) {
@@ -145,29 +158,38 @@ async function run(key,checkCourse,setupId,itemId) {
     if(todayMalaysia()!==occ.date) throw Error('提交前日期已变化，未提交。');
     if(!answersMatch(plan)) throw Error('提交前表单答案已变化，未提交。');
     if(!submitButton() || submitButton().disabled) throw Error('表单无法提交。');
-    await report(key,'pending');pending=true;
+    const reservation=await chrome.runtime.sendMessage({type:'RESERVE_SUBMISSION',key});
+    if(reservation?.error) throw Error(reservation.error);
+    if(!reservation?.granted) {show(`${occ.course}\n此时段已经尝试提交过，为避免重复打卡不会再次点击提交。`);return;}
+    reserved=true;
     buildFillPlan(readQuestions(),binding.mapping,profile,occ.date,occ.course);
     if(todayMalaysia()!==occ.date||!answersMatch(plan)||formTitle()!==binding.title||!submitButton()||submitButton().disabled) throw Error('授权后表单或日期已变化，停止提交。');
     const submitDelay=randomSubmitDelay();
     show(`${occ.course}\n资料与日期核对通过，将在 ${Math.round(submitDelay/1000)} 秒后提交…`);
     await pause(submitDelay);
     if(todayMalaysia()!==occ.date||!answersMatch(plan)||formTitle()!==binding.title||!submitButton()||submitButton().disabled) throw Error('等待期间表单或日期发生变化，停止提交。');
+    await reportPhase(key,'confirming');
+    const before={questionCount:items().length,submitVisible:Boolean(submitButton())};
     show(`${occ.course}\n资料与日期核对通过，正在提交…`);
     submitButton().click();
+    let structureSeen=false;
     for(let i=0;i<60;i++) {
       await pause(500);
-      const visible=document.body.innerText.replace(document.getElementById('attendance-helper-status')?.innerText||'','');
-      if(!submitButton() && isSuccess(visible)) {await report(key,'success');show(`打卡成功\n${occ.course}`,true);return;}
+      const after={text:document.body.innerText.replace(document.getElementById('attendance-helper-status')?.innerText||'',''),questionCount:items().length,submitVisible:Boolean(submitButton())};
+      const outcome=submissionSignals(before,after,{structureSelectorsEnabled:false});
+      structureSeen=structureSeen||outcome.signal==='structure_change';
+      if(outcome.state==='success') {await report(key,'success',outcome.signal);show(`打卡成功\n${occ.course}`,true);return;}
     }
-    await report(key,'unknown','已点击提交，但未收到明确成功反馈。');
-    show(`${occ.course}\n打卡结果不明，请查看原表单；不会自动重试。`);
+    await report(key,'submitted_pending_confirmation',structureSeen?'structure_change':'none');
+    show(`${occ.course}\n已点击提交但尚未确认结果，请手动检查；不会重复提交。`);
   } catch(error) {
-    show(`${checkCourse||key}\n${error.message}`);
+    show(`${checkCourse||key}\n${error.message}${error.diff?`\n${diffDescription(error.diff)}`:''}`);
     if(setupId) await setupMessage('REPORT_SETUP_ITEM',{state:'failed',detail:error.message}).catch(()=>{});
-    if(key) try {await report(key,pending?'unknown':'failed',error.message);} catch { /* watchdog or previous result has already resolved this run */ }
+    if(key) try {await report(key,reserved?'submitted_pending_confirmation':'failed',reserved?'phase_error':error.code==='form_schema_changed'?'schema_changed':safeRunDetail(error.message));} catch { /* watchdog or previous result has already resolved this run */ }
   }
 }
 
+if(!globalThis.__attendanceContentLoaded) {globalThis.__attendanceContentLoaded=true;
 (async()=>{
   const hash=new URLSearchParams(location.hash.slice(1));
   const key=hash.get('attendanceRun'),checkCourse=hash.get('attendanceCheck');
@@ -177,4 +199,4 @@ async function run(key,checkCourse,setupId,itemId) {
   if(!submitButton()) {if(key||setupId) await run(key,null,setupId,itemId);return;}
   try {chrome.runtime.sendMessage({type:'FORM_READY',url:location.href,title:formTitle(),questions:readQuestions()}).catch(()=>{});} catch(error) {chrome.runtime.sendMessage({type:'FORM_SETUP_ERROR',error:error.message}).catch(()=>{});}
   if(key||checkCourse||setupId) await run(setupId?null:key,checkCourse,setupId,itemId);
-})();
+})();}

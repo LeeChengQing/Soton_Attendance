@@ -57,8 +57,12 @@ function triggerTimestamp(occurrence) {
 }
 
 // src/state.js
-var allowed = { scheduled: ["launched", "missed"], launched: ["pending", "failed", "unknown"], pending: ["success", "failed", "unknown"], success: [], failed: [], unknown: [], missed: [] };
+var allowed = { scheduled: ["launched", "missed", "missed_sleep"], launched: ["pending", "failed", "missed_sleep"], pending: ["success", "failed", "unknown", "submitted_pending_confirmation"], submitted_pending_confirmation: ["success"], success: [], failed: [], unknown: [], missed: [], missed_sleep: [] };
 function transition(from, event) {
+  if (event === "manual_submitted") {
+    if (!["unknown", "submitted_pending_confirmation"].includes(from)) throw Error(`\u65E0\u6548\u72B6\u6001\u53D8\u66F4\uFF1A${from} \u2192 success`);
+    return { state: "success", at: (/* @__PURE__ */ new Date()).toISOString() };
+  }
   const state = event === "timeout" ? "unknown" : event;
   if (!allowed[from]?.includes(state)) throw Error(`\u65E0\u6548\u72B6\u6001\u53D8\u66F4\uFF1A${from} \u2192 ${state}`);
   return { state, at: (/* @__PURE__ */ new Date()).toISOString() };
@@ -67,10 +71,21 @@ function dueAction(due, now, graceMs = 12e4) {
   if (now < due) return "wait";
   return now - due <= graceMs ? "launch" : "missed";
 }
+function reserveSubmissionRecord(records, key, tabId, now = (/* @__PURE__ */ new Date()).toISOString()) {
+  const record = records?.[key];
+  if (!record || record.tabId !== tabId) throw Error("\u6253\u5361\u4EFB\u52A1\u4E0E\u5F53\u524D\u9875\u9762\u4E0D\u5339\u914D\u3002");
+  if (record.submissionAttemptedAt || record.submissionKey) return { granted: false, reason: "already_attempted", records };
+  if (record.state !== "launched") return { granted: false, reason: "already_in_progress", records };
+  const phaseDurations = { ...record.phaseDurations || {} }, phaseStarted = Date.parse(record.phaseStartedAt || "");
+  if (record.phase && Number.isFinite(phaseStarted)) phaseDurations[record.phase] = (phaseDurations[record.phase] || 0) + Math.max(0, Date.parse(now) - phaseStarted);
+  const next = { ...record, ...transition(record.state, "pending"), submissionKey: key, submissionAttemptedAt: now, phase: "submitting", phaseStartedAt: now, phaseDurations };
+  return { granted: true, records: { ...records, [key]: next } };
+}
 
 // src/forms.js
 var HOSTS = /* @__PURE__ */ new Set(["forms.office.com", "forms.cloud.microsoft"]);
 var normalize = (s) => String(s || "").replace(/\s+/g, " ").trim().toLowerCase();
+var normalizeComparable = (value) => normalize(String(value ?? "").normalize("NFKC"));
 function validateFormsUrl(value) {
   let url;
   try {
@@ -84,7 +99,42 @@ function validateFormsUrl(value) {
   return url;
 }
 function verifyQuestions(questions, mapping) {
-  return Array.isArray(questions) && questions.length === mapping?.length && questions.every((q, i) => normalize(q.title) === normalize(mapping[i].title) && q.type === mapping[i].type && (q.type !== "radio" || JSON.stringify((q.options || []).map(normalize)) === JSON.stringify((mapping[i].options || []).map(normalize))));
+  if (!Array.isArray(questions) || questions.length !== mapping?.length) return false;
+  const actual = new Map(questions.map((q) => [normalizeComparable(q.title), q]));
+  return mapping.every((entry) => {
+    const q = actual.get(normalizeComparable(entry.title));
+    if (!q || q.type !== entry.type) return false;
+    if (q.type !== "radio") return true;
+    return JSON.stringify([...new Set(optionList(q))].sort()) === JSON.stringify([...new Set(optionList(entry))].sort());
+  });
+}
+var questionKey = (question) => normalizeComparable(question?.title);
+var optionList = (question) => [...question?.options || []].map(normalizeComparable);
+function questionSignature(question) {
+  return `${question?.type || ""}|${[...new Set(optionList(question))].sort().join("")}`;
+}
+function questionDiff(expected = [], actual = []) {
+  const left = new Map(expected.map((q) => [questionKey(q), q])), right = new Map(actual.map((q) => [questionKey(q), q]));
+  const added = [], deleted = [], renamed = [], options = [];
+  for (const key of left.keys()) if (!right.has(key)) deleted.push(key);
+  for (const key of right.keys()) if (!left.has(key)) added.push(key);
+  for (const key of left.keys()) {
+    const q = right.get(key);
+    if (!q) continue;
+    if (q.type !== left.get(key).type) renamed.push({ from: key, to: key });
+    const before = [...new Set(optionList(left.get(key)))].sort(), after = [...new Set(optionList(q))].sort();
+    if (JSON.stringify(before) !== JSON.stringify(after)) options.push({ title: key, added: after.filter((v) => !before.includes(v)), removed: before.filter((v) => !after.includes(v)) });
+  }
+  const unmatchedLeft = deleted.map((key) => left.get(key)), unmatchedRight = added.map((key) => right.get(key));
+  for (const oldQuestion of unmatchedLeft) {
+    const index = unmatchedRight.findIndex((q) => questionSignature(q) === questionSignature(oldQuestion));
+    if (index < 0) continue;
+    const [newQuestion] = unmatchedRight.splice(index, 1), oldKey = questionKey(oldQuestion), newKey = questionKey(newQuestion);
+    deleted.splice(deleted.indexOf(oldKey), 1);
+    added.splice(added.indexOf(newKey), 1);
+    renamed.push({ from: oldKey, to: newKey });
+  }
+  return { added: added.sort(), deleted: deleted.sort(), renamed: renamed.sort((a, b) => a.from.localeCompare(b.from)), options: options.sort((a, b) => a.title.localeCompare(b.title)) };
 }
 function formatDate(placeholder, date) {
   const [y, m, d] = date.split("-");
@@ -105,9 +155,14 @@ function identityOption(options, target) {
   return options.find((value) => target === "international" ? /international/i.test(value) : /\blocal\b/i.test(value) && !/international/i.test(value));
 }
 function buildFillPlan(questions, mapping, profile, date, course) {
-  if (!verifyQuestions(questions, mapping)) throw Error("\u8868\u5355\u9898\u76EE\u53D1\u751F\u53D8\u5316\uFF0C\u5DF2\u505C\u6B62\u3002");
+  if (!verifyQuestions(questions, mapping)) {
+    const error = Error("\u8868\u5355\u9898\u76EE\u53D1\u751F\u53D8\u5316\uFF0C\u5DF2\u505C\u6B62\u3002");
+    error.code = "form_schema_changed";
+    error.diff = questionDiff(mapping, questions);
+    throw error;
+  }
   return mapping.map((entry, i) => {
-    const q = questions[i];
+    const q = questions.find((item) => normalizeComparable(item.title) === normalizeComparable(entry.title));
     let value;
     if (q.type === "date" && q.required === false) return { type: "date", field: entry.field, skip: true };
     const expectedType = ["student", "name"].includes(entry.field) ? "text" : entry.field === "date" ? "date" : /^(?:delivery|local)(?::|$)/.test(entry.field) ? "radio" : null;
@@ -123,7 +178,7 @@ function buildFillPlan(questions, mapping, profile, date, course) {
       value = identityOption(q.options || [], target);
     } else throw Error(`\u672A\u914D\u7F6E\u7B2C ${i + 1} \u9898\u3002`);
     if (!value) throw Error(`\u7B2C ${i + 1} \u9898\u6CA1\u6709\u5339\u914D\u7684\u7B54\u6848\u3002`);
-    return { type: q.type, value, field: entry.field };
+    return { type: q.type, value, field: entry.field, questionTitle: q.title };
   });
 }
 
@@ -532,7 +587,7 @@ function validateSession(input) {
 }
 
 // src/backup.js
-var terminal = (state) => ["success", "failed", "unknown", "missed"].includes(state);
+var terminal = (state) => ["success", "failed", "unknown", "missed", "missed_sleep", "submitted_pending_confirmation"].includes(state);
 function validateBackup(input) {
   if (!input || typeof input !== "object" || Array.isArray(input) || input.format !== "soton-attendance-configuration" || input.version !== 1) throw Error("\u4E0D\u662F\u652F\u6301\u7684 Attendance \u914D\u7F6E\u5907\u4EFD\u3002");
   const allowed2 = ["format", "version", "exportedAt", "profile", "bindings", "sessions", "records"];
@@ -566,6 +621,22 @@ function restoreBackup(input, current, now = (/* @__PURE__ */ new Date()).toISOS
   for (const r of Object.values(b.records)) records[r.occ.key] = r;
   for (const r of Object.values(current.attendanceRecords || {})) if (r.occ?.key) records[r.occ.key] = r;
   return { attendanceProfile: b.profile || {}, attendanceBindings: b.bindings, attendanceSessions: b.sessions.map((s) => ({ ...validateSession(s), createdAt: now, enabled: false })), attendanceRecords: records, attendanceScheduleMode: "weekly", attendanceDraft: { version: 1, rows: [], reviewedAt: null }, attendanceSetupCoverageEpoch: now, attendanceSetupSession: null };
+}
+
+// src/reliability.js
+var PHASE_TIMEOUTS = Object.freeze({ opening: 1e4, reading: 2e4, checking: 1e4, filling: 3e4, submitting: 25e3, confirming: 3e4 });
+var PHASE_ERRORS = Object.freeze({ opening: "\u9875\u9762\u672A\u5728 10 \u79D2\u5185\u52A0\u8F7D\u3002", reading: "\u5185\u5BB9\u811A\u672C\u672A\u54CD\u5E94\u3002", checking: "\u8868\u5355\u6838\u5BF9\u9636\u6BB5\u8D85\u65F6\u3002", filling: "\u8868\u5355\u586B\u5199\u9636\u6BB5\u8D85\u65F6\u3002", submitting: "\u627E\u4E0D\u5230\u63D0\u4EA4\u6309\u94AE\u6216\u63D0\u4EA4\u9636\u6BB5\u8D85\u65F6\u3002", confirming: "\u5DF2\u70B9\u51FB\u63D0\u4EA4\uFF0C\u4F46\u672A\u6536\u5230\u660E\u786E\u6210\u529F\u53CD\u9988\u3002" });
+function isSchoolLoginOrPermissionUrl(value) {
+  try {
+    const url = new URL(String(value));
+    const host = url.hostname.toLowerCase(), path = `${url.pathname}${url.search}`.toLowerCase();
+    return ["login.microsoftonline.com", "login.live.com", "account.live.com"].includes(host) || /access_denied|unauthori[sz]ed|sign[-_]?in|login/.test(path);
+  } catch {
+    return false;
+  }
+}
+function redactDiagnostic(value) {
+  return String(value || "").replace(/https?:\/\/\S+/gi, "[url]").replace(/\b\d{6,}\b/g, "[redacted]").slice(0, 500);
 }
 
 // src/background.js
@@ -612,7 +683,8 @@ async function enqueueCloud(action, payload, extra = {}) {
 }
 async function persistTerminal(records, key) {
   const r = records[key], o = r.occ;
-  await enqueueCloud("event", { status: r.state, courseCode: o.course, classDate: o.date, startTime: o.time, endTime: o.endTime, formUrl: r.formUrl || void 0, occurrenceKey: o.key, detail: r.detail }, { attendanceRecords: records });
+  const cloudStatus = r.state === "submitted_pending_confirmation" ? "unknown" : r.state === "missed_sleep" ? "missed" : r.state;
+  await enqueueCloud("event", { status: cloudStatus, courseCode: o.course, classDate: o.date, startTime: o.time, endTime: o.endTime, formUrl: r.formUrl || void 0, occurrenceKey: o.key, detail: r.detail }, { attendanceRecords: records });
 }
 var draining = false;
 var setup = setupCoordinator(enqueueCloud);
@@ -671,7 +743,7 @@ async function processSchedule() {
   const records = { ...stored }, today = todayMalaysia(), now = Date.now();
   for (const [key, r] of Object.entries(records)) {
     if (!["launched", "pending"].includes(r.state)) continue;
-    const deadline = r.watchDeadline || Date.parse(r.at) + 9e4;
+    const deadline = r.phaseDeadline || r.watchDeadline || Date.parse(r.at) + 9e4;
     if (deadline <= now) {
       await watchdog(key);
       Object.assign(records, (await chrome.storage.local.get("attendanceRecords")).attendanceRecords);
@@ -683,7 +755,7 @@ async function processSchedule() {
     if (records[occ.key] || due > now || due < Date.parse(occ.createdAt || "1970-01-01")) continue;
     const action = dueAction(due, now);
     if (action === "missed") {
-      records[occ.key] = { ...transition("scheduled", "missed"), occ, detail: "Chrome \u672A\u5728\u6253\u5361\u65F6\u95F4\u8FD0\u884C\uFF0C\u6216\u5B9A\u65F6\u4E8B\u4EF6\u5EF6\u8FDF\u3002" };
+      records[occ.key] = { ...transition("scheduled", "missed_sleep"), occ, detail: "\u8BBE\u5907\u4F11\u7720\u6216\u6D4F\u89C8\u5668\u672A\u53CA\u65F6\u8FD0\u884C\uFF0C\u9519\u8FC7\u81EA\u52A8\u63D0\u4EA4\u7A97\u53E3\u3002" };
       await persistTerminal(records, occ.key);
       missedCourses.push(occ.course);
       continue;
@@ -697,13 +769,14 @@ async function processSchedule() {
       missedCourses.push(occ.course);
       continue;
     }
-    records[occ.key] = { ...transition("scheduled", "launched"), occ, formUrl: binding.url, configuration: JSON.stringify({ binding, profile }), watchDeadline: Date.now() + 9e4 };
+    const startedAt = (/* @__PURE__ */ new Date()).toISOString(), phase = "opening";
+    records[occ.key] = { ...transition("scheduled", "launched"), occ, formUrl: binding.url, configuration: JSON.stringify({ binding, profile }), phase, phaseStartedAt: startedAt, phaseDeadline: Date.now() + PHASE_TIMEOUTS[phase], watchDeadline: Date.now() + 9e4 };
     await saveRecords(records);
     try {
       const tab = await chrome.tabs.create({ url: "about:blank", active: false });
       records[occ.key].tabId = tab.id;
       await saveRecords(records);
-      await chrome.alarms.create(`attendance-watch:${occ.key}`, { when: records[occ.key].watchDeadline });
+      await chrome.alarms.create(`attendance-watch:${occ.key}`, { when: records[occ.key].phaseDeadline });
       const url = validateFormsUrl(binding.url);
       url.hash = new URLSearchParams({ attendanceRun: occ.key }).toString();
       await chrome.tabs.update(tab.id, { url: url.href });
@@ -719,21 +792,67 @@ async function processSchedule() {
   await nextAlarm(sessions, records);
   await setup.resume();
 }
+var sanitizeDetail = redactDiagnostic;
+async function reportPhase(message, sender) {
+  const { attendanceRecords: records = {} } = await chrome.storage.local.get("attendanceRecords");
+  const record = records[message.key];
+  if (!record || record.tabId !== sender.tab?.id || !PHASE_TIMEOUTS[message.phase]) throw Error("\u6253\u5361\u9636\u6BB5\u4E0E\u5F53\u524D\u9875\u9762\u4E0D\u5339\u914D\u3002");
+  if (["success", "failed", "unknown", "missed", "missed_sleep", "submitted_pending_confirmation"].includes(record.state)) return { ok: true };
+  const now = Date.now(), started = Date.parse(record.phaseStartedAt || "") || now, durations = { ...record.phaseDurations || {} };
+  if (record.phase) durations[record.phase] = (durations[record.phase] || 0) + Math.max(0, now - started);
+  records[message.key] = { ...record, phase: message.phase, phaseStartedAt: new Date(now).toISOString(), phaseDeadline: now + PHASE_TIMEOUTS[message.phase], phaseDurations: durations };
+  await saveRecords(records);
+  await chrome.alarms.create(`attendance-watch:${message.key}`, { when: now + PHASE_TIMEOUTS[message.phase] });
+  return { ok: true };
+}
+async function reserve(message, sender) {
+  const { attendanceRecords: records = {}, attendanceSessions: sessions = [], attendanceProfile: profile = {}, attendanceBindings: bindings = {} } = await chrome.storage.local.get(["attendanceRecords", "attendanceSessions", "attendanceProfile", "attendanceBindings"]);
+  const record = records[message.key];
+  if (!record || record.tabId !== sender.tab?.id) throw Error("\u6253\u5361\u4EFB\u52A1\u4E0E\u5F53\u524D\u9875\u9762\u4E0D\u5339\u914D\u3002");
+  if (!currentTask(sessions, record)) throw Error("\u6253\u5361\u4EFB\u52A1\u5DF2\u5220\u9664\u3001\u6682\u505C\u6216\u4FEE\u6539\uFF0C\u672A\u63D0\u4EA4\u3002");
+  if (record.occ.date !== todayMalaysia() || record.configuration && record.configuration !== JSON.stringify({ binding: bindingForCourse(bindings, record.occ.course), profile })) throw Error("\u4EFB\u52A1\u65E5\u671F\u6216\u914D\u7F6E\u5DF2\u53D8\u5316\uFF0C\u672A\u6388\u6743\u63D0\u4EA4\u3002");
+  const result = reserveSubmissionRecord(records, message.key, sender.tab.id, (/* @__PURE__ */ new Date()).toISOString());
+  if (!result.granted) return { ok: true, granted: false, reason: result.reason };
+  await saveRecords(result.records);
+  await chrome.alarms.create(`attendance-watch:${message.key}`, { when: Date.now() + PHASE_TIMEOUTS.submitting });
+  return { ok: true, granted: true };
+}
+async function markSubmitted(message, sender) {
+  if (!isSettingsSender(sender)) throw Error("\u53EA\u80FD\u4ECE\u6269\u5C55\u8BBE\u7F6E\u9875\u624B\u52A8\u786E\u8BA4\u3002");
+  const { attendanceRecords: records = {} } = await chrome.storage.local.get("attendanceRecords"), record = records[message.key];
+  if (!record || !["unknown", "submitted_pending_confirmation"].includes(record.state)) throw Error("\u8FD9\u6761\u8BB0\u5F55\u5F53\u524D\u4E0D\u80FD\u624B\u52A8\u6807\u8BB0\u3002");
+  records[message.key] = { ...record, ...transition(record.state, "manual_submitted"), detail: "\u7528\u6237\u624B\u52A8\u6807\u8BB0\u4E3A\u5DF2\u63D0\u4EA4\u3002", phase: "completed" };
+  await persistTerminal(records, message.key);
+  return { ok: true };
+}
+async function releaseSubmission(message, sender) {
+  if (!isSettingsSender(sender)) throw Error("\u53EA\u80FD\u4ECE\u6269\u5C55\u8BBE\u7F6E\u9875\u89E3\u9664\u63D0\u4EA4\u4FDD\u62A4\u3002");
+  if (message.confirm !== true) throw Error("\u89E3\u9664\u63D0\u4EA4\u4FDD\u62A4\u53EF\u80FD\u9020\u6210\u91CD\u590D\u6253\u5361\uFF0C\u8BF7\u660E\u786E\u786E\u8BA4\u3002");
+  const { attendanceRecords: records = {} } = await chrome.storage.local.get("attendanceRecords"), record = records[message.key];
+  if (!record || !["unknown", "submitted_pending_confirmation"].includes(record.state)) throw Error("\u8FD9\u6761\u8BB0\u5F55\u5F53\u524D\u4E0D\u80FD\u89E3\u9664\u63D0\u4EA4\u4FDD\u62A4\u3002");
+  const next = { ...record, manualResubmitAllowed: true, detail: "\u7528\u6237\u5DF2\u660E\u786E\u5141\u8BB8\u91CD\u65B0\u63D0\u4EA4\uFF1B\u7CFB\u7EDF\u4E0D\u4F1A\u81EA\u52A8\u91CD\u8BD5\u3002" };
+  delete next.submissionAttemptedAt;
+  delete next.submissionKey;
+  await chrome.storage.local.set({ attendanceRecords: { ...records, [message.key]: next } });
+  return { ok: true };
+}
 async function report(message, sender) {
   const { attendanceRecords: records = {}, attendanceSessions: sessions = [], attendanceProfile: profile = {}, attendanceBindings: bindings = {} } = await chrome.storage.local.get(["attendanceRecords", "attendanceSessions", "attendanceProfile", "attendanceBindings"]);
   const record = records[message.key];
   if (!record || record.tabId !== sender.tab?.id) throw Error("\u6253\u5361\u4EFB\u52A1\u4E0E\u5F53\u524D\u9875\u9762\u4E0D\u5339\u914D\u3002");
   if (message.state === "pending" && !currentTask(sessions, record)) throw Error("\u6253\u5361\u4EFB\u52A1\u5DF2\u5220\u9664\u3001\u6682\u505C\u6216\u4FEE\u6539\uFF0C\u672A\u63D0\u4EA4\u3002");
   if (message.state === "pending" && (record.occ.date !== todayMalaysia() || record.configuration && record.configuration !== JSON.stringify({ binding: bindingForCourse(bindings, record.occ.course), profile }))) throw Error("\u4EFB\u52A1\u65E5\u671F\u6216\u914D\u7F6E\u5DF2\u53D8\u5316\uFF0C\u672A\u6388\u6743\u63D0\u4EA4\u3002");
+  if (message.state === "submitted_pending_confirmation" && !record.submissionAttemptedAt && record.state !== "pending") throw Error("\u63D0\u4EA4\u5C1A\u672A\u83B7\u5F97\u540E\u53F0\u63D0\u4EA4\u6743\u3002");
   const next = transition(record.state, message.state);
-  records[message.key] = { ...record, ...next, detail: String(message.detail || "").slice(0, 500) };
-  if (["success", "failed", "unknown", "missed"].includes(next.state)) await persistTerminal(records, message.key);
+  const now = Date.now(), durations = { ...record.phaseDurations || {} };
+  if (record.phase) durations[record.phase] = (durations[record.phase] || 0) + Math.max(0, now - (Date.parse(record.phaseStartedAt || "") || now));
+  records[message.key] = { ...record, ...next, phase: "completed", phaseDurations: durations, successSignal: message.state === "success" ? sanitizeDetail(message.detail) : void 0, detail: sanitizeDetail(message.detail) };
+  if (["success", "failed", "unknown", "missed", "missed_sleep", "submitted_pending_confirmation"].includes(next.state)) await persistTerminal(records, message.key);
   else await saveRecords(records);
-  if (["success", "failed", "unknown"].includes(next.state)) {
+  if (["success", "failed", "unknown", "submitted_pending_confirmation"].includes(next.state)) {
     await chrome.alarms.clear(`attendance-watch:${message.key}`);
-    const title = next.state === "success" ? "\u6253\u5361\u6210\u529F" : next.state === "unknown" ? "\u6253\u5361\u7ED3\u679C\u4E0D\u660E" : "\u6253\u5361\u5931\u8D25";
-    await notify(title, `${record.occ.course} \xB7 ${record.occ.date} ${record.occ.time}${message.detail ? `
-${message.detail}` : ""}`);
+    const title = next.state === "success" ? "\u6253\u5361\u6210\u529F" : next.state === "submitted_pending_confirmation" ? "\u5DF2\u63D0\u4EA4\uFF0C\u5F85\u786E\u8BA4" : next.state === "unknown" ? "\u6253\u5361\u7ED3\u679C\u4E0D\u660E" : "\u6253\u5361\u5931\u8D25";
+    await notify(title, `${record.occ.course} \xB7 ${record.occ.date} ${record.occ.time}`);
   }
   return { ok: true };
 }
@@ -741,10 +860,23 @@ async function watchdog(key) {
   const { attendanceRecords: records = {} } = await chrome.storage.local.get("attendanceRecords");
   const record = records[key];
   if (!record || !["launched", "pending"].includes(record.state)) return;
-  const state = record.state === "pending" ? "unknown" : "failed";
-  records[key] = { ...record, ...transition(record.state, state), detail: state === "failed" ? "\u672A\u80FD\u8BFB\u53D6\u8868\u5355\uFF0C\u8BF7\u68C0\u67E5\u5B66\u6821\u767B\u5F55\u72B6\u6001\u3002" : "\u5DF2\u5F00\u59CB\u63D0\u4EA4\uFF0C\u4F46\u672A\u6536\u5230\u660E\u786E\u6210\u529F\u53CD\u9988\u3002" };
+  if (["opening", "reading"].includes(record.phase) && !record.fallbackInjected && record.tabId && chrome.scripting?.executeScript) {
+    try {
+      await chrome.scripting.executeScript({ target: { tabId: record.tabId }, files: ["content.js"] });
+      records[key] = { ...record, fallbackInjected: true, phase: "reading", phaseDeadline: Date.now() + PHASE_TIMEOUTS.reading, phaseStartedAt: (/* @__PURE__ */ new Date()).toISOString() };
+      await saveRecords(records);
+      await chrome.alarms.create(`attendance-watch:${key}`, { when: records[key].phaseDeadline });
+      return;
+    } catch {
+    }
+  }
+  const state = record.state === "pending" ? "submitted_pending_confirmation" : "failed";
+  const detail = state === "failed" ? PHASE_ERRORS[record.phase] || "\u8868\u5355\u9875\u9762\u672A\u80FD\u5B8C\u6210\u8BFB\u53D6\u3002" : PHASE_ERRORS.confirming;
+  const phaseDurations = { ...record.phaseDurations || {} }, phaseStarted = Date.parse(record.phaseStartedAt || "");
+  if (record.phase && Number.isFinite(phaseStarted)) phaseDurations[record.phase] = (phaseDurations[record.phase] || 0) + Math.max(0, Date.now() - phaseStarted);
+  records[key] = { ...record, ...transition(record.state, state), phase: "completed", phaseDurations, detail };
   await persistTerminal(records, key);
-  await notify(state === "unknown" ? "\u6253\u5361\u7ED3\u679C\u4E0D\u660E" : "\u6253\u5361\u5931\u8D25", `${record.occ.course}\uFF1A${records[key].detail}`);
+  await notify(state === "submitted_pending_confirmation" ? "\u5DF2\u63D0\u4EA4\uFF0C\u5F85\u786E\u8BA4" : "\u6253\u5361\u5931\u8D25", `${record.occ.course}\uFF1A${records[key].detail}`);
 }
 function currentTask(sessions, r) {
   return sessions.some((s) => s.id === r.occ.id && s.enabled !== false && s.course === r.occ.course && s.weekday === r.occ.weekday && s.time === r.occ.time && s.endTime === r.occ.endTime && !(s.exceptions || []).includes(r.occ.date));
@@ -824,7 +956,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     }, (e) => sendResponse({ error: e.message }));
     return true;
   }
-  if (!["REBUILD_SCHEDULE", "GET_RUN", "REPORT_RUN"].includes(message?.type)) return false;
+  if (!["REBUILD_SCHEDULE", "GET_RUN", "REPORT_PHASE", "RESERVE_SUBMISSION", "REPORT_RUN", "MARK_SUBMITTED", "RELEASE_SUBMISSION"].includes(message?.type)) return false;
   serialized(async () => {
     if (message.type === "REBUILD_SCHEDULE") {
       await processSchedule();
@@ -833,10 +965,36 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.type === "GET_RUN") {
       const data = await load(), record = (data.attendanceRecords || {})[message.key];
       if (!record || record.tabId !== sender.tab?.id || record.state !== "launched" || !currentTask(data.attendanceSessions || [], record)) throw Error("\u4EFB\u52A1\u5DF2\u7ED3\u675F\u3001\u5DF2\u5220\u9664\uFF0C\u6216\u4E0D\u662F\u7531\u5B9A\u65F6\u5668\u542F\u52A8\u3002");
+      const now = Date.now(), phase = "reading";
+      data.attendanceRecords[message.key] = { ...record, phase, phaseStartedAt: new Date(now).toISOString(), phaseDeadline: now + PHASE_TIMEOUTS[phase] };
+      await saveRecords(data.attendanceRecords);
+      await chrome.alarms.create(`attendance-watch:${message.key}`, { when: now + PHASE_TIMEOUTS[phase] });
       return { occ: record.occ, binding: bindingForCourse(data.attendanceBindings, record.occ.course), profile: data.attendanceProfile };
     }
+    if (message.type === "REPORT_PHASE") return reportPhase(message, sender);
+    if (message.type === "RESERVE_SUBMISSION") return reserve(message, sender);
+    if (message.type === "MARK_SUBMITTED") return markSubmitted(message, sender);
+    if (message.type === "RELEASE_SUBMISSION") return releaseSubmission(message, sender);
     return report(message, sender);
   }).then(sendResponse, (error) => sendResponse({ error: error.message }));
   return true;
+});
+async function handleTabNavigation(tabId, url) {
+  if (!isSchoolLoginOrPermissionUrl(url)) return;
+  await serialized(async () => {
+    const { attendanceRecords: records = {} } = await chrome.storage.local.get("attendanceRecords");
+    const entry = Object.entries(records).find(([, record2]) => record2.tabId === tabId && record2.state === "launched");
+    if (!entry) return;
+    const [key, record] = entry;
+    const phaseDurations = { ...record.phaseDurations || {} }, phaseStarted = Date.parse(record.phaseStartedAt || "");
+    if (record.phase && Number.isFinite(phaseStarted)) phaseDurations[record.phase] = (phaseDurations[record.phase] || 0) + Math.max(0, Date.now() - phaseStarted);
+    records[key] = { ...record, ...transition(record.state, "failed"), phase: "completed", phaseDurations, detail: "\u9700\u8981\u767B\u5F55\u5B66\u6821\u8D26\u53F7\u3002" };
+    await persistTerminal(records, key);
+    await notify("\u9700\u8981\u767B\u5F55\u5B66\u6821\u8D26\u53F7", `${record.occ.course}\uFF1A\u8BF7\u5148\u767B\u5F55\u5B66\u6821 Microsoft \u8D26\u53F7\u3002`);
+  });
+}
+chrome.tabs.onUpdated?.addListener((tabId, changeInfo, tab) => {
+  const url = changeInfo.url || tab?.url;
+  return url ? handleTabNavigation(tabId, url) : void 0;
 });
 chrome.tabs.onRemoved?.addListener((tabId) => serialized(() => setup.closed(tabId)));

@@ -109,11 +109,12 @@ function buildFillPlan(questions, mapping, profile, date, course) {
   return mapping.map((entry, i) => {
     const q = questions[i];
     let value;
+    if (q.type === "date" && q.required === false) return { type: "date", field: entry.field, skip: true };
     const expectedType = ["student", "name"].includes(entry.field) ? "text" : entry.field === "date" ? "date" : /^(?:delivery|local)(?::|$)/.test(entry.field) ? "radio" : null;
     if (expectedType && q.type !== expectedType) throw Error(`\u7B2C ${i + 1} \u9898\u6620\u5C04\u4E0E\u9898\u578B\u4E0D\u4E00\u81F4\uFF0C\u672A\u63D0\u4EA4\u3002`);
     if (entry.field === "student") value = profile.student;
     else if (entry.field === "name") value = profile.name;
-    else if (entry.field === "date") value = formatDate(q.placeholder, date);
+    else if (entry.field === "date") value = q.nativeDate ? date : formatDate(q.placeholder, date);
     else if (entry.field === "delivery" || ["delivery:lecture", "delivery:tutorial", "delivery:lab", "delivery:laboratory"].includes(entry.field)) {
       const target = entry.field === "delivery" ? deliveryFromCourse(course) : entry.field.split(":")[1];
       value = deliveryOption(q.options || [], target === "laboratory" ? "lab" : target);

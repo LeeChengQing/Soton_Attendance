@@ -72,7 +72,7 @@ test('registration replay retains durable ownership proof after a committed resp
     return Response.json({deviceId:'registered',deviceToken:token,ntfyTopic:'soton-attendance-'+'a'.repeat(40)});
   };
   try {
-    await assert.rejects(cloud.ensureCloudDevice(),/response lost/);
+    await assert.rejects(cloud.ensureCloudDevice({allowRegistration:true}),/response lost/);
     assert.match(store.attendanceCloudRegistrationToken||'',/^[a-f0-9]{64}$/);
     const result=await cloud.ensureCloudDevice();assert.equal(result.attendanceCloudDeviceId,'registered');assert.equal(result.attendanceCloudToken,committedToken);
     assert.equal(store.attendanceCloudRegistrationToken,undefined);

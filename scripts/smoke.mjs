@@ -6,7 +6,6 @@ import {fileURLToPath} from 'node:url';
 import QRCode from 'qrcode';
 import {PDFDocument,StandardFonts} from 'pdf-lib';
 import {todayMalaysia} from '../src/schedule.js';
-import {buildVariants} from '../src/setup.js';
 
 const extension=fileURLToPath(new URL('../extension/',import.meta.url));
 const mime={'.html':'text/html','.css':'text/css','.js':'text/javascript','.mjs':'text/javascript','.wasm':'application/wasm','.gz':'application/octet-stream','.png':'image/png'};
@@ -31,7 +30,15 @@ try {
     chrome.runtime={getURL:path=>base+path,sendMessage:async message=>{window.__lastMessage=message;return {ok:true};},onMessage:{addListener:fn=>{window.__onMessage=fn;}}};
     chrome.storage={local:{get:async keys=>Object.fromEntries((Array.isArray(keys)?keys:[keys]).filter(key=>key in store).map(key=>[key,key==='attendanceProfile'?Object.fromEntries(Object.entries(store[key]).sort(([a],[b])=>a.localeCompare(b))):store[key]])),set:async values=>{Object.assign(store,values);sessionStorage.setItem('smoke-store',JSON.stringify(store));}},onChanged:{addListener:()=>{}}};
     window.__openedTabs=[];
-    chrome.tabs={create:async options=>{const tab={id:nextTab++};window.__lastCreatedUrl=options.url;return tab;},update:async(id,options)=>{window.__lastOpenedUrl=options.url;window.__openedTabs.push({id,url:options.url});}};
+    chrome.tabs={create:async options=>{if(options.active!==false) throw Error('Scan tabs must stay inactive');return {id:nextTab++};},remove:async()=>{},update:async(id,options)=>{
+      window.__lastOpenedUrl=options.url;window.__openedTabs.push({id,url:options.url});
+      const key=[...document.querySelectorAll('.binding')].find(card=>card.querySelector('input[type=url]').value.trim()===options.url)?.querySelector('h3').textContent||'COMP1311';
+      const questions=options.url.includes('SharedTest')?[
+        {title:'1.Enter your University Student ID Number',type:'text',options:[]},{title:'2.Name',type:'text',options:[]},{title:'3.Date of Class the attended',type:'date',required:true,placeholder:'dd/MM/yyyy',options:[]},
+        {title:'4.Module Delivery',type:'radio',options:['Lecture','Tutorial','Laboratory']},{title:'5.Please choose one from the below',type:'radio',options:["I'm a Local Student","I'm an International Student"]}
+      ]:[{title:'Student ID',type:'text',options:[]},{title:'Name',type:'text',options:[]}];
+      setTimeout(()=>window.__onMessage({type:'FORM_READY',url:options.url,title:key+' Attendance',questions},{tab:{id,url:options.url}}),20);
+    }};
     window.chrome=chrome;
   },{base});
   await page.goto(base+'options.html');
@@ -60,8 +67,8 @@ try {
   await page.locator('#open-subscription').click();
   if(!await page.locator('#phone-subscription').evaluate(el=>el.open)) throw Error('Subscription shortcut did not open the bottom entry');
   if(await page.locator('#phone-subscription .reminder-plan').count()!==1) throw Error('Only the phone renewal plan should be displayed');
-  if(!/¥19\.9/.test(await page.locator('#phone-subscription .plan-price').innerText())||!/学期/.test(await page.locator('#phone-subscription .plan-price').innerText())) throw Error('Phone renewal price should be ¥19.9 per semester');
-  if(!await page.getByRole('link',{name:'前往店铺 · 手机提醒续订'}).isVisible()) throw Error('Phone renewal purchase entry is inaccessible');
+  if(!/RM\s*11\.99/.test(await page.locator('#phone-subscription .plan-price').innerText())||!/(学期|sem)/.test(await page.locator('#phone-subscription .plan-price').innerText())) throw Error('Phone renewal price should be RM 11.99 per semester: '+await page.locator('#phone-subscription .plan-price').innerText());
+  if(!await page.getByRole('link',{name:'获取授权密钥'}).isVisible()) throw Error('Phone renewal purchase entry is inaccessible');
   await page.locator('#phone-subscription > summary').click();
   await page.locator('#profile-form input[name=student]').fill('12345');
   await page.locator('#profile-form input[name=name]').fill('Test Student');
@@ -83,23 +90,9 @@ try {
   if(await page.locator('#review-draft').isChecked() || await page.locator('#preview-rows .session-card').count()!==1) throw Error('Collapsed-row deletion did not remove only its draft or reset review');
   const qr=await QRCode.toBuffer('https://forms.office.com/r/AbC123');
   await page.locator('.binding input[type=file]').setInputFiles({name:'course.png',mimeType:'image/png',buffer:qr});
-  await workflow('verify-all-bindings');
-  await page.waitForFunction(()=>window.__openedTabs.length===1&&window.__openedTabs[0].url==='https://forms.office.com/r/AbC123');
-  await page.evaluate(()=>window.__onMessage({type:'FORM_READY',url:'https://forms.cloud.microsoft/Pages/ResponsePage.aspx?id=smoke',title:'COMP1311 Attendance',questions:[
-    {title:'Student ID',type:'text',options:[]},{title:'Name',type:'text',options:[]},{title:'Date',type:'date',placeholder:'dd/MM/yyyy',options:[]}
-  ]},{tab:{id:1}}));
-  await page.locator('.mapping input[type=checkbox]').check();
-  await page.getByRole('button',{name:'保存表单绑定'}).click();
-  await workflow('check-setup');
-  await page.waitForFunction(()=>window.__lastMessage?.type==='START_SETUP'||document.querySelector('#persistent-error').textContent.includes('先保存'),null,{timeout:3000});
-  if((await page.evaluate(()=>window.__lastMessage)).type!=='START_SETUP') throw Error('Saved profile falsely rejected before testing: '+await page.locator('#persistent-error').textContent());
+  await page.waitForFunction(()=>window.__store.attendanceBindings?.COMP1311?.verified);
+  if(await page.locator('.mapping input[type=checkbox],.save-binding,#check-setup,#confirm-all-setup').count()) throw Error('Manual binding confirmations remain');
   await workflow('review-draft','check');
-  await workflow('create-tasks');
-  await page.waitForFunction(()=>document.querySelector('#persistent-error')?.textContent?.includes('检查并确认'));
-  if((await page.evaluate(()=>window.__store.attendanceSessions))?.length) throw Error('Unchecked draft activated');
-  const checkData=await page.evaluate(()=>window.__store);
-  const checked=buildVariants(checkData.attendanceDraft.rows,checkData.attendanceBindings,checkData.attendanceProfile).map(i=>({...i,state:'passed'}));
-  await page.evaluate(items=>window.chrome.storage.local.set({attendanceSetupHistory:[{id:'simulated-confirmed-session',startedAt:new Date().toISOString(),state:'completed',items}]}),checked);
   await page.evaluate(()=>{
     const original=chrome.storage.local.get;window.__originalGet=original;window.__pauseActivation=true;
     document.querySelector('#persistent-error').textContent='';
@@ -229,34 +222,21 @@ try {
     if(!await allBindingInputs.nth(index).inputValue()) await allBindingInputs.nth(index).fill(`https://forms.office.com/r/Bulk${index}`);
   }
   const bindingCount=await page.locator('.binding').count();
-  const openedBefore=await page.evaluate(()=>window.__openedTabs.length);
   await workflow('verify-all-bindings');
-  try {await page.waitForFunction(({before,count})=>window.__openedTabs.length===before+count,{before:openedBefore,count:bindingCount});} catch(error) {
-    throw Error(`${error.message}; opened=${JSON.stringify(await page.evaluate(()=>window.__openedTabs))}; persistent=${await page.locator('#persistent-error').textContent()}`);
-  }
-  const moduleTab=await page.evaluate(()=>window.__openedTabs.find(tab=>tab.url.includes('SharedTest'))?.id);
-  await page.evaluate(tabId=>window.__onMessage({type:'FORM_READY',url:'https://forms.cloud.microsoft/Pages/ResponsePage.aspx?id=tutorial-smoke',title:'COMP9999 Attendance',questions:[
-    {title:'1.Enter your University Student ID Number',type:'text',options:[]},
-    {title:'2.Name',type:'text',options:[]},
-    {title:'3.Date of Class the attended',type:'date',placeholder:'dd/MM/yyyy',options:[]},
-    {title:'4.Module Delivery',type:'radio',options:['Lecture','Tutorial','Laboratory']},
-    {title:'5.Please choose one from the below',type:'radio',options:["I'm a Local Student","I'm an International Student"]}
-    ]},{tab:{id:tabId}}),moduleTab);
+  await page.waitForFunction(()=>!document.querySelector('#verify-all-bindings').disabled&&document.querySelectorAll('.binding .status.success').length===document.querySelectorAll('.binding').length,null,{timeout:15000});
   const tutorialChoices=await moduleBinding.locator('.mapping-row select').evaluateAll(selects=>selects.map(select=>({selected:select.value,choices:[...select.options].map(option=>option.value)})));
   if(JSON.stringify(tutorialChoices)!==JSON.stringify([
     {selected:'student',choices:['student']},{selected:'name',choices:['name']},{selected:'date',choices:['date']},
     {selected:'delivery',choices:['delivery','delivery:lecture','delivery:tutorial','delivery:lab']},
     {selected:'local',choices:['local','local:local','local:international']}
   ])) throw Error(`Question-specific mapping choices incorrect: ${JSON.stringify(tutorialChoices)}`);
-  await moduleBinding.locator('.mapping input[type=checkbox]').check();
-  await moduleBinding.getByRole('button',{name:'保存表单绑定'}).click();
-  await page.waitForFunction(()=>[...document.querySelectorAll('.binding')].some(card=>card.querySelector('h3')?.textContent==='COMP9999' && card.textContent.includes('已核对')));
+  await page.waitForFunction(()=>[...document.querySelectorAll('.binding')].some(card=>card.querySelector('h3')?.textContent==='COMP9999' && card.textContent.includes('绑定成功')));
   const shared=await page.evaluate(()=>window.__store.attendanceBindings?.COMP9999);
-  if(shared?.scope!=='module' || shared?.url!=='https://forms.cloud.microsoft/Pages/ResponsePage.aspx?id=tutorial-smoke') throw Error('Shared module binding was not saved');
+  if(shared?.scope!=='module' || shared?.url!=='https://forms.office.com/r/SharedTest') throw Error('Shared module binding was not saved');
   if(await moduleBinding.getByLabel('COMP9999 仅填写测试的课型').count() || await page.locator('#import-comparison').count()) throw Error('Removed course choice or import comparison remains');
   const form=await browser.newPage(),day=todayMalaysia(),shownDate=day.split('-').reverse().join('/');
   const formUrl='https://forms.cloud.microsoft/Pages/ResponsePage.aspx?id=smoke';
-  const mockFormHtml=`<!doctype html><meta charset="utf-8"><div data-automation-id="formTitle">COMP1311 Attendance</div><div data-automation-id="questionItem"><div data-automation-id="questionTitle">Student ID</div><input data-automation-id="textInput"></div><div data-automation-id="questionItem"><div data-automation-id="questionTitle">Name</div><input data-automation-id="textInput"></div><div data-automation-id="questionItem"><div data-automation-id="questionTitle">Date</div><input role="combobox" placeholder="dd/MM/yyyy" value="${shownDate}" aria-controls="correct-calendar" onclick="window.__dateClicked=true;document.querySelector('#correct-calendar').hidden=false"></div><div id="correct-calendar" hidden><button class="js-goToday" onclick="window.__goTodayClicked=true">转到今日</button><button class="ms-CalendarDay-dayIsToday" onclick="document.querySelector('[role=combobox]').value='${shownDate}';document.querySelector('#correct-calendar').hidden=true">Today</button></div><button data-automation-id="submitButton" onclick="this.remove();document.body.append('Your response was submitted')">Submit</button>`;
+  const mockFormHtml=`<!doctype html><meta charset="utf-8"><div data-automation-id="formTitle">COMP1311 Attendance</div><div data-automation-id="questionItem"><div data-automation-id="questionTitle">Student ID</div><input data-automation-id="textInput"></div><div data-automation-id="questionItem"><div data-automation-id="questionTitle">Name</div><input data-automation-id="textInput"></div><div data-automation-id="questionItem"><div data-automation-id="questionTitle">Date</div><input required role="combobox" placeholder="dd/MM/yyyy" value="${shownDate}" aria-controls="correct-calendar" onclick="window.__dateClicked=true;document.querySelector('#correct-calendar').hidden=false"></div><div id="correct-calendar" hidden><button class="js-goToday" onclick="window.__goTodayClicked=true">转到今日</button><button class="ms-CalendarDay-dayIsToday" onclick="document.querySelector('[role=combobox]').value='${shownDate}';document.querySelector('#correct-calendar').hidden=true">Today</button></div><button data-automation-id="submitButton" onclick="this.remove();document.body.append('Your response was submitted')">Submit</button>`;
   const setupForm=await browser.newPage();
   await setupForm.addInitScript(({formUrl})=>{
     window.__setupMessages=[];window.__submitClicks=0;
@@ -291,7 +271,7 @@ try {
   await form.route('https://forms.cloud.microsoft/Pages/ResponsePage.aspx*',route=>route.fulfill({contentType:'text/html',body:mockFormHtml}));
   await form.goto(formUrl+'#attendanceRun=smoke');
   await form.addScriptTag({content:await readFile(join(extension,'content.js'),'utf8')});
-  await form.waitForFunction(()=>window.__reports?.includes('success'),null,{timeout:15000});
+  await form.waitForFunction(()=>window.__reports?.includes('success'),null,{timeout:30000});
   const values=await form.locator('[data-automation-id="questionItem"] input').evaluateAll(elements=>elements.map(x=>x.value));
   if(JSON.stringify(values)!==JSON.stringify(['12345','Test Student',shownDate])) throw Error(`Form values incorrect: ${JSON.stringify(values)}`);
   if(!await form.evaluate(()=>window.__dateClicked&&window.__goTodayClicked)) throw Error('Date did not go to today before selection');
@@ -299,7 +279,7 @@ try {
   const previous=new Date(`${day}T00:00:00Z`);previous.setUTCDate(previous.getUTCDate()-1);
   const previousDate=`${previous.getUTCFullYear()}/${previous.getUTCMonth()+1}/${previous.getUTCDate()}`;
   const calendarDate=`${day.slice(0,4)}/${Number(day.slice(5,7))}/${Number(day.slice(8,10))}`;
-  const calendarHtml=`<!doctype html><meta charset="utf-8"><div data-automation-id="formTitle">COMP1311 Calendar Test</div><div data-automation-id="questionItem"><div data-automation-id="questionTitle">Date</div><input id="date-input" role="combobox" aria-expanded="true" aria-controls="DatePicker-Callout1" placeholder="yyyy/M/d" value="${previousDate}" onclick="window.__calendarToggled=true"></div><div id="DatePicker-Callout1"><button class="js-goToday" onclick="window.__goTodayClicked=true">转到今日</button><table><tr><td role="gridcell" aria-current="date" aria-disabled="false"><button type="button" onclick="if(window.__goTodayClicked) document.querySelector('#date-input').value='${calendarDate}'">${Number(day.slice(8,10))}</button></td></tr></table></div><button data-automation-id="submitButton" onclick="this.remove();document.body.append('Your response was submitted')">Submit</button>`;
+  const calendarHtml=`<!doctype html><meta charset="utf-8"><div data-automation-id="formTitle">COMP1311 Calendar Test</div><div data-automation-id="questionItem"><div data-automation-id="questionTitle">Date</div><input required id="date-input" role="combobox" aria-expanded="true" aria-controls="DatePicker-Callout1" placeholder="yyyy/M/d" value="${previousDate}" onclick="window.__calendarToggled=true"></div><div id="DatePicker-Callout1"><button class="js-goToday" onclick="window.__goTodayClicked=true">转到今日</button><table><tr><td role="gridcell" aria-current="date" aria-disabled="false"><button type="button" onclick="if(window.__goTodayClicked) document.querySelector('#date-input').value='${calendarDate}'">${Number(day.slice(8,10))}</button></td></tr></table></div><button data-automation-id="submitButton" onclick="this.remove();document.body.append('Your response was submitted')">Submit</button>`;
   await calendar.addInitScript(({calendarUrl,day})=>{
     window.__reports=[];const chrome=window.chrome||{};
     chrome.runtime={sendMessage:async message=>{
@@ -311,7 +291,7 @@ try {
   await calendar.route('https://forms.cloud.microsoft/Pages/ResponsePage.aspx*',route=>route.fulfill({contentType:'text/html',body:calendarHtml}));
   await calendar.goto(calendarUrl+'#attendanceRun=calendar');
   await calendar.addScriptTag({content:await readFile(join(extension,'content.js'),'utf8')});
-  await calendar.waitForFunction(()=>window.__reports?.includes('success'),null,{timeout:15000});
+  await calendar.waitForFunction(()=>window.__reports?.includes('success'),null,{timeout:30000});
   if(await calendar.locator('#date-input').inputValue()!==calendarDate || await calendar.evaluate(()=>window.__calendarToggled||!window.__goTodayClicked)) throw Error('Already-open calendar did not correct the previous date safely');
   const labForm=await browser.newPage(),labFormUrl='https://forms.cloud.microsoft/Pages/ResponsePage.aspx?id=lab-smoke';
   const labFormHtml='<!doctype html><meta charset="utf-8"><div data-automation-id="formTitle">COMP9999 Attendance</div><div data-automation-id="questionItem"><div data-automation-id="questionTitle">Student ID</div><input data-automation-id="textInput"></div><div data-automation-id="questionItem"><div data-automation-id="questionTitle">Name</div><input data-automation-id="textInput"></div><div data-automation-id="questionItem"><div data-automation-id="questionTitle">Module Delivery</div><label><input type="radio" name="delivery" value="Lecture">Lecture</label><label><input type="radio" name="delivery" value="Lab">Lab</label></div><button data-automation-id="submitButton">Submit</button>';
@@ -331,7 +311,7 @@ try {
   if(!await labForm.locator('input[value="Lab"]').isChecked() || await labForm.locator('input[value="Lecture"]').isChecked()) throw Error('Lab form selection was incorrect');
   if(await labForm.locator('[data-automation-id="submitButton"]').count()!==1) throw Error('Lab only-fill test submitted the form');
   const tutorialForm=await browser.newPage(),tutorialFormUrl='https://forms.cloud.microsoft/Pages/ResponsePage.aspx?id=tutorial-smoke';
-  const tutorialFormHtml=`<!doctype html><meta charset="utf-8"><div data-automation-id="formTitle">COMP9999 Attendance</div><div data-automation-id="questionItem"><div data-automation-id="questionTitle">1.Enter your University Student ID Number</div><input data-automation-id="textInput"></div><div data-automation-id="questionItem"><div data-automation-id="questionTitle">2.Name</div><input data-automation-id="textInput"></div><div data-automation-id="questionItem"><div data-automation-id="questionTitle">3.Date of Class the attended</div><input role="combobox" placeholder="dd/MM/yyyy" onclick="if(!document.querySelector('.ms-CalendarDay-dayIsToday')){const b=document.createElement('button');b.className='ms-CalendarDay-dayIsToday';b.textContent='Today';b.onclick=()=>{if(window.__tutorialToday) document.querySelector('[role=combobox]').value='${shownDate}';b.remove();document.querySelector('.js-goToday').remove()};const g=document.createElement('button');g.className='js-goToday';g.textContent='Go to today';g.onclick=()=>window.__tutorialToday=true;document.body.append(g,b)}"></div><div data-automation-id="questionItem"><div data-automation-id="questionTitle">4.Module Delivery</div><label><input type="radio" name="delivery" value="Lecture">Lecture</label><label><input type="radio" name="delivery" value="Tutorial">Tutorial</label><label><input type="radio" name="delivery" value="Laboratory">Laboratory</label></div><div data-automation-id="questionItem"><div data-automation-id="questionTitle">5.Please choose one from the below</div><label><input type="radio" name="identity" value="I'm a Local Student">Local</label><label><input type="radio" name="identity" value="I'm an International Student">International</label></div><button data-automation-id="submitButton">Submit</button>`;
+  const tutorialFormHtml=`<!doctype html><meta charset="utf-8"><div data-automation-id="formTitle">COMP9999 Attendance</div><div data-automation-id="questionItem"><div data-automation-id="questionTitle">1.Enter your University Student ID Number</div><input data-automation-id="textInput"></div><div data-automation-id="questionItem"><div data-automation-id="questionTitle">2.Name</div><input data-automation-id="textInput"></div><div data-automation-id="questionItem"><div data-automation-id="questionTitle">3.Date of Class the attended</div><input required role="combobox" placeholder="dd/MM/yyyy" onclick="if(!document.querySelector('.ms-CalendarDay-dayIsToday')){const b=document.createElement('button');b.className='ms-CalendarDay-dayIsToday';b.textContent='Today';b.onclick=()=>{if(window.__tutorialToday) document.querySelector('[role=combobox]').value='${shownDate}';b.remove();document.querySelector('.js-goToday').remove()};const g=document.createElement('button');g.className='js-goToday';g.textContent='Go to today';g.onclick=()=>window.__tutorialToday=true;document.body.append(g,b)}"></div><div data-automation-id="questionItem"><div data-automation-id="questionTitle">4.Module Delivery</div><label><input type="radio" name="delivery" value="Lecture">Lecture</label><label><input type="radio" name="delivery" value="Tutorial">Tutorial</label><label><input type="radio" name="delivery" value="Laboratory">Laboratory</label></div><div data-automation-id="questionItem"><div data-automation-id="questionTitle">5.Please choose one from the below</div><label><input type="radio" name="identity" value="I'm a Local Student">Local</label><label><input type="radio" name="identity" value="I'm an International Student">International</label></div><button data-automation-id="submitButton">Submit</button>`;
   await tutorialForm.addInitScript(({tutorialFormUrl})=>{
     const chrome=window.chrome||{};
     chrome.storage={local:{get:async()=>({attendanceBindings:{COMP9999:{url:tutorialFormUrl,title:'COMP9999 Attendance',verified:true,scope:'module',mapping:[

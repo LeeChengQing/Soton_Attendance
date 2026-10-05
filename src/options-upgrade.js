@@ -1,5 +1,5 @@
 import QRCode from 'qrcode';
-import {buildVariants,hasCoverage} from './setup.js';
+import {buildVariants} from './setup.js';
 import {saveDraftTasks,validateSession,nextTrigger} from './configuration.js';
 import {createBackup,recoveryForRecord} from './backup.js';
 import {bindingForCourse,validateBindingForCourse} from './bindings.js';
@@ -44,7 +44,7 @@ export function createOptionsUpgrade(api) {
     $('cloud-queue-status').textContent=`${t('queueStatus',{count:q.items?.length||0})}${errors.length?t('queueError',{error:errors[0].lastError}):q.lastSuccessAt?t('queueSent',{date:malaysia(q.lastSuccessAt)}):''}`;
   }
   async function coverage(course,data) {
-    try {return hasCoverage(data.attendanceSetupHistory||[],buildVariants([{course}],data.attendanceBindings,data.attendanceProfile)[0],data.attendanceSetupCoverageEpoch);} catch {return false;}
+    try {validateBindingForCourse(bindingForCourse(data.attendanceBindings,course),course,data.attendanceProfile,todayMalaysia());return true;} catch {return false;}
   }
   async function renderSessions(data) {
     const list=$('sessions');list.replaceChildren();
@@ -82,15 +82,6 @@ export function createOptionsUpgrade(api) {
       })();});
     }
   }
-  function renderChecks(data) {
-    const running=data.attendanceSetupSession?.state==='running';
-    const items=data.attendanceSetupSession?.items||[];
-    const ready=items.length>0&&items.some(item=>item.state==='awaiting_confirmation')&&items.every(item=>['awaiting_confirmation','passed'].includes(item.state));
-    $('cancel-setup').hidden=!running;$('check-setup').disabled=running;
-    $('confirm-all-setup').hidden=!running;$('confirm-all-setup').disabled=!ready;
-    const failed=items.some(item=>['failed','cancelled','timed_out'].includes(item.state));
-    $('confirm-all-setup').title=ready?t('setupReadyTitle'):failed?t('setupFailedTitle'):t('setupWaitingTitle');
-  }
   async function renderRecords(data) {
     const all=Object.values(data.attendanceRecords||{}).sort((a,b)=>String(b.at).localeCompare(String(a.at))),filter=$('record-filter').value;
     $('record-count').textContent=t('recordCount',{count:all.length});
@@ -114,7 +105,7 @@ export function createOptionsUpgrade(api) {
   }
   async function render() {
     const id=++renderId,data=await api.getData();if(id!==renderId) return;
-    renderStatus(data);await renderSessions(data);await renderChecks(data);await renderRecords(data);
+    renderStatus(data);await renderSessions(data);await renderRecords(data);
   }
   async function activateDraft() {
     await writes;
@@ -129,9 +120,7 @@ export function createOptionsUpgrade(api) {
       if(row.type==='LAB'&&(row.importChoice==='1'||row.importChoice==='2')) {row.group=row.importChoice;row.course=`${row.code||row.course.split(/\s+-/)[0]}-${row.type} Group ${row.group}`;}
       return row;
     });
-    const variants=buildVariants(selected,data.attendanceBindings,p);
-    const missing=variants.filter(v=>!hasCoverage(data.attendanceSetupHistory||[],v,data.attendanceSetupCoverageEpoch));
-    if(missing.length) throw Error(t('confirmLessonTypes',{courses:missing.map(v=>v.course).join(currentLanguage()==='en'?', ':'、')}));
+    buildVariants(selected,data.attendanceBindings,p);
     const rows=selected.map(validateSession);
     const sessions=saveDraftTasks(data.attendanceSessions||[],rows);
     const commit=writes.then(async()=>{
@@ -149,22 +138,7 @@ export function createOptionsUpgrade(api) {
     writes=writes.catch(()=>{}).then(()=>revision===draftRevision?chrome.storage.local.set({attendanceDraft:{version:1,rows,reviewedAt:checked?new Date().toISOString():null}}):undefined);
     await writes;if(revision===draftRevision) $('draft-status').textContent=checked?t('draftReadyToRun'):t('draftUnreviewed');
   }));
-  async function startChecks(moduleKey) {
-    await writes;
-    const data=await api.getData(),p=api.validateProfile(data.attendanceProfile||{});
-    if(!sameProfile(p,api.profile())) throw Error(t('saveProfileFirst'));
-    const result=await message('START_SETUP',moduleKey?{moduleKey}:{});
-    await render();
-    api.toast(t('checksOpened',{count:result?.session?.items?.length?t('checksPageCount',{count:result.session.items.length}):''}));
-  }
-  $('check-setup').addEventListener('click',guard(()=>startChecks()));
   $('verify-all-bindings').addEventListener('click',guard(()=>api.openAllBindings()));
-  $('confirm-all-setup').addEventListener('click',guard(async()=>{
-    const result=await message('CONFIRM_ALL_SETUP_ITEMS');
-    await render();
-    api.toast(t('allChecksConfirmed',{count:result.session.items.length}));
-  }));
-  $('cancel-setup').addEventListener('click',guard(async()=>{await message('CANCEL_SETUP');await render();}));
   $('record-filter').addEventListener('change',()=>{page=0;void render();});
   $('records-prev').addEventListener('click',()=>{page=Math.max(0,page-1);void render();});$('records-next').addEventListener('click',()=>{page++;void render();});
   $('export-records').addEventListener('click',guard(async()=>download('Attendance-terminal-records.json',createBackup(await api.getData()).records)));
@@ -207,5 +181,5 @@ export function createOptionsUpgrade(api) {
     api.renderPreview();ready=true;await render();
     if(api.preview.length) $('draft-status').textContent=t('draftRestored');
   }
-  return {init,draftChanged,render,activateDraft,startChecks,refreshLocale};
+  return {init,draftChanged,render,activateDraft,refreshLocale};
 }

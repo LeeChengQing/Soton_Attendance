@@ -7,7 +7,7 @@ const identityOption=(options,kind)=>options.find(option=>kind==='local'?/\bloca
 
 export function fieldMappingForQuestion(question,course='') {
   const title=normalize(question.title),options=question.options||[];
-  if(question.type==='date') return {choices:[['date',t('dateAutoCheck')]],selected:'date'};
+  if(question.type==='date') return {choices:[[question.required===false?'skip':'date',t(question.required===false?'dateOptional':'dateAutoCheck')]],selected:question.required===false?'skip':'date'};
   if(question.type==='text') {
     if(/student.*id|university.*id|学号/.test(title)) return {choices:[['student',t('profileFieldStudent')]],selected:'student'};
     if(/\bname\b|姓名/.test(title)) return {choices:[['name',t('profileFieldName')]],selected:'name'};

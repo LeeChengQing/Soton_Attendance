@@ -41440,19 +41440,44 @@ var centerY = (t2) => t2.y + t2.height / 2;
 var pad2 = (n) => String(n).padStart(2, "0");
 var clock = (hour, minute) => `${pad2(hour)}:${minute}`;
 function weekDates(text) {
-  const match = String(text).match(/(\d{1,2})[/.](\d{1,2})\s*[-–—]\s*(\d{1,2})[/.](\d{1,2})[/.](\d{2,4})/);
-  if (!match) return null;
-  const year = +match[5] < 100 ? 2e3 + +match[5] : +match[5];
-  const startYear = +match[2] > +match[4] ? year - 1 : year;
-  const start = new Date(Date.UTC(startYear, +match[2] - 1, +match[1]));
-  const end = new Date(Date.UTC(year, +match[4] - 1, +match[3]));
-  if (start.getUTCDate() !== +match[1] || end.getUTCDate() !== +match[3] || end - start < 0 || end - start > 7 * 864e5) return null;
+  const normalized = String(text).replace(/[／]/g, "/").replace(/[．。]/g, ".").replace(/[－–—]/g, "-");
+  const full = /((\d{1,2})[/.](\d{1,2})\s*-\s*(\d{1,2})[/.](\d{1,2})[/.](\d{2,4}))/;
+  const compact = /((\d{1,2})\s*-\s*(\d{1,2})[/.](\d{1,2})[/.](\d{2,4}))/;
+  const bothFull = /((\d{1,2})[/.](\d{1,2})[/.](\d{2,4})\s*-\s*(\d{1,2})[/.](\d{1,2})[/.](\d{2,4}))/;
+  let match, startDay, startMonth, startYear, endDay, endMonth, endYear;
+  if (match = normalized.match(bothFull)) {
+    startDay = +match[2];
+    startMonth = +match[3];
+    startYear = toFullYear(+match[4]);
+    endDay = +match[5];
+    endMonth = +match[6];
+    endYear = toFullYear(+match[7]);
+  } else if (match = normalized.match(full)) {
+    startDay = +match[2];
+    startMonth = +match[3];
+    endDay = +match[4];
+    endMonth = +match[5];
+    endYear = toFullYear(+match[6]);
+    startYear = endYear - (startMonth > endMonth ? 1 : 0);
+  } else if (match = normalized.match(compact)) {
+    startDay = +match[2];
+    endDay = +match[3];
+    endMonth = +match[4];
+    endYear = toFullYear(+match[5]);
+    startMonth = endMonth - (startDay > endDay ? 1 : 0);
+    startYear = endYear - (startMonth < 1 ? 1 : 0);
+    if (startMonth < 1) startMonth = 12;
+  } else return null;
+  const start = new Date(Date.UTC(startYear, startMonth - 1, startDay));
+  const end = new Date(Date.UTC(endYear, endMonth - 1, endDay));
+  if (start.getUTCDate() !== startDay || start.getUTCMonth() !== startMonth - 1 || end.getUTCDate() !== endDay || end.getUTCMonth() !== endMonth - 1 || end - start < 0 || end - start > 7 * 864e5) return null;
   const dates = /* @__PURE__ */ new Map();
   for (let day = new Date(start); day <= end; day.setUTCDate(day.getUTCDate() + 1)) {
     dates.set(day.getUTCDay(), `${day.getUTCFullYear()}-${pad2(day.getUTCMonth() + 1)}-${pad2(day.getUTCDate())}`);
   }
   return dates;
 }
+var toFullYear = (year) => year < 100 ? 2e3 + year : year;
 function hourColumns(tokens, firstCourseY) {
   const headerRow = tokens.filter((t2) => t2.y < firstCourseY);
   const header = headerRow.filter((t2) => /\d{1,2}:[0-5]\d/.test(t2.text));
@@ -41503,12 +41528,203 @@ function rowsFromPage({ text = "", tokens = [] }) {
   return mergeSessions(parseASCTimetable(tokens, text), mergeSessions(parseScheduleTokens(tokens), parseScheduleText(text)));
 }
 
+// src/timetable-grid.js
+var DAY_NAMES = ["Mo", "Tu", "We", "Th", "Fr"];
+function darkAt(image, x, y, radius = 2) {
+  for (let dy = -radius; dy <= radius; dy++) for (let dx = -radius; dx <= radius; dx++) {
+    const px = x + dx, py = y + dy;
+    if (px >= 0 && py >= 0 && px < image.width && py < image.height && image.mask[py * image.width + px]) return true;
+  }
+  return false;
+}
+function adaptiveMask(image) {
+  const { width, height, data } = image, size = width * height, gray = new Uint8Array(size), integral = new Uint32Array((width + 1) * (height + 1)), stride = width + 1;
+  for (let i = 0; i < size; i++) {
+    const at = i * 4;
+    gray[i] = Math.round(0.299 * data[at] + 0.587 * data[at + 1] + 0.114 * data[at + 2]);
+  }
+  for (let y = 1; y <= height; y++) {
+    let row = 0;
+    for (let x = 1; x <= width; x++) {
+      row += gray[(y - 1) * width + x - 1];
+      integral[y * stride + x] = integral[(y - 1) * stride + x] + row;
+    }
+  }
+  const radius = Math.max(3, Math.round(Math.min(width, height) * 6e-3)), mask = new Uint8Array(size);
+  for (let y = 0; y < height; y++) for (let x = 0; x < width; x++) {
+    const x0 = Math.max(0, x - radius), x1 = Math.min(width, x + radius + 1), y0 = Math.max(0, y - radius), y1 = Math.min(height, y + radius + 1);
+    const sum = integral[y1 * stride + x1] - integral[y0 * stride + x1] - integral[y1 * stride + x0] + integral[y0 * stride + x0], mean = sum / ((x1 - x0) * (y1 - y0)), value = gray[y * width + x];
+    if (value < 150 || value < mean - 18) mask[y * width + x] = 1;
+  }
+  return { width, height, data, mask };
+}
+function lineRuns(image, axis, { start = 0, end = axis === "horizontal" ? image.height : image.width, from = 0, to = axis === "horizontal" ? image.width : image.height, threshold = 0.72, minLength = 5 } = {}) {
+  const coordinateLength = axis === "horizontal" ? image.width : image.height;
+  const runs = [];
+  let active = null;
+  for (let c = start; c < end; c++) {
+    let hits = 0;
+    for (let p = from; p < to; p++) if (axis === "horizontal" ? darkAt(image, p, c, Math.max(2, Math.round(Math.min(image.width, image.height) * 8e-3))) : darkAt(image, c, p)) hits++;
+    const ratio = hits / Math.max(1, to - from);
+    if (ratio >= threshold) {
+      if (active === null) active = c;
+    } else if (active !== null) {
+      if (c - active >= minLength) runs.push({ start: active, end: c - 1, center: (active + c - 1) / 2 });
+      active = null;
+    }
+  }
+  if (active !== null && end - active >= minLength) runs.push({ start: active, end: end - 1, center: (active + end - 1) / 2 });
+  return runs;
+}
+var centerOf = (run) => run.center;
+function fail(reason) {
+  return { ok: false, code: "GRID_DETECTION_FAILED", reason };
+}
+function detectTimetableGrid(imageData, { expectedPeriods = 11, expectedWeekdays = 5 } = {}) {
+  if (!imageData?.data || !Number.isInteger(imageData.width) || !Number.isInteger(imageData.height) || imageData.data.length < imageData.width * imageData.height * 4) return fail("invalid pixel image");
+  imageData = adaptiveMask(imageData);
+  const fullHorizontal = lineRuns(imageData, "horizontal", { threshold: 0.52, minLength: 3 });
+  if (fullHorizontal.length < expectedWeekdays + 2) return fail(`could not detect weekday rows (${fullHorizontal.length} long horizontal lines)`);
+  let selected = null;
+  for (let top = 0; top < fullHorizontal.length; top++) for (let bottom = top + expectedWeekdays + 1; bottom < fullHorizontal.length; bottom++) {
+    const subset = fullHorizontal.slice(top, bottom + 1);
+    if (subset.length !== expectedWeekdays + 2) continue;
+    const rowPitch = subset.slice(2).map((line, i) => centerOf(line) - centerOf(subset[i + 1]));
+    const median = [...rowPitch].sort((a, b) => a - b)[Math.floor(rowPitch.length / 2)];
+    if (median <= 0 || rowPitch.some((value) => value < median * 0.62 || value > median * 1.38)) continue;
+    const margin = subset[0].end - subset[0].start + 1;
+    if (!selected || margin > selected.margin) selected = { subset, margin };
+  }
+  if (!selected) return fail(`could not detect exactly five weekday rows (${fullHorizontal.length} long horizontal lines)`);
+  const horizontal = selected.subset;
+  const tableTop = centerOf(horizontal[0]), headerBottom = centerOf(horizontal[1]), tableBottom = centerOf(horizontal.at(-1));
+  const verticalHeader = lineRuns(imageData, "vertical", { start: 0, end: imageData.width, from: Math.round(tableTop), to: Math.round(headerBottom), threshold: 0.48, minLength: 3 });
+  let xCenters = verticalHeader.map(centerOf).filter((x, i, array) => !i || x - array[i - 1] > 2);
+  if (xCenters.length > expectedPeriods + 2) {
+    const left = xCenters[0], right = xCenters.at(-1), pitch = (right - left) * 0.9 / expectedPeriods, dayWidth = right - left - pitch * expectedPeriods;
+    const snapped = Array.from({ length: expectedPeriods + 2 }, (_, index) => left + (index === 0 ? 0 : index === 1 ? dayWidth : dayWidth + (index - 1) * pitch));
+    const selected2 = snapped.map((target) => xCenters.reduce((best, value) => Math.abs(value - target) < Math.abs(best - target) ? value : best, xCenters[0]));
+    if (selected2.every((value, index) => Math.abs(value - snapped[index]) <= pitch * 0.22) && new Set(selected2).size === selected2.length) xCenters = selected2;
+  }
+  if (xCenters.length > expectedPeriods + 2) {
+    const candidates = [];
+    for (let start = 0; start <= xCenters.length - (expectedPeriods + 2); start++) {
+      const values = xCenters.slice(start, start + expectedPeriods + 2), gaps = values.slice(1).map((value, index) => value - values[index]);
+      const periods = gaps.slice(1), median = [...periods].sort((a, b) => a - b)[Math.floor(periods.length / 2)];
+      if (median <= 0 || gaps[0] < median * 0.65 || gaps[0] > median * 1.5 || periods.some((value) => value < median * 0.65 || value > median * 1.35)) continue;
+      const score = periods.reduce((sum, value) => sum + Math.abs(value - median), 0) / median + Math.abs(gaps[0] / median - 1.1) * 0.15;
+      candidates.push({ values, score });
+    }
+    candidates.sort((a, b) => a.score - b.score);
+    if (candidates.length) xCenters = candidates[0].values;
+  }
+  if (xCenters.length !== expectedPeriods + 2) return fail(`could not detect exactly ${expectedPeriods} period columns (found ${Math.max(0, xCenters.length - 1)})`);
+  const tableLeft = xCenters[0], tableRight = xCenters.at(-1);
+  const dayBoundary = xCenters[1];
+  const periodBounds = xCenters.slice(1);
+  const periodColumns = Array.from({ length: expectedPeriods }, (_, index) => ({ period: index + 1, start: periodBounds[index], end: periodBounds[index + 1], center: (periodBounds[index] + periodBounds[index + 1]) / 2 }));
+  const dayRows = Array.from({ length: expectedWeekdays }, (_, index) => ({ day: DAY_NAMES[index], top: centerOf(horizontal[index + 1]), bottom: centerOf(horizontal[index + 2]), center: (centerOf(horizontal[index + 1]) + centerOf(horizontal[index + 2])) / 2 }));
+  const cells = [];
+  for (const row of dayRows) {
+    const rowVertical = lineRuns(imageData, "vertical", { start: Math.round(dayBoundary), end: Math.round(tableRight), from: Math.round(row.top), to: Math.round(row.bottom), threshold: 0.34, minLength: 3 });
+    const present = rowVertical.map(centerOf).filter((x, i, array) => !i || x - array[i - 1] > 2);
+    const boundaries = [dayBoundary, ...periodBounds.slice(1, -1), tableRight];
+    const cellStarts = periodColumns.map((column) => column.start);
+    let col = 0;
+    while (col < expectedPeriods) {
+      const first = col;
+      let last = col;
+      while (last < expectedPeriods - 1 && !present.some((x) => Math.abs(x - periodColumns[last].end) < Math.max(2, imageData.width * 3e-3))) last++;
+      const left = periodColumns[first].start, right = periodColumns[last].end;
+      const splits = lineRuns(imageData, "horizontal", { start: Math.ceil(row.top + 2), end: Math.floor(row.bottom - 1), from: Math.ceil(left + 2), to: Math.floor(right - 1), threshold: 0.48, minLength: 3 });
+      const groupSegments = [];
+      let segmentTop = row.top;
+      for (const split of splits) {
+        if (split.center - segmentTop > 3) groupSegments.push({ top: segmentTop, bottom: split.center });
+        segmentTop = split.center;
+      }
+      if (row.bottom - segmentTop > 3) groupSegments.push({ top: segmentTop, bottom: row.bottom });
+      cells.push({ day: row.day, periodStart: first + 1, periodEnd: last + 1, left, right, top: row.top, bottom: row.bottom, groupSegments });
+      col = last + 1;
+    }
+  }
+  return { ok: true, table: { left: tableLeft, right: tableRight, top: tableTop, headerBottom, bottom: tableBottom, dayBoundary }, dayRows, periodColumns, cells, lines: { horizontal, verticalHeader } };
+}
+
+// src/timetable-fields.js
+var pad3 = (value) => String(value).padStart(2, "0");
+var minuteClock = (minutes) => `${pad3(Math.floor(minutes / 60) % 24)}:${pad3(minutes % 60)}`;
+var editDistance = (left, right) => {
+  const row = Array.from({ length: right.length + 1 }, (_, i) => i);
+  for (let i = 1; i <= left.length; i++) {
+    let diagonal = row[0];
+    row[0] = i;
+    for (let j = 1; j <= right.length; j++) {
+      const old = row[j];
+      row[j] = Math.min(row[j] + 1, row[j - 1] + 1, diagonal + (left[i - 1] === right[j - 1] ? 0 : 1));
+      diagonal = old;
+    }
+  }
+  return row[right.length];
+};
+function periodTime(periodStart, periodEnd = periodStart, { startHour = 8, minutesPerPeriod = 60, header = null } = {}) {
+  if (!Number.isInteger(periodStart) || !Number.isInteger(periodEnd) || periodStart < 1 || periodEnd < periodStart || !Number.isFinite(startHour) || !Number.isFinite(minutesPerPeriod) || minutesPerPeriod <= 0) throw new TypeError("invalid period mapping");
+  const startMinutes = startHour * 60 + periodStart * minutesPerPeriod, endMinutes = startHour * 60 + (periodEnd + 1) * minutesPerPeriod;
+  const start = minuteClock(startMinutes), end = minuteClock(endMinutes);
+  const conflict = header && (header.start && header.start !== start || header.end && header.end !== end);
+  return { start, end, needsReview: Boolean(conflict) };
+}
+function normalizedLines(text) {
+  return String(text || "").replace(/[｜¦]/g, " ").replace(/[‐‑‒–—]/g, "-").split(/\r?\n/).map((line) => line.replace(/\s+/g, " ").trim()).filter(Boolean);
+}
+function parseCellText(text, context = {}) {
+  const lines = normalizedLines(text), raw = lines.join("\n"), corrections = [];
+  const courseMatch = raw.match(/\b([A-Z]{3,}\d{4})\b/i);
+  const codeRaw = courseMatch?.[1] || "";
+  const code = codeRaw.toUpperCase();
+  const typeCandidates = lines.flatMap((line) => [...line.matchAll(/-?\s*([A-Z0-9]{3})\b/gi)]).map((match) => match[1].toUpperCase());
+  let typeRaw = typeCandidates.find((value) => ["LEC", "LAB", "TUT"].includes(value) || ["LEC", "LAB", "TUT"].some((known) => editDistance(value, known) === 1)) || "";
+  let type = typeRaw;
+  if (typeRaw && !["LEC", "LAB", "TUT"].includes(typeRaw)) {
+    type = ["LEC", "LAB", "TUT"].find((known) => editDistance(typeRaw, known) === 1) || "";
+    if (type) corrections.push({ field: "type", raw: typeRaw, corrected: type });
+  }
+  if (typeRaw && type && typeRaw !== type && !corrections.some((item) => item.field === "type")) corrections.push({ field: "type", raw: typeRaw, corrected: type });
+  const roomCandidate = raw.match(/\b(?:3[RRO]0[0-9OG]{2}|R\d{3})\b/i)?.[0] || "";
+  let room = roomCandidate.toUpperCase();
+  if (/^3/i.test(room)) {
+    const corrected = room.replace(/^3[RRO]0/i, "3R0").replace(/[OG]/g, "0");
+    if (corrected !== room) {
+      corrections.push({ field: "room", raw: room, corrected });
+      room = corrected;
+    }
+  }
+  const groupMatch = raw.match(/\bGroup\s*([12])\b/i), group = groupMatch?.[1] || "";
+  const metadataPattern = /^(?:[A-Z]{3,}\d{4}|-?\s*[A-Z0-9]{3}|(?:3[RRO]0[0-9OG]{2}|R\d{3})|Group\s*[12])$/i;
+  const lecturer = lines.find((line) => {
+    const clean = line.replace(/[|¦]/g, " ").trim();
+    return !metadataPattern.test(clean) && !/^[\s.-]+$/.test(clean);
+  }) || "";
+  const fields = {
+    code: { raw: codeRaw, value: code, confidence: code?.match(/^[A-Z]{3,}\d{4}$/) ? codeRaw === code ? 0.94 : 0.8 : 0 },
+    type: { raw: typeRaw, value: type, confidence: type ? ["LEC", "LAB", "TUT"].includes(typeRaw) ? 0.92 : 0.68 : 0 },
+    group: { raw: groupMatch?.[0] || "", value: group, confidence: group ? 0.9 : 0.75 },
+    room: { raw: roomCandidate, value: room, confidence: room ? roomCandidate.toUpperCase() === room ? 0.9 : 0.68 : 0 },
+    lecturer: { raw: lecturer, value: lecturer, confidence: lecturer ? 0.76 : 0 }
+  };
+  const evidence = Number.isFinite(context.ocrConfidence) ? Math.max(0.2, Math.min(1, context.ocrConfidence)) : 1;
+  for (const value of Object.values(fields)) value.confidence = Number((value.confidence * evidence).toFixed(2));
+  const confidence = Object.fromEntries(Object.entries(fields).map(([key, value]) => [key, value.confidence]));
+  const base = { ...context, code, type, group, room, lecturer, confidence, fields, raw, corrections };
+  return { ...base, needsReview: Boolean(context.needsReview || corrections.length || !code || !type || Object.values(confidence).some((value) => value < 0.7)) };
+}
+
 // src/options-locale.js
 var copy = {
   zh: {
     documentTitle: "Attendance \xB7 \u81EA\u52A8\u6253\u5361\u8BBE\u7F6E",
     appTitle: "\u81EA\u52A8\u6253\u5361",
-    heroDescription: "\u4FDD\u5B58\u8D44\u6599\uFF0C\u5BFC\u5165\u8BFE\u8868\uFF0C\u7ED1\u5B9A\u540E\u6D4B\u8BD5\u5E76\u542F\u7528\u3002",
+    heroDescription: "\u4FDD\u5B58\u8D44\u6599\uFF0C\u5BFC\u5165\u8BFE\u8868\uFF0C\u81EA\u52A8\u7ED1\u5B9A\u540E\u542F\u7528\u3002",
     profileHeading: "\u5B66\u751F\u8D44\u6599",
     openSubscription: "\u8BA2\u9605\u624B\u673A\u63D0\u9192",
     profileSummaryEmpty: "\u586B\u5199\u5B66\u53F7\u4E0E\u59D3\u540D",
@@ -41527,8 +41743,8 @@ var copy = {
     timetableHint: "\u652F\u6301 JPG\u3001PNG\u3001PDF\u3002Group 1\uFF0F2 \u53EA\u4FDD\u7559\u81EA\u5DF1\u7684\u7EC4\u522B\u3002",
     noTimetable: "\u8FD8\u6CA1\u6709\u5BFC\u5165\u8BFE\u8868\u3002",
     draftAutoSave: "\u8349\u7A3F\u81EA\u52A8\u4FDD\u5B58\uFF0C\u542F\u7528\u540E\u624D\u4F1A\u6267\u884C\u3002",
-    bindingHeading: "\u7ED1\u5B9A\u4E0E\u6D4B\u8BD5",
-    bindingDescription: "\u6BCF\u95E8\u8BFE\u7A0B\u7ED1\u5B9A\u4E00\u6B21\uFF1B\u81EA\u52A8\u6D4B\u8BD5\u5168\u90E8\u8BFE\u578B\uFF0C\u4E0D\u63D0\u4EA4\u3002",
+    bindingHeading: "\u8868\u5355\u7ED1\u5B9A",
+    bindingDescription: "\u7C98\u8D34\u94FE\u63A5\u6216\u4E0A\u4F20\u4E8C\u7EF4\u7801\u5373\u53EF\u81EA\u52A8\u7ED1\u5B9A\uFF1B\u626B\u63CF\u4E0D\u4F1A\u63D0\u4EA4\u8868\u5355\u3002",
     clearBindings: "\u6E05\u7A7A\u7ED1\u5B9A",
     emptyBindings: "\u5148\u5BFC\u5165\u6216\u6DFB\u52A0\u8BFE\u7A0B\u3002",
     tasksHeading: "\u6BCF\u5468\u4EFB\u52A1",
@@ -41553,7 +41769,7 @@ var copy = {
     navTasks: "\u6BCF\u5468\u4EFB\u52A1",
     navProfile: "\u5B66\u751F\u8D44\u6599",
     reviewDraft: "\u6211\u5DF2\u6838\u5BF9\u8BFE\u8868\u4E0E\u7EC4\u522B\u3002",
-    verifyAllForms: "\u4E00\u952E\u6253\u5F00\u5168\u90E8\u5E76\u6838\u5BF9",
+    verifyAllForms: "\u81EA\u52A8\u626B\u63CF\u5E76\u4FDD\u5B58\u5168\u90E8",
     testAllForms: "\u6D4B\u8BD5\u5168\u90E8\u8BFE\u578B \xB7 \u4E0D\u63D0\u4EA4",
     confirmAllForms: "\u4E00\u952E\u786E\u8BA4\u5168\u90E8\u8BFE\u578B",
     enableTasks: "\u542F\u7528\u6BCF\u5468\u4EFB\u52A1",
@@ -41592,10 +41808,17 @@ var copy = {
     uploadQr: "\u4E0A\u4F20\u4E8C\u7EF4\u7801",
     bindingReady: "\u5DF2\u6838\u5BF9\uFF1A{title}",
     legacyConflict: "\u65E7\u7248\u8BFE\u578B\u7ED1\u5B9A\u4E86\u4E0D\u540C\u94FE\u63A5\u3002\u8BF7\u4F7F\u7528\u8FD9\u4E00\u95E8\u8BFE\u7A0B\u5171\u7528\u7684\u94FE\u63A5\u91CD\u65B0\u6838\u5BF9\u3002",
-    bindingNeedsReview: "\u8BF7\u6838\u5BF9\u5E76\u4FDD\u5B58\u4E00\u6B21\u5171\u7528\u8868\u5355\u3002",
+    bindingNeedsReview: "\u7C98\u8D34\u94FE\u63A5\u6216\u4E0A\u4F20\u4E8C\u7EF4\u7801\uFF0C\u81EA\u52A8\u626B\u63CF\u5E76\u4FDD\u5B58\u3002",
     qrRead: "\u4E8C\u7EF4\u7801\u5DF2\u8BFB\u53D6\u3002\u70B9\u51FB\u5E95\u90E8\u201C\u4E00\u952E\u6253\u5F00\u5168\u90E8\u5E76\u6838\u5BF9\u201D\u7EE7\u7EED\u3002",
+    boundSuccessfully: "\u2705 \u7ED1\u5B9A\u6210\u529F",
+    dateOptional: "\u65E5\u671F\u4E3A\u9009\u586B \xB7 \u81EA\u52A8\u8DF3\u8FC7",
+    readingQr: "\u6B63\u5728\u8BFB\u53D6\u4E8C\u7EF4\u7801\u2026",
+    noFormLinks: "\u8BF7\u5148\u7C98\u8D34\u8868\u5355\u94FE\u63A5\u6216\u4E0A\u4F20\u4E8C\u7EF4\u7801\u3002",
+    scanCancelled: "\u94FE\u63A5\u5DF2\u53D8\u5316\uFF0C\u5DF2\u53D6\u6D88\u65E7\u626B\u63CF\u3002",
+    scanningAll: "\u6B63\u5728\u626B\u63CF\u5E76\u4FDD\u5B58\u2026",
+    scanSummary: "\u5DF2\u7ED1\u5B9A {succeeded} \u95E8\u8BFE\u7A0B\uFF1B{failed} \u95E8\u9700\u5904\u7406\u3002",
     inspectionBusy: "\u6B63\u5728\u8BFB\u53D6\u8868\u5355\uFF0C\u8BF7\u5148\u5B8C\u6210\u5F53\u524D\u6838\u5BF9\u540E\u518D\u7EE7\u7EED\u3002",
-    openingForm: "\u6B63\u5728\u6253\u5F00\u8868\u5355\uFF0C\u7B49\u5F85\u5B66\u6821\u767B\u5F55\u4E0E\u9898\u76EE\u52A0\u8F7D\u2026",
+    openingForm: "\u6B63\u5728\u540E\u53F0\u626B\u63CF\u5E76\u4FDD\u5B58\u8868\u5355\u2026",
     inspectionTimeout: "\u672A\u80FD\u8BFB\u53D6\u8868\u5355\u3002\u8BF7\u68C0\u67E5\u5B66\u6821\u767B\u5F55\u72B6\u6001\u540E\u91CD\u8BD5\u3002",
     openedForms: "\u5DF2\u540C\u65F6\u6253\u5F00 {count} \u4E2A\u8BFE\u7A0B\u8868\u5355\uFF0C\u8BF7\u5206\u522B\u6838\u5BF9\u5E76\u4FDD\u5B58\u3002",
     actualForm: "\u5B9E\u9645\u8868\u5355\uFF1A{title} \xB7 {url}",
@@ -41617,17 +41840,17 @@ var copy = {
     savingDraftFailed: "\u8349\u7A3F\u4FDD\u5B58\u5931\u8D25\uFF1A{error}",
     draftSavedNeedsReview: "\u8349\u7A3F\u5DF2\u5728\u672C\u673A\u81EA\u52A8\u4FDD\u5B58\uFF1B\u91CD\u65B0\u6838\u5BF9\u540E\u52FE\u9009\u786E\u8BA4\u3002\u4FDD\u5B58\u8349\u7A3F\u4E0D\u4F1A\u542F\u7528\u4EFB\u52A1\u3002",
     draftRestored: "\u5DF2\u6062\u590D\u672C\u673A\u8349\u7A3F\uFF1B\u4FDD\u5B58\u8349\u7A3F\u4E0D\u4F1A\u542F\u7528\u4EFB\u52A1\u3002",
-    draftReviewed: "\u8349\u7A3F\u5DF2\u6838\u5BF9\uFF0C\u6D4B\u8BD5\u540E\u5373\u53EF\u542F\u7528\u3002",
+    draftReviewed: "\u8BFE\u8868\u5DF2\u6838\u5BF9\uFF0C\u8868\u5355\u7ED1\u5B9A\u540E\u5373\u53EF\u542F\u7528\u3002",
     draftUnreviewed: "\u8349\u7A3F\u5DF2\u4FDD\u5B58\uFF0C\u5C1A\u672A\u6838\u5BF9\u3002",
     taskEnabledDraft: "\u4EFB\u52A1\u5DF2\u542F\u7528\uFF1B\u53EF\u5BFC\u5165\u6216\u6DFB\u52A0\u65B0\u7684\u8BFE\u7A0B\u3002",
-    draftReadyToRun: "\u8349\u7A3F\u5DF2\u6838\u5BF9\uFF0C\u6D4B\u8BD5\u540E\u5373\u53EF\u542F\u7528\u3002",
+    draftReadyToRun: "\u8BFE\u8868\u5DF2\u6838\u5BF9\uFF0C\u8868\u5355\u7ED1\u5B9A\u540E\u5373\u53EF\u542F\u7528\u3002",
     noTasks: "\u8FD8\u6CA1\u6709\u4EFB\u52A1\u3002\u5B8C\u6210\u8868\u5355\u68C0\u67E5\u540E\uFF0C\u542F\u7528\u5DF2\u6838\u5BF9\u7684\u8349\u7A3F\u3002",
     sessionSummary: "\u6BCF\u5468{weekday} {start}\u2013{end} \xB7 {state} \xB7 {check}",
     paused: "\u5DF2\u6682\u505C",
     nextRun: "\u4E0B\u6B21\uFF1A{date}\uFF08\u9A6C\u6765\u897F\u4E9A\uFF09",
     noNextRun: "\u6682\u672A\u627E\u5230\u4E0B\u6B21\u89E6\u53D1",
-    checksComplete: "\u5DF2\u5B8C\u6210\u8BBE\u7F6E\u68C0\u67E5",
-    checksIncomplete: "\u5C1A\u672A\u5B8C\u6210\u65B0\u7248\u8BBE\u7F6E\u68C0\u67E5\uFF0C\u539F\u6709\u542F\u7528\u653F\u7B56\u4FDD\u7559",
+    checksComplete: "\u5DF2\u81EA\u52A8\u7ED1\u5B9A",
+    checksIncomplete: "\u9700\u8981\u7ED1\u5B9A\u8868\u5355",
     enable: "\u542F\u7528",
     pause: "\u6682\u505C",
     editSession: "\u7F16\u8F91\u661F\u671F\u3001\u65F6\u95F4\u4E0E\u505C\u8BFE\u65E5\u671F",
@@ -41635,10 +41858,10 @@ var copy = {
     fieldExceptionsShort: "\u505C\u8BFE\u65E5\u671F\uFF08\u7528\u9017\u53F7\u5206\u9694\uFF09",
     saveChanges: "\u4FDD\u5B58\u4FEE\u6539",
     noSuchTask: "\u4EFB\u52A1\u5DF2\u5220\u9664\u3002",
-    checkBeforeEnable: "\u8BF7\u5148\u68C0\u67E5\u5E76\u786E\u8BA4\u6B64\u8BFE\u7A0B\u7684\u8868\u5355\u8BFE\u578B\uFF0C\u518D\u542F\u7528\u3002",
+    checkBeforeEnable: "\u8BF7\u5148\u7ED1\u5B9A\u6B64\u8BFE\u7A0B\u8868\u5355\uFF0C\u518D\u542F\u7528\u3002",
     duplicateTask: "\u76F8\u540C\u8BFE\u7A0B\u4E0E\u65F6\u95F4\u7684\u4EFB\u52A1\u5DF2\u5B58\u5728\u3002",
     taskSavedRemovedTrigger: "\u4EFB\u52A1\u4FEE\u6539\u5DF2\u4FDD\u5B58\uFF0C\u65E7\u65F6\u95F4\u7684\u89E6\u53D1\u5DF2\u79FB\u9664\u3002",
-    savedPausedForReview: "\u4FEE\u6539\u5DF2\u4FDD\u5B58\u5E76\u6682\u505C\uFF1B\u8BF7\u5B8C\u6210\u8BBE\u7F6E\u68C0\u67E5\u540E\u542F\u7528\u3002",
+    savedPausedForReview: "\u4FEE\u6539\u5DF2\u4FDD\u5B58\u5E76\u6682\u505C\uFF1B\u7ED1\u5B9A\u8868\u5355\u540E\u5373\u53EF\u542F\u7528\u3002",
     setupReadyTitle: "\u5168\u90E8\u8BFE\u578B\u5DF2\u586B\u5199\u5B8C\u6210\uFF0C\u53EF\u4E00\u952E\u786E\u8BA4\uFF1B\u4E0D\u4F1A\u63D0\u4EA4\u8868\u5355\u3002",
     setupFailedTitle: "\u6709\u8BFE\u578B\u68C0\u67E5\u5931\u8D25\uFF0C\u8BF7\u5148\u53D6\u6D88\u68C0\u67E5\uFF0C\u518D\u91CD\u65B0\u6D4B\u8BD5\u3002",
     setupWaitingTitle: "\u7B49\u5F85\u5168\u90E8 Forms \u68C0\u67E5\u9875\u5B8C\u6210\u586B\u5199\uFF1B\u786E\u8BA4\u540E\u4E0D\u4F1A\u63D0\u4EA4\u8868\u5355\u3002",
@@ -41757,6 +41980,7 @@ var copy = {
     entitlementRevoked: "\u6388\u6743\u5DF2\u64A4\u9500",
     phonePlan: "\u624B\u673A\u63D0\u9192\u7EED\u671F",
     firstTermPlan: "\u9996\u5B66\u671F\u5957\u9910",
+    semesterSubscriptionPlan: "\u5B66\u671F\u8BA2\u9605",
     phoneFallback: "\u624B\u673A\u63D0\u9192",
     unknownStatus: "\u72B6\u6001\u672A\u77E5",
     expiry: " \xB7 \u5B66\u671F\u622A\u6B62\uFF1A{date}",
@@ -41806,7 +42030,7 @@ var copy = {
   en: {
     documentTitle: "Attendance \xB7 Auto-Check Settings",
     appTitle: "Auto-Check",
-    heroDescription: "Save your profile, import your timetable, verify your forms, and enable check-ins.",
+    heroDescription: "Save your profile, import your timetable, auto-bind your forms, and enable check-ins.",
     profileHeading: "Student profile",
     openSubscription: "Phone notifications",
     profileSummaryEmpty: "Enter your student ID and name",
@@ -41825,8 +42049,8 @@ var copy = {
     timetableHint: "JPG, PNG, and PDF supported. Keep only your own Group 1 or Group 2 lessons.",
     noTimetable: "No timetable imported yet.",
     draftAutoSave: "Drafts save automatically and run only after you enable them.",
-    bindingHeading: "Forms and checks",
-    bindingDescription: "Bind each course once. Check every form type without submitting.",
+    bindingHeading: "Form bindings",
+    bindingDescription: "Paste a link or upload a QR code to bind automatically. Scans never submit forms.",
     clearBindings: "Clear bindings",
     emptyBindings: "Import or add a lesson first.",
     tasksHeading: "Weekly tasks",
@@ -41851,7 +42075,7 @@ var copy = {
     navTasks: "Weekly tasks",
     navProfile: "Student profile",
     reviewDraft: "I reviewed the timetable and groups.",
-    verifyAllForms: "Open and review all forms",
+    verifyAllForms: "Auto-Scan & Save All",
     testAllForms: "Check all form types \xB7 No submission",
     confirmAllForms: "Confirm all form types",
     enableTasks: "Enable weekly tasks",
@@ -41890,10 +42114,17 @@ var copy = {
     uploadQr: "Upload QR code",
     bindingReady: "Verified: {title}",
     legacyConflict: "Old form types use different links. Recheck them using one shared link for this course.",
-    bindingNeedsReview: "Review and save the shared form once.",
+    bindingNeedsReview: "Paste a link or upload a QR code to scan and save automatically.",
     qrRead: "QR code read. Use \u201COpen and review all forms\u201D in the bottom controls to continue.",
+    boundSuccessfully: "\u2705 Bound successfully",
+    dateOptional: "Optional Date \xB7 skipped",
+    readingQr: "Reading QR code\u2026",
+    noFormLinks: "Paste a form link or upload a QR code first.",
+    scanCancelled: "Link changed; previous scan cancelled.",
+    scanningAll: "Scanning & saving\u2026",
+    scanSummary: "Bound {succeeded} subject(s); {failed} need attention.",
     inspectionBusy: "Forms are being read. Finish the current review before continuing.",
-    openingForm: "Opening form and waiting for school sign-in and questions to load\u2026",
+    openingForm: "Scanning and saving the form in the background\u2026",
     inspectionTimeout: "Could not read the form. Check your school sign-in and try again.",
     openedForms: "Opened {count} course form(s). Review and save each one.",
     actualForm: "Form found: {title} \xB7 {url}",
@@ -41915,17 +42146,17 @@ var copy = {
     savingDraftFailed: "Could not save the draft: {error}",
     draftSavedNeedsReview: "Draft saved on this device. Review it again and confirm before continuing. Saving a draft does not enable tasks.",
     draftRestored: "Restored the local draft. Saving a draft does not enable tasks.",
-    draftReviewed: "Draft reviewed. Check the forms before enabling tasks.",
+    draftReviewed: "Timetable reviewed. Bind the forms to enable tasks.",
     draftUnreviewed: "Draft saved but not reviewed.",
     taskEnabledDraft: "Tasks enabled. You can import or add more lessons.",
-    draftReadyToRun: "Draft reviewed. Check the forms before enabling tasks.",
+    draftReadyToRun: "Timetable reviewed. Bind the forms to enable tasks.",
     noTasks: "No tasks yet. Check the forms, then enable the reviewed draft.",
     sessionSummary: "Every {weekday} {start}\u2013{end} \xB7 {state} \xB7 {check}",
     paused: "Paused",
     nextRun: "Next: {date} (Malaysia time)",
     noNextRun: "No upcoming run found",
-    checksComplete: "Setup check complete",
-    checksIncomplete: "New setup check not complete; existing enabled state is preserved",
+    checksComplete: "Form bound",
+    checksIncomplete: "Form binding needed",
     enable: "Enable",
     pause: "Pause",
     editSession: "Edit weekday, time, and no-class dates",
@@ -41933,10 +42164,10 @@ var copy = {
     fieldExceptionsShort: "No-class dates (comma-separated)",
     saveChanges: "Save changes",
     noSuchTask: "This task was deleted.",
-    checkBeforeEnable: "Check and confirm this course\u2019s form types before enabling it.",
+    checkBeforeEnable: "Bind this course\u2019s form before enabling it.",
     duplicateTask: "A task for the same course and time already exists.",
     taskSavedRemovedTrigger: "Task updated; the old scheduled trigger was removed.",
-    savedPausedForReview: "Changes saved and task paused. Complete the setup check before enabling it.",
+    savedPausedForReview: "Changes saved and task paused. Bind the form before enabling it.",
     setupReadyTitle: "All form types are filled in and ready to confirm. No form will be submitted.",
     setupFailedTitle: "A form check failed. Cancel the check, then run it again.",
     setupWaitingTitle: "Waiting for all Forms pages to finish filling. Confirmation will not submit any form.",
@@ -42055,6 +42286,7 @@ var copy = {
     entitlementRevoked: "Authorization revoked",
     phonePlan: "Phone notification renewal",
     firstTermPlan: "First semester plan",
+    semesterSubscriptionPlan: "Semester subscription",
     phoneFallback: "Phone notifications",
     unknownStatus: "Unknown status",
     expiry: " \xB7 Semester ends: {date}",
@@ -42196,6 +42428,92 @@ async function imageCanvas(blob) {
   image.close();
   return canvas;
 }
+function enhancedCanvas(source, scale = 3) {
+  const canvas = document.createElement("canvas");
+  canvas.width = source.width * scale;
+  canvas.height = source.height * scale;
+  const context = canvas.getContext("2d", { willReadFrequently: true });
+  context.drawImage(source, 0, 0, canvas.width, canvas.height);
+  const image = context.getImageData(0, 0, canvas.width, canvas.height), gray = new Uint8Array(canvas.width * canvas.height);
+  for (let i = 0; i < gray.length; i++) {
+    const at = i * 4;
+    gray[i] = Math.round(0.299 * image.data[at] + 0.587 * image.data[at + 1] + 0.114 * image.data[at + 2]);
+  }
+  const radius = Math.max(8, Math.round(12 * scale)), stride = canvas.width + 1, integral = new Uint32Array((canvas.width + 1) * (canvas.height + 1));
+  for (let y = 1; y <= canvas.height; y++) {
+    let row = 0;
+    for (let x = 1; x <= canvas.width; x++) {
+      row += gray[(y - 1) * canvas.width + x - 1];
+      integral[y * stride + x] = integral[(y - 1) * stride + x] + row;
+    }
+  }
+  for (let y = 0; y < canvas.height; y++) for (let x = 0; x < canvas.width; x++) {
+    const x0 = Math.max(0, x - radius), x1 = Math.min(canvas.width, x + radius + 1), y0 = Math.max(0, y - radius), y1 = Math.min(canvas.height, y + radius + 1);
+    const sum = integral[y1 * stride + x1] - integral[y0 * stride + x1] - integral[y1 * stride + x0] + integral[y0 * stride + x0], mean = sum / ((x1 - x0) * (y1 - y0));
+    const value = gray[y * canvas.width + x] < mean - 8 ? 0 : 255, at = (y * canvas.width + x) * 4;
+    image.data[at] = image.data[at + 1] = image.data[at + 2] = value;
+    image.data[at + 3] = 255;
+  }
+  context.putImageData(image, 0, 0);
+  return canvas;
+}
+async function makeWorker(onProgress) {
+  return (0, import_tesseract.createWorker)("eng", 1, { workerPath: asset("worker.min.js"), corePath: asset("tesseract-core"), langPath: asset("lang"), workerBlobURL: false, cacheMethod: "none", logger: (m) => onProgress?.(`${m.status} ${Math.round((m.progress || 0) * 100)}%`) });
+}
+function extractOcr(data, scale = 1) {
+  const tokens = [];
+  for (const block of data.blocks || []) for (const para of block.paragraphs || []) for (const line of para.lines || []) for (const word of line.words || []) {
+    const b = word.bbox;
+    tokens.push({ text: word.text, x: b.x0 / scale, y: b.y0 / scale, width: (b.x1 - b.x0) / scale, height: (b.y1 - b.y0) / scale, confidence: word.confidence });
+  }
+  return { text: data.text || "", tokens };
+}
+async function recognizeImageGrid(source, onProgress) {
+  const ctx = source.getContext("2d", { willReadFrequently: true }), grid = detectTimetableGrid(ctx.getImageData(0, 0, source.width, source.height));
+  if (!grid.ok) {
+    onProgress?.(`\u8868\u683C\u7F51\u683C\u68C0\u6D4B\u5931\u8D25\uFF0C\u56DE\u9000\u5230\u6574\u56FE OCR\uFF1A${grid.reason}`);
+    return null;
+  }
+  const worker = await makeWorker(onProgress), headerCanvas = enhancedCanvas(source, 3);
+  try {
+    const header = extractOcr((await worker.recognize(headerCanvas, {}, { text: true, blocks: true })).data, 3), dates = weekDates(header.text), weekdayIds = { Mo: 1, Tu: 2, We: 3, Th: 4, Fr: 5 }, rows = [];
+    const headerRanges = header.tokens.flatMap((token) => {
+      const found = [...token.text.matchAll(/(\d{1,2}:[0-5]\d)\s*[-–—]\s*(\d{1,2}:[0-5]\d)/g)];
+      return found.map((match) => ({ x: token.x + token.width / 2, start: match[1], end: match[2] }));
+    });
+    const clockTokens = header.tokens.filter((token) => /^\d{1,2}:[0-5]\d$/.test(token.text.trim())).sort((a, b) => a.y - b.y || a.x - b.x);
+    for (const start of clockTokens) {
+      const end = clockTokens.find((item) => item.x > start.x + start.width && Math.abs(item.y - start.y) < Math.max(item.height, start.height) * 1.5);
+      if (end) headerRanges.push({ x: (start.x + end.x + end.width) / 2, start: start.text.trim(), end: end.text.trim() });
+    }
+    for (const cell of grid.cells) for (const segment of cell.groupSegments) {
+      const padding = Math.max(1, Math.round(Math.min(source.width, source.height) * 2e-3)), left = Math.ceil(cell.left + padding), top = Math.ceil(segment.top + padding), right = Math.floor(cell.right - padding), bottom = Math.floor(segment.bottom - padding);
+      if (right - left < 4 || bottom - top < 4) continue;
+      const crop = document.createElement("canvas");
+      crop.width = (right - left) * 3;
+      crop.height = (bottom - top) * 3;
+      const cropCtx = crop.getContext("2d", { willReadFrequently: true });
+      cropCtx.fillStyle = "#fff";
+      cropCtx.fillRect(0, 0, crop.width, crop.height);
+      cropCtx.drawImage(source, left, top, right - left, bottom - top, 0, 0, crop.width, crop.height);
+      cropCtx.fillStyle = "#fff";
+      cropCtx.fillRect(0, 0, crop.width, 3);
+      cropCtx.fillRect(0, crop.height - 3, crop.width, 3);
+      cropCtx.fillRect(0, 0, 3, crop.height);
+      cropCtx.fillRect(crop.width - 3, 0, 3, crop.height);
+      const recognized = extractOcr((await worker.recognize(crop, {}, { text: true, blocks: true })).data);
+      if (!recognized.text.trim()) continue;
+      const periodCenter = (grid.periodColumns[cell.periodStart - 1].center + grid.periodColumns[cell.periodEnd - 1].center) / 2;
+      const headerTime = headerRanges.toSorted((a, b) => Math.abs(a.x - periodCenter) - Math.abs(b.x - periodCenter))[0];
+      const mapped = periodTime(cell.periodStart, cell.periodEnd, { header: headerTime });
+      const parsed = parseCellText(recognized.text, { day: cell.day, date: dates?.get(weekdayIds[cell.day]) || null, start: mapped.start, end: mapped.end, needsReview: mapped.needsReview, ocrConfidence: recognized.tokens.length ? recognized.tokens.reduce((sum, item) => sum + item.confidence, 0) / recognized.tokens.length / 100 : 0 });
+      rows.push(parsed);
+    }
+    return { rows, header };
+  } finally {
+    await worker.terminate();
+  }
+}
 async function decodeQrFile(file) {
   if (!file?.type.startsWith("image/")) throw Error(t("importerQrImage"));
   const canvas = await imageCanvas(file), ctx = canvas.getContext("2d", { willReadFrequently: true });
@@ -42277,7 +42595,14 @@ async function importTimetable(file, onProgress) {
     }
   } else if (file.type === "image/jpeg" || file.type === "image/png" || /\.(?:jpe?g|png)$/i.test(file.name)) {
     onProgress?.(t("importerOcrImage"));
-    rows = rowsFromPage(await ocr(await imageCanvas(file), onProgress));
+    const original = await imageCanvas(file), gridResult = await recognizeImageGrid(original, onProgress);
+    if (gridResult) rows = gridResult.rows;
+    if (!rows.length) {
+      const prepared = enhancedCanvas(original, 3);
+      rows = rowsFromPage(await ocr(prepared, onProgress));
+      if (!rows.length) rows = rowsFromPage(await ocr(original, onProgress));
+      if (rows.length) rows = rows.map((row) => ({ ...row, needsReview: true, confidence: { legacy: 0.45 }, gridFailure: "\u7F51\u683C\u9010\u683C\u8BC6\u522B\u672A\u5B8C\u6210\uFF1B\u7ED3\u679C\u6765\u81EA\u6574\u56FE\u56DE\u9000\u89E3\u6790" }));
+    }
   } else throw Error(t("importerUnsupported"));
   return rows;
 }
@@ -42323,11 +42648,12 @@ function buildFillPlan(questions, mapping, profile2, date, course) {
   return mapping.map((entry, i) => {
     const q = questions[i];
     let value;
+    if (q.type === "date" && q.required === false) return { type: "date", field: entry.field, skip: true };
     const expectedType = ["student", "name"].includes(entry.field) ? "text" : entry.field === "date" ? "date" : /^(?:delivery|local)(?::|$)/.test(entry.field) ? "radio" : null;
     if (expectedType && q.type !== expectedType) throw Error(`\u7B2C ${i + 1} \u9898\u6620\u5C04\u4E0E\u9898\u578B\u4E0D\u4E00\u81F4\uFF0C\u672A\u63D0\u4EA4\u3002`);
     if (entry.field === "student") value = profile2.student;
     else if (entry.field === "name") value = profile2.name;
-    else if (entry.field === "date") value = formatDate(q.placeholder, date);
+    else if (entry.field === "date") value = q.nativeDate ? date : formatDate(q.placeholder, date);
     else if (entry.field === "delivery" || ["delivery:lecture", "delivery:tutorial", "delivery:lab", "delivery:laboratory"].includes(entry.field)) {
       const target = entry.field === "delivery" ? deliveryFromCourse(course) : entry.field.split(":")[1];
       value = deliveryOption(q.options || [], target === "laboratory" ? "lab" : target);
@@ -42346,7 +42672,7 @@ var radioOption = (options, kind) => options.find((option) => kind === "lab" ? [
 var identityOption2 = (options, kind) => options.find((option) => kind === "local" ? /\blocal\b/i.test(option) && !/international/i.test(option) : /international/i.test(option));
 function fieldMappingForQuestion(question, course = "") {
   const title = normalize(question.title), options = question.options || [];
-  if (question.type === "date") return { choices: [["date", t("dateAutoCheck")]], selected: "date" };
+  if (question.type === "date") return { choices: [[question.required === false ? "skip" : "date", t(question.required === false ? "dateOptional" : "dateAutoCheck")]], selected: question.required === false ? "skip" : "date" };
   if (question.type === "text") {
     if (/student.*id|university.*id|学号/.test(title)) return { choices: [["student", t("profileFieldStudent")]], selected: "student" };
     if (/\bname\b|姓名/.test(title)) return { choices: [["name", t("profileFieldName")]], selected: "name" };
@@ -42398,29 +42724,6 @@ function validateBindingForCourse(binding, course, profile2, date) {
   return plan;
 }
 
-// src/binding-inspection.js
-function collectBindingInspectionTargets(entries, validateUrl) {
-  const targets = [], missing = [], invalid = [];
-  for (const entry of entries) {
-    const key = String(entry?.key || "").trim(), value = String(entry?.url || "").trim();
-    if (!value) {
-      missing.push(key);
-      continue;
-    }
-    try {
-      targets.push({ key, url: validateUrl(value).href });
-    } catch (error) {
-      invalid.push(`${key}: ${error.message}`);
-    }
-  }
-  if (missing.length || invalid.length) {
-    const details = [missing.length ? `\u672A\u586B\u5199\uFF1A${missing.join("\u3001")}` : "", invalid.length ? `\u94FE\u63A5\u65E0\u6548\uFF1A${invalid.join("\uFF1B")}` : ""].filter(Boolean).join("\u3002");
-    throw Error(`\u8BF7\u5148\u8865\u9F50\u5168\u90E8\u8BFE\u7A0B\u8868\u5355\u94FE\u63A5\u3002${details}`);
-  }
-  if (!targets.length) throw Error("\u8BF7\u5148\u5BFC\u5165\u6216\u6DFB\u52A0\u8BFE\u7A0B\u3002");
-  return targets;
-}
-
 // src/cloud-client.js
 async function request(action, payload = {}) {
   const result = await chrome.runtime.sendMessage({ type: "CLOUD_REQUEST", action, ...payload });
@@ -42463,7 +42766,6 @@ function buildVariants(tasks, bindings, profile2) {
   if (variants.size > 200) throw Error("\u4E00\u6B21\u6700\u591A\u68C0\u67E5 200 \u4E2A\u8868\u5355\u8BFE\u578B\u3002");
   return [...variants.values()];
 }
-var hasCoverage = (history, variant, after) => history.some((session) => (!after || session.startedAt >= after) && session.items?.some((item) => item.state === "passed" && item.key === variant.key && item.revision === variant.revision));
 
 // src/configuration.js
 function validateSession(input) {
@@ -42589,7 +42891,8 @@ function createOptionsUpgrade(api) {
   }
   async function coverage(course, data) {
     try {
-      return hasCoverage(data.attendanceSetupHistory || [], buildVariants([{ course }], data.attendanceBindings, data.attendanceProfile)[0], data.attendanceSetupCoverageEpoch);
+      validateBindingForCourse(bindingForCourse(data.attendanceBindings, course), course, data.attendanceProfile, todayMalaysia());
+      return true;
     } catch {
       return false;
     }
@@ -42663,17 +42966,6 @@ function createOptionsUpgrade(api) {
       });
     }
   }
-  function renderChecks(data) {
-    const running = data.attendanceSetupSession?.state === "running";
-    const items = data.attendanceSetupSession?.items || [];
-    const ready2 = items.length > 0 && items.some((item) => item.state === "awaiting_confirmation") && items.every((item) => ["awaiting_confirmation", "passed"].includes(item.state));
-    $("cancel-setup").hidden = !running;
-    $("check-setup").disabled = running;
-    $("confirm-all-setup").hidden = !running;
-    $("confirm-all-setup").disabled = !ready2;
-    const failed = items.some((item) => ["failed", "cancelled", "timed_out"].includes(item.state));
-    $("confirm-all-setup").title = ready2 ? t("setupReadyTitle") : failed ? t("setupFailedTitle") : t("setupWaitingTitle");
-  }
   async function renderRecords(data) {
     const all = Object.values(data.attendanceRecords || {}).sort((a, b) => String(b.at).localeCompare(String(a.at))), filter = $("record-filter").value;
     $("record-count").textContent = t("recordCount", { count: all.length });
@@ -42713,7 +43005,6 @@ function createOptionsUpgrade(api) {
     if (id !== renderId) return;
     renderStatus(data);
     await renderSessions(data);
-    await renderChecks(data);
     await renderRecords(data);
   }
   async function activateDraft() {
@@ -42721,14 +43012,19 @@ function createOptionsUpgrade(api) {
     const revision = draftRevision;
     const data = await api.getData();
     if (!api.preview.length) throw Error(t("noPreviewToActivate"));
+    if (api.preview.some((row) => row.type === "LAB" && !["1", "2", "skip"].includes(row.importChoice))) throw Error("\u8BF7\u5148\u4E3A\u6BCF\u6761 LAB \u8BB0\u5F55\u9009\u62E9 Group 1\u3001Group 2 \u6216\u4E0D\u52A0\u5165\u3002");
     if (revision !== draftRevision || !$("review-draft").checked) throw Error(t("draftChangedReview"));
     if (!data.attendanceDraft?.reviewedAt) throw Error(t("reviewBeforeEnable"));
     const p = api.validateProfile(data.attendanceProfile || {});
     if (!sameProfile(p, api.profile())) throw Error(t("saveProfileFirst"));
-    const selected = structuredClone(api.preview);
-    const variants = buildVariants(selected, data.attendanceBindings, p);
-    const missing = variants.filter((v) => !hasCoverage(data.attendanceSetupHistory || [], v, data.attendanceSetupCoverageEpoch));
-    if (missing.length) throw Error(t("confirmLessonTypes", { courses: missing.map((v) => v.course).join(currentLanguage() === "en" ? ", " : "\u3001") }));
+    const selected = structuredClone(api.preview).filter((row) => row.importChoice !== "skip").map((row) => {
+      if (row.type === "LAB" && (row.importChoice === "1" || row.importChoice === "2")) {
+        row.group = row.importChoice;
+        row.course = `${row.code || row.course.split(/\s+-/)[0]}-${row.type} Group ${row.group}`;
+      }
+      return row;
+    });
+    buildVariants(selected, data.attendanceBindings, p);
     const rows = selected.map(validateSession);
     const sessions = saveDraftTasks(data.attendanceSessions || [], rows);
     const commit = writes.then(async () => {
@@ -42758,25 +43054,7 @@ function createOptionsUpgrade(api) {
     await writes;
     if (revision === draftRevision) $("draft-status").textContent = checked ? t("draftReadyToRun") : t("draftUnreviewed");
   }));
-  async function startChecks(moduleKey2) {
-    await writes;
-    const data = await api.getData(), p = api.validateProfile(data.attendanceProfile || {});
-    if (!sameProfile(p, api.profile())) throw Error(t("saveProfileFirst"));
-    const result = await message("START_SETUP", moduleKey2 ? { moduleKey: moduleKey2 } : {});
-    await render();
-    api.toast(t("checksOpened", { count: result?.session?.items?.length ? t("checksPageCount", { count: result.session.items.length }) : "" }));
-  }
-  $("check-setup").addEventListener("click", guard(() => startChecks()));
   $("verify-all-bindings").addEventListener("click", guard(() => api.openAllBindings()));
-  $("confirm-all-setup").addEventListener("click", guard(async () => {
-    const result = await message("CONFIRM_ALL_SETUP_ITEMS");
-    await render();
-    api.toast(t("allChecksConfirmed", { count: result.session.items.length }));
-  }));
-  $("cancel-setup").addEventListener("click", guard(async () => {
-    await message("CANCEL_SETUP");
-    await render();
-  }));
   $("record-filter").addEventListener("change", () => {
     page = 0;
     void render();
@@ -42851,7 +43129,7 @@ function createOptionsUpgrade(api) {
     await render();
     if (api.preview.length) $("draft-status").textContent = t("draftRestored");
   }
-  return { init, draftChanged, render, activateDraft, startChecks, refreshLocale };
+  return { init, draftChanged, render, activateDraft, refreshLocale };
 }
 
 // src/options.js
@@ -42859,9 +43137,11 @@ var $2 = (id) => document.getElementById(id);
 var preview = [];
 var cards = /* @__PURE__ */ new Map();
 var inspecting = /* @__PURE__ */ new Map();
+var scanRequests = /* @__PURE__ */ new Map();
+var bindingWrites = Promise.resolve();
+var batchScanning = false;
 var toastTimer;
 var importGeneration = 0;
-var activeBindingKey = null;
 var recoveryCooldownUntil = 0;
 var recoveryCooldownTimer;
 var recoveryBusy = false;
@@ -42938,10 +43218,13 @@ var activationErrors = {
   unauthorized: "errUnauthorized",
   device_identifier_exists: "errDeviceExists"
 };
-function malaysiaTermEnd(expiresAt) {
+function entitlementTermEnd(expiresAt, plan) {
   const expiry = Date.parse(expiresAt);
   if (!Number.isFinite(expiry)) return "";
-  return new Intl.DateTimeFormat(currentLanguage() === "en" ? "en-MY" : "zh-CN", { dateStyle: "long", timeZone: "Asia/Kuala_Lumpur" }).format(new Date(expiry - 1));
+  const chinaPlan = plan === "sem_subscription";
+  const locale = currentLanguage() === "en" ? chinaPlan ? "en-GB" : "en-MY" : "zh-CN";
+  const timeZone = chinaPlan ? "Asia/Shanghai" : "Asia/Kuala_Lumpur";
+  return new Intl.DateTimeFormat(locale, { dateStyle: "long", timeZone }).format(new Date(expiry - 1));
 }
 var entitlementExpiryTimer;
 function updatePhoneStatusVisibility(entitlement) {
@@ -42970,8 +43253,8 @@ async function refreshEntitlementStatus() {
     }
     const phoneStatusVisible = updatePhoneStatusVisibility(entitlement);
     const labels = { active: t("entitlementActive"), pending: t("entitlementPending"), expired: t("entitlementExpired"), revoked: t("entitlementRevoked") };
-    const plans = { bundle: t("firstTermPlan"), phone_notifications: t("phonePlan") };
-    const end = malaysiaTermEnd(entitlement.expiresAt);
+    const plans = { bundle: t("firstTermPlan"), phone_notifications: t("phonePlan"), sem_subscription: t("semesterSubscriptionPlan") };
+    const end = entitlementTermEnd(entitlement.expiresAt, entitlement.plan);
     const expiryText = end ? t("expiry", { date: end }) : "";
     const permissionText = entitlement.phoneNotifications ? "" : t("permissionOff");
     status.textContent = `${plans[entitlement.plan] || t("phoneFallback")} \xB7 ${labels[entitlement.status] || t("unknownStatus")}${expiryText}${permissionText}`;
@@ -43031,8 +43314,7 @@ function bindingUiState() {
   return new Map([...cards].map(([key, info2]) => [key, {
     url: info2.url.value,
     schema: info2.schema,
-    selected: [...info2.card.querySelectorAll(".mapping select")].map((select) => select.value),
-    confirmed: Boolean(info2.card.querySelector('.mapping label input[type="checkbox"]')?.checked)
+    selected: [...info2.card.querySelectorAll(".mapping select")].map((select) => select.value)
   }]));
 }
 async function changeLanguage(language2) {
@@ -43231,6 +43513,7 @@ function renderPreview(expandId) {
       const type = lessonType(row.course), badge = node2("span", { className: `lesson-badge ${type.toLowerCase()}`, text: type });
       summary.append(time, main, badge, node2("span", { className: "session-chevron", text: "\u2304" }));
       const editor = node2("div", { className: "session-editor" });
+      if (row.needsReview) editor.classList.add("needs-review");
       const course = node2("input", { value: row.course || "", placeholder: t("coursePlaceholder") });
       course.addEventListener("input", () => {
         row.course = course.value.trim();
@@ -43270,6 +43553,45 @@ function renderPreview(expandId) {
         renderPreview(row.id);
       });
       editor.append(field(t("fieldEndTime"), end));
+      if (row.code || row.type || row.room || row.lecturer || row.date || row.confidence) {
+        const metadata = node2("div", { className: "import-metadata" });
+        const editable = (key2, label) => {
+          const input = node2("input", { value: row[key2] || "" });
+          input.addEventListener("input", () => {
+            row[key2] = input.value.trim();
+            if (key2 === "code" || key2 === "type") row.course = `${row.code || ""}${row.type ? `-${row.type}` : ""}${row.group ? ` Group ${row.group}` : ""}`;
+            upgrade.draftChanged();
+          });
+          input.addEventListener("change", () => {
+            renderPreview(row.id);
+            renderBindings();
+          });
+          metadata.append(field(label, input));
+        };
+        if (row.code !== void 0) editable("code", "\u4EE3\u7801");
+        if (row.type !== void 0) editable("type", "\u8BFE\u578B");
+        if (row.group !== void 0) editable("group", "Group");
+        if (row.room !== void 0) editable("room", "\u623F\u95F4");
+        if (row.lecturer !== void 0) editable("lecturer", "\u6559\u5E08");
+        if (row.date !== void 0) editable("date", "\u65E5\u671F");
+        if (row.corrections?.length) metadata.append(node2("small", { className: "import-corrections", text: row.corrections.map((item) => `${item.raw} \u2192 ${item.corrected}`).join("\uFF1B") }));
+        if (row.confidence) metadata.append(node2("small", { className: "import-confidence", text: `\u7F6E\u4FE1\u5EA6\uFF1A${Object.entries(row.confidence).map(([key2, value2]) => `${key2} ${Math.round(value2 * 100)}%`).join(" \xB7 ")}` }));
+        if (row.type === "LAB") {
+          const choice = node2("select");
+          for (const [value2, label] of [["", "\u9009\u62E9\u81EA\u5DF1\u7684 Group"], ["1", "Group 1"], ["2", "Group 2"], ["skip", "\u4E0D\u52A0\u5165\u6B64 Group"]]) choice.append(node2("option", { value: value2, text: label }));
+          choice.value = row.importChoice || "";
+          choice.addEventListener("change", () => {
+            row.importChoice = choice.value;
+            if (choice.value === "1" || choice.value === "2") {
+              row.group = choice.value;
+              row.course = `${row.code || row.course.split(/\s+-/)[0]}-${row.type} Group ${choice.value}`;
+            }
+            upgrade.draftChanged();
+          });
+          metadata.append(field("\u9009\u62E9\u53C2\u52A0\u7684\u7EC4", choice));
+        }
+        editor.append(metadata);
+      }
       const exceptions = node2("input", { value: (row.exceptions || []).join(", "), placeholder: "YYYY-MM-DD, ..." });
       exceptions.addEventListener("input", () => {
         row.exceptions = exceptions.value.split(/[,，\s]+/).filter(Boolean);
@@ -43315,7 +43637,7 @@ function moduleGroups(sessions = []) {
   }
   return [...groups.entries()].sort(([a], [b]) => a.localeCompare(b));
 }
-async function renderBindings(preserved = /* @__PURE__ */ new Map()) {
+async function renderBindings(preserved = bindingUiState()) {
   const { attendanceSessions: sessions = [], attendanceBindings: bindings = {}, attendanceProfile: p = {} } = await getData();
   const root = $2("bindings");
   root.replaceChildren();
@@ -43329,7 +43651,7 @@ async function renderBindings(preserved = /* @__PURE__ */ new Map()) {
     const saved = bindings[key], legacy = legacyLinkSuggestion(bindings, courses);
     const ready = courses.every((course) => {
       try {
-        validateBindingForCourse(bindingForCourse(bindings, course), course, p, todayMalaysia());
+        validateBindingForCourse(bindingForCourse(bindings, course), course, { student: p.student || "Student ID", name: p.name || "Name", studentType: p.studentType || "local" }, todayMalaysia());
         return true;
       } catch {
         return false;
@@ -43342,52 +43664,164 @@ async function renderBindings(preserved = /* @__PURE__ */ new Map()) {
     url.setAttribute("aria-label", t("formsUrlLabel", { key }));
     const fileLabel = node2("label", { className: "file-button", text: t("uploadQr") }), file = node2("input", { type: "file", accept: ".png,.jpg,.jpeg,image/png,image/jpeg" });
     fileLabel.append(file);
-    const status = node2("p", { className: "status", text: ready ? t("bindingReady", { title: saved.title }) : legacy.conflict ? t("legacyConflict") : t("bindingNeedsReview") });
+    const status = node2("p", { className: `status${ready ? " success" : ""}`, text: ready ? t("boundSuccessfully") : legacy.conflict ? t("legacyConflict") : t("bindingNeedsReview") });
+    status.setAttribute("role", "status");
+    status.setAttribute("aria-live", "polite");
     row.append(url, fileLabel);
     card.append(title, variants, row, status);
     root.append(card);
     cards.set(key, { card, url, status, courses, schema: previous?.schema });
-    if (previous?.schema) renderInspection(key, previous.schema, previous.selected, previous.confirmed);
-    url.addEventListener("focus", () => activeBindingKey = key);
-    url.addEventListener("input", () => activeBindingKey = key);
+    if (previous?.schema) renderInspection(key, previous.schema, previous.selected);
+    else if (saved?.verified && saved.questions) renderInspection(key, { url: saved.url, title: saved.title, questions: saved.questions }, saved.mapping.map((entry) => entry.field));
+    let debounce, qrRevision = 0;
+    const changed = () => {
+      qrRevision++;
+      clearTimeout(debounce);
+      cancelInspection(key);
+      infoStatus(key, t("bindingNeedsReview"));
+      cards.get(key).schema = void 0;
+      card.querySelector(".mapping")?.remove();
+      const value = url.value.trim();
+      void writeBinding(key, () => ({ url: value, title: "", verified: false, scope: "module" })).catch((error) => infoStatus(key, error.message, true));
+      if (value) debounce = setTimeout(() => void scanBinding(key).catch((error) => infoStatus(key, error.message, true)), 350);
+    };
+    url.addEventListener("input", changed);
+    url.addEventListener("change", () => {
+      clearTimeout(debounce);
+      if (url.value.trim()) void scanBinding(key).catch((error) => infoStatus(key, error.message, true));
+    });
     file.addEventListener("change", async () => {
+      const image = file.files?.[0];
+      if (!image) return;
+      let revision = ++qrRevision;
       try {
-        activeBindingKey = key;
-        const decoded = await decodeQrFile(file.files[0]);
+        infoStatus(key, t("readingQr"));
+        const decoded = await decodeQrFile(image);
+        if (revision !== qrRevision) return;
         url.value = decoded;
-        status.textContent = t("qrRead");
+        changed();
+        revision = qrRevision;
+        clearTimeout(debounce);
+        await scanBinding(key);
       } catch (error) {
-        toast(error.message, true);
+        if (revision === qrRevision) infoStatus(key, error.message, true);
+      } finally {
+        file.value = "";
       }
-      file.value = "";
     });
   }
 }
+function infoStatus(key, message2, error = false, success = false) {
+  const info2 = cards.get(key);
+  if (!info2) return;
+  info2.status.textContent = localizeMessage(message2);
+  info2.status.className = `status${error ? " error" : success ? " success" : ""}`;
+}
+function writeBinding(key, create) {
+  const write = bindingWrites.catch(() => {
+  }).then(async () => {
+    const { attendanceBindings: bindings = {} } = await getData();
+    const binding = create();
+    if (!binding) return;
+    await chrome.storage.local.set({ attendanceBindings: { ...bindings, [key]: binding } });
+  });
+  bindingWrites = write;
+  return write;
+}
+function finishInspection(inspection, error) {
+  if (inspecting.get(inspection.tabId) !== inspection) return;
+  clearTimeout(inspection.timer);
+  inspecting.delete(inspection.tabId);
+  void chrome.tabs.remove(inspection.tabId).catch(() => {
+  });
+  if (error) {
+    infoStatus(inspection.key, error.message, true);
+    inspection.reject(error);
+  } else inspection.resolve();
+}
+function cancelInspection(key) {
+  for (const inspection of inspecting.values()) if (inspection.key === key) finishInspection(inspection, Error(t("scanCancelled")));
+}
 function clearInspections() {
-  for (const inspection of inspecting.values()) clearTimeout(inspection.timer);
-  inspecting.clear();
+  for (const inspection of [...inspecting.values()]) finishInspection(inspection, Error(t("scanCancelled")));
+}
+function scanBinding(key) {
+  const source = cards.get(key)?.url.value.trim();
+  const existing = scanRequests.get(key);
+  if (existing?.source === source) return existing.promise;
+  const request2 = { source };
+  request2.promise = scanBindingNow(key).finally(() => {
+    if (scanRequests.get(key) === request2) scanRequests.delete(key);
+  });
+  scanRequests.set(key, request2);
+  return request2.promise;
+}
+async function scanBindingNow(key) {
+  const info2 = cards.get(key);
+  if (!info2) return;
+  const source = info2.url.value.trim(), url = validateFormsUrl(source).href;
+  const existing = [...inspecting.values()].find((item) => item.key === key && item.source === source);
+  if (existing) return existing.promise;
+  cancelInspection(key);
+  infoStatus(key, t("openingForm"));
+  await writeBinding(key, () => cards.get(key)?.url.value.trim() === source ? { url, title: "", verified: false, scope: "module" } : null);
+  const tab = await chrome.tabs.create({ url: "about:blank", active: false });
+  if (cards.get(key)?.url.value.trim() !== source) {
+    await chrome.tabs.remove(tab.id);
+    return;
+  }
+  const inspection = { key, source, tabId: tab.id };
+  inspection.promise = new Promise((resolve, reject) => {
+    inspection.resolve = resolve;
+    inspection.reject = reject;
+  });
+  inspecting.set(tab.id, inspection);
+  inspection.timer = setTimeout(() => finishInspection(inspection, Error(t("inspectionTimeout"))), 9e4);
+  void chrome.tabs.update(tab.id, { url }).catch((error) => finishInspection(inspection, error));
+  return inspection.promise;
 }
 async function openAllBindings() {
-  if (inspecting.size) throw Error(t("inspectionBusy"));
-  const entries = [...cards.entries()].map(([key, info2]) => ({ key, url: info2.url.value }));
-  const targets = collectBindingInspectionTargets(entries, validateFormsUrl);
-  const tabs = await Promise.all(targets.map((target, index) => chrome.tabs.create({ url: "about:blank", active: index === 0 })));
-  for (const [index, target] of targets.entries()) {
-    const tab = tabs[index], info2 = cards.get(target.key);
-    if (!info2) continue;
-    info2.status.textContent = t("openingForm");
-    const inspection = { key: target.key, tabId: tab.id };
-    inspection.timer = setTimeout(() => {
-      if (inspecting.get(tab.id) !== inspection) return;
-      info2.status.textContent = t("inspectionTimeout");
-      inspecting.delete(tab.id);
-    }, 9e4);
-    inspecting.set(tab.id, inspection);
+  if (batchScanning) return;
+  const entries = [...cards.entries()].map(([key, info2]) => ({ key, url: info2.url.value })).filter((entry) => entry.url.trim());
+  if (!entries.length) throw Error(t("noFormLinks"));
+  const button2 = $2("verify-all-bindings");
+  batchScanning = true;
+  button2.disabled = true;
+  button2.textContent = t("scanningAll");
+  let succeeded = 0, failed = 0;
+  try {
+    for (const entry of entries) {
+      try {
+        await scanBinding(entry.key);
+        succeeded++;
+      } catch (error) {
+        failed++;
+        infoStatus(entry.key, error.message, true);
+      }
+    }
+    await rebuild();
+    await upgrade.render();
+    toast(t("scanSummary", { succeeded, failed }), failed > 0);
+  } finally {
+    batchScanning = false;
+    button2.disabled = false;
+    button2.textContent = t("verifyAllForms");
   }
-  await Promise.all(tabs.map((tab, index) => chrome.tabs.update(tab.id, { url: targets[index].url })));
-  toast(t("openedForms", { count: targets.length }));
 }
-function renderInspection(key, schema, selectedValues = [], wasConfirmed = false) {
+async function saveInspection(key, schema, selects) {
+  const info2 = cards.get(key);
+  if (!info2) return;
+  const source = info2.url.value.trim(), p = profile();
+  const mapping = schema.questions.map((q, i) => ({ title: q.title, type: q.type, required: q.required, options: q.options || [], field: selects[i].value }));
+  if (mapping.some((x) => !x.field)) throw Error(t("mapEveryQuestion"));
+  const binding = { url: validateFormsUrl(schema.url).href, title: schema.title, questions: schema.questions, mapping, verified: true, scope: "module" };
+  for (const variant of info2.courses) validateBindingForCourse(binding, variant, { student: p.student || "Student ID", name: p.name || "Name", studentType: p.studentType || "local" }, todayMalaysia());
+  await writeBinding(key, () => cards.get(key)?.url.value.trim() === source && cards.get(key)?.schema === schema ? binding : null);
+  if (cards.get(key)?.url.value.trim() !== source || cards.get(key)?.schema !== schema) return;
+  infoStatus(key, t("boundSuccessfully"), false, true);
+  await syncCloudSafe();
+}
+function renderInspection(key, schema, selectedValues = []) {
   const info2 = cards.get(key);
   if (!info2) return;
   info2.schema = schema;
@@ -43395,8 +43829,6 @@ function renderInspection(key, schema, selectedValues = [], wasConfirmed = false
   info2.card.querySelector(".mapping")?.remove();
   const box = node2("div", { className: "mapping" });
   box.append(node2("p", { text: t("actualForm", { title: schema.title, url: schema.url }) }));
-  const code = key.match(/[A-Za-z]{2,}\d{3,}/)?.[0];
-  if (code && !schema.title.toLowerCase().includes(code.toLowerCase())) box.append(node2("p", { className: "status", text: t("courseCodeMissing", { code }) }));
   const selects = [];
   const fields = node2("details", { className: "mapping-fields" });
   fields.append(node2("summary", { text: t("editMapping") }));
@@ -43411,61 +43843,43 @@ function renderInspection(key, schema, selectedValues = [], wasConfirmed = false
     selects.push(select);
     line.append(label, select);
     fields.append(line);
+    select.addEventListener("change", () => {
+      infoStatus(key, t("openingForm"));
+      void writeBinding(key, () => ({ ...schema, scope: "module", verified: false })).then(() => saveInspection(key, schema, selects)).catch((error) => infoStatus(key, error.message, true));
+    });
   }
   fields.open = selects.some((select) => !select.value);
   box.append(fields);
-  const confirmLabel = node2("label", { className: "checkbox" }), confirm2 = node2("input", { type: "checkbox" });
-  confirm2.checked = wasConfirmed;
-  confirmLabel.append(confirm2, node2("span", { text: t("bindingConfirmation", { key, courses: courses.join(currentLanguage() === "en" ? ", " : "\u3001") }) }));
-  box.append(confirmLabel);
-  const save = node2("button", { type: "button", text: t("saveBinding"), className: "save-binding" });
-  box.append(save);
   info2.card.append(box);
-  save.addEventListener("click", async () => {
-    try {
-      if (!confirm2.checked) throw Error(t("verifyBeforeSave"));
-      const p = validateProfile(profile());
-      const mapping = schema.questions.map((q, i) => ({ title: q.title, type: q.type, options: q.options || [], field: selects[i].value }));
-      if (mapping.some((x) => !x.field)) throw Error(t("mapEveryQuestion"));
-      const binding = { url: validateFormsUrl(schema.url).href, title: schema.title, questions: schema.questions, mapping, verified: true, scope: "module" };
-      for (const variant of courses) validateBindingForCourse(binding, variant, p, todayMalaysia());
-      const { attendanceBindings: bindings = {} } = await getData();
-      bindings[key] = binding;
-      await chrome.storage.local.set({ attendanceBindings: bindings, attendanceProfile: p });
-      await syncCloudSafe({ sessions: (await getData()).attendanceSessions || [], bindings });
-      info2.card.querySelector(".mapping")?.remove();
-      info2.schema = void 0;
-      info2.status.textContent = t("verifiedForm", { title: schema.title });
-      toast(t("bindingSaved", { key }));
-    } catch (error) {
-      toast(error.message, true);
-    }
-  });
+  return selects;
 }
 chrome.runtime.onMessage.addListener((message2, sender) => {
   const inspection = inspecting.get(sender.tab?.id);
   if (!inspection) return;
   const key = inspection.key, info2 = cards.get(key);
-  if (!info2) return;
+  if (!info2 || info2.url.value.trim() !== inspection.source) {
+    finishInspection(inspection, Error(t("scanCancelled")));
+    return;
+  }
   if (message2.type === "FORM_SETUP_ERROR") {
-    info2.status.textContent = localizeMessage(message2.error);
-    clearTimeout(inspection.timer);
-    inspecting.delete(sender.tab.id);
+    finishInspection(inspection, Error(message2.error));
     return;
   }
   if (message2.type !== "FORM_READY") return;
-  try {
-    const url = validateFormsUrl(message2.url);
-    if (!/^\/Pages\/ResponsePage\.aspx$/i.test(url.pathname) || !message2.title || !message2.questions?.length) throw Error(t("formsNotFound"));
-    clearTimeout(inspection.timer);
-    inspecting.delete(sender.tab.id);
-    info2.status.textContent = t("reviewForm");
-    renderInspection(key, { url: url.href, title: message2.title, questions: message2.questions });
-  } catch (error) {
-    info2.status.textContent = localizeMessage(error.message);
-    clearTimeout(inspection.timer);
-    inspecting.delete(sender.tab.id);
-  }
+  if (inspection.saving) return;
+  inspection.saving = true;
+  void (async () => {
+    try {
+      const url = validateFormsUrl(message2.url);
+      if (sender.tab.url && validateFormsUrl(sender.tab.url).href !== url.href || !message2.title || !message2.questions?.length) throw Error(t("formsNotFound"));
+      const schema = { url: url.href, title: message2.title, questions: message2.questions };
+      const selects = renderInspection(key, schema);
+      await saveInspection(key, schema, selects);
+      finishInspection(inspection);
+    } catch (error) {
+      finishInspection(inspection, error);
+    }
+  })();
 });
 async function renderSaved() {
   await upgrade.render();
@@ -43494,7 +43908,12 @@ $2("timetable-file").addEventListener("change", async (event) => {
     });
     if (generation !== importGeneration) return;
     if (!rows.length) throw Error(t("noRecognizedLessons"));
-    preview.push(...rows.map((r) => ({ ...toWeeklySession(r), id: crypto.randomUUID(), exceptions: [] })));
+    preview.push(...rows.map((r) => {
+      const dayNumber = { Mo: 1, Tu: 2, We: 3, Th: 4, Fr: 5 }[r.day] ?? r.weekday ?? 1;
+      const course = r.course || `${r.code || ""}${r.type ? `-${r.type}` : ""}${r.group ? ` Group ${r.group}` : ""}`;
+      const weekly = toWeeklySession({ kind: "weekly", weekday: dayNumber, course, time: r.start || r.time, endTime: r.end || r.endTime });
+      return { ...weekly, id: crypto.randomUUID(), exceptions: [], ...r, course, weekday: dayNumber, time: r.start || r.time, endTime: r.end || r.endTime };
+    }));
     $2("import-status").textContent = t("recognizedLessons", { count: rows.length, groupWarning: rows.some((r) => /\bGroup\s*\d+\b/i.test(r.course)) ? t("groupWarning") : "" });
     renderPreview();
     await renderBindings();
@@ -43526,10 +43945,12 @@ $2("clear-bindings").addEventListener("click", async () => {
   if (!confirm(t("clearBindingsConfirm"))) return;
   try {
     clearInspections();
+    await bindingWrites.catch(() => {
+    });
     await chrome.storage.local.set({ attendanceBindings: {} });
     await rebuild();
     await upgrade.render();
-    await renderBindings();
+    await renderBindings(/* @__PURE__ */ new Map());
     toast(t("bindingsCleared"));
   } catch (error) {
     toast(error.message, true);

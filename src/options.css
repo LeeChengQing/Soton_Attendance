@@ -45,11 +45,11 @@ body { padding-bottom: var(--workflow-space, 180px); }
 .workflow-controls .checkbox { margin: 0; max-width: none; min-height: 50px; align-items: center; font-size: 14px; }
 .workflow-controls .toolbar { display: grid; grid-template-columns: repeat(auto-fit, minmax(205px, 1fr)); gap: 12px; width: 100%; }
 .workflow-controls .toolbar button { min-width: 150px; min-height: 50px; padding: 12px 18px; font-size: 14px; }
-#verify-all-bindings, #check-setup { min-width: 205px; }
+#verify-all-bindings { min-width: 205px; }
 #create-tasks { min-width: 170px; }
 @media (max-width: 1000px) and (min-width: 601px) { .workflow-controls { grid-template-columns: 1fr; gap: 10px; } .workflow-controls .toolbar { grid-template-columns: repeat(auto-fit, minmax(205px, 1fr)); } }
 .toast { z-index: 200; }
-@media (max-width: 600px) { body { padding-bottom: var(--workflow-space, 240px); } #dock-toggle { min-width: 72px; min-height: 46px; padding: 9px 18px; font-size: 14px; } .workflow-controls { grid-template-columns: 1fr; } .workflow-controls .toolbar { display: grid; grid-template-columns: 1fr 1fr; width: 100%; } .workflow-panel { width: min(1000px, calc(100vw - 20px)); padding: 10px 12px; } .workflow-controls button { min-width: 0; min-height: 44px; padding-inline: 8px; font-size: 13px; } #verify-all-bindings, #check-setup, #create-tasks { min-width: 0; } .workflow-dock nav { gap: 14px; } .workflow-controls #cancel-setup { grid-column: 1 / -1; } }
+@media (max-width: 600px) { body { padding-bottom: var(--workflow-space, 240px); } #dock-toggle { min-width: 72px; min-height: 46px; padding: 9px 18px; font-size: 14px; } .workflow-controls { grid-template-columns: 1fr; } .workflow-controls .toolbar { display: grid; grid-template-columns: 1fr 1fr; width: 100%; } .workflow-panel { width: min(1000px, calc(100vw - 20px)); padding: 10px 12px; } .workflow-controls button { min-width: 0; min-height: 44px; padding-inline: 8px; font-size: 13px; } #verify-all-bindings, #create-tasks { min-width: 0; } .workflow-dock nav { gap: 14px; }  }
 @media (max-width: 420px) { .workflow-controls .toolbar { grid-template-columns: 1fr; } .workflow-controls #cancel-setup { grid-column: auto; } }
 .wrap { width: min(1160px, calc(100% - 40px)); margin-inline: auto; }
 
@@ -330,3 +330,6 @@ label.checkbox input { width: 18px; height: 18px; min-height: 0; margin: 2px 0 0
 @media (prefers-reduced-motion: reduce) {
   button, .file-button, .session-chevron, .workflow-panel { transition: none; }
 }
+
+.binding .status.success { color: #a7d7c1; font-weight: 600; }
+.binding .status.error { overflow-wrap: anywhere; }

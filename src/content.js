@@ -22,10 +22,12 @@ function show(message,positive=false) {
 function readQuestions() {
   return items().map(item=>{
     const inputs=[...item.querySelectorAll('input')],radio=inputs.filter(e=>e.type==='radio');
-    const date=inputs.find(e=>e.getAttribute('role')==='combobox');
+    const title=item.querySelector('[data-automation-id="questionTitle"]')?.textContent?.trim()||'';
+    const date=inputs.find(e=>e.type==='date'||e.getAttribute('role')==='combobox'&&(/date|日期/i.test(title)||/yyyy|yy|MM[/.-]|[/.-]MM/i.test(e.placeholder)));
     const text=inputs.filter(e=>e.matches('[data-automation-id="textInput"]'));
     if(item.querySelector('textarea,select,input[type="checkbox"]') || (!radio.length && !date && text.length!==1)) throw Error('表单含暂不支持的题型，无法启用自动打卡。');
-    return {title:item.querySelector('[data-automation-id="questionTitle"]')?.textContent?.trim()||'',type:radio.length?'radio':date?'date':'text',placeholder:date?.placeholder||'',options:radio.map(e=>e.value)};
+    const required=Boolean(item.querySelector('[required],[aria-required="true"],[data-automation-id="questionRequired"],[data-automation-id="requiredStar"],[aria-label="Required"],[aria-label="必填"]'))||/\*/.test(title)||item.getAttribute('data-required')==='true';
+    return {title,type:radio.length?'radio':date?'date':'text',required,placeholder:date?.placeholder||'',nativeDate:date?.type==='date',options:radio.map(e=>e.value)};
   });
 }
 
@@ -33,16 +35,17 @@ function control(index,entry) {
   const item=items()[index];
   if(!item) return null;
   if(entry.type==='radio') return [...item.querySelectorAll('input[type="radio"]')].find(e=>e.value===entry.value);
-  return item.querySelector(entry.type==='date'?'input[role="combobox"]':'input[data-automation-id="textInput"]');
+  return item.querySelector(entry.type==='date'?'input[role="combobox"],input[type="date"]':'input[data-automation-id="textInput"]');
 }
 
 
 async function fill(plan) {
   for(let i=0;i<plan.length;i++) {
     const entry=plan[i],el=control(i,entry);
+    if(entry.skip) continue;
     if(!el || el.disabled || el.readOnly&&entry.type!=='date') throw Error(`第 ${i+1} 题无法填写。`);
     if(entry.type==='radio') el.click();
-    else if(entry.type==='date') await fillDate(el,entry.value);
+    else if(entry.type==='date'&&el.type!=='date') await fillDate(el,entry.value);
     else {
       el.focus();Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set.call(el,entry.value);
       el.dispatchEvent(new Event('input',{bubbles:true}));el.dispatchEvent(new Event('change',{bubbles:true}));el.blur();
@@ -57,6 +60,7 @@ function answersMatch(plan) {
   const questions=items();
   if(questions.length!==plan.length) return false;
   return plan.every((entry,i)=>{
+    if(entry.skip) return true;
     const el=control(i,entry);
     if(!el || el.getAttribute('aria-invalid')==='true') return false;
     if(entry.type==='radio') {
@@ -110,12 +114,13 @@ async function run(key,checkCourse,setupId,itemId) {
     if(!binding?.verified || !profile?.student || !profile?.name) throw Error('请先在扩展设置页完成资料和表单配置。');
     validateBindingForCourse(binding,occ.course,profile,occ.date);
     const now=new Date(),computerDate=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
-    assertDateAgreement(occ.date,todayMalaysia(now),computerDate);
     const expected=validateFormsUrl(binding.url),actual=validateFormsUrl(location.href);
     if(expected.hostname!==actual.hostname || expected.pathname!==actual.pathname || expected.searchParams.get('id')!==actual.searchParams.get('id')) throw Error('当前表单与课程绑定的表单不一致。');
     if(formTitle()!==binding.title) throw Error('表单标题发生变化，未提交。');
     const plan=buildFillPlan(readQuestions(),binding.mapping,profile,occ.date,occ.course);
-    show(`${occ.course}\n正在填写并核对资料与当日日期…`);
+    const requiresDate=plan.some(entry=>entry.type==='date'&&!entry.skip);
+    if(requiresDate) assertDateAgreement(occ.date,todayMalaysia(now),computerDate);
+    show(`${occ.course}\n正在填写并核对资料${requiresDate?'与当日日期':''}…`);
     await fill(plan);
     if(!answersMatch(plan)) throw Error('表单答案已变化，未通过核对；未提交。');
     if(!key) {

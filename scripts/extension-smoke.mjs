@@ -12,7 +12,7 @@ try {
   const id=new URL(worker.url()).host;
   if(!/^[a-p]{32}$/.test(id)) throw Error('Not a real extension runtime ID');
   const page=await context.newPage();await page.goto(`chrome-extension://${id}/options.html`);
-  await page.locator('#readiness strong').waitFor();
+  await page.locator('#profile-form').waitFor();
   const day=todayMalaysia(),weekday=(new Date(`${day}T00:00:00Z`).getUTCDay()+1)%7;
   await page.evaluate(async weekday=>{
     await chrome.storage.local.set({attendanceProfile:{student:'12345',name:'Isolated Test',studentType:'local'},attendanceSessions:[{id:'future',kind:'weekly',course:'COMP1311',weekday,time:'09:00',endTime:'10:00',exceptions:[],createdAt:new Date().toISOString()}],attendanceScheduleMode:'weekly'});

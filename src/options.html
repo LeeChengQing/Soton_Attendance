@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="options.css">
 </head>
 <body>
-  <header class="hero"><div class="wrap hero-inner"><div><h1><span data-i18n="appTitle">自动打卡</span> <span class="version">V1.0 Release</span></h1><p data-i18n="heroDescription">保存资料，导入课表，绑定后测试并启用。</p></div><div class="language-switch" role="group" aria-label="Language"><button id="language-en" type="button" class="quiet" aria-pressed="false">EN</button><span aria-hidden="true">/</span><button id="language-zh" type="button" class="quiet selected" aria-pressed="true">中文</button></div></div></header>
+  <header class="hero"><div class="wrap hero-inner"><div><h1><span data-i18n="appTitle">自动打卡</span> <span class="version">V1.0 Release</span></h1><p data-i18n="heroDescription">保存资料，导入课表，自动绑定后启用。</p></div><div class="language-switch" role="group" aria-label="Language"><button id="language-en" type="button" class="quiet" aria-pressed="false">EN</button><span aria-hidden="true">/</span><button id="language-zh" type="button" class="quiet selected" aria-pressed="true">中文</button></div></div></header>
   <main class="wrap">
     <p id="persistent-error" class="status error inline-error" role="alert"></p>
     <section class="card" aria-labelledby="profile-heading">
@@ -26,7 +26,7 @@
       <p id="draft-status" class="status" data-i18n="draftAutoSave">草稿自动保存，启用后才会执行。</p>
     </section>
     <section class="card" aria-labelledby="binding-heading">
-      <div class="section-head"><span class="step">03</span><div><h2 id="binding-heading" data-i18n="bindingHeading">绑定与测试</h2><p data-i18n="bindingDescription">每门课程绑定一次；自动测试全部课型，不提交。</p></div><button id="clear-bindings" type="button" class="quiet clear-section" data-i18n="clearBindings">清空绑定</button></div>
+      <div class="section-head"><span class="step">03</span><div><h2 id="binding-heading" data-i18n="bindingHeading">表单绑定</h2><p data-i18n="bindingDescription">粘贴链接或上传二维码即可自动绑定；扫描不会提交表单。</p></div><button id="clear-bindings" type="button" class="quiet clear-section" data-i18n="clearBindings">清空绑定</button></div>
       <div id="bindings" class="binding-list"><p class="muted" data-i18n="emptyBindings">先导入或添加课程。</p></div>
     </section>
     <section class="card" aria-labelledby="tasks-heading"><div class="section-head"><div><h2 id="tasks-heading" data-i18n="tasksHeading">每周任务</h2><p data-i18n="tasksDescription">结束前 5 分钟自动执行。请保持 Chrome 运行、电脑清醒且学校账号已登录。</p></div><button id="clear-sessions" type="button" class="quiet clear-section" data-i18n="clearTasks">删除全部任务</button></div><div id="sessions" class="list"></div></section>
@@ -63,7 +63,7 @@
       <details class="support-details"><summary data-i18n="subscriptionHelp">订阅说明</summary><p class="access-note" data-i18n="subscriptionTerms">每把密钥只能绑定一台设备。同一学期的密钥不叠加时长；学期截止日按马来西亚时间当天结束计算。ntfy 主题不能代替有效授权。</p></details>
     </details>
   </main>
-  <aside id="workflow-dock" class="workflow-dock" data-i18n-aria-label="workflowLabel"><button id="dock-toggle" type="button" aria-expanded="false" aria-controls="workflow-panel" data-i18n="workflowToggle">操作</button><div id="workflow-panel" class="workflow-panel" inert><nav data-i18n-aria-label="pageNavigation"><a href="#import-heading" data-i18n="navTimetable">课表</a><a href="#binding-heading" data-i18n="navBindings">表单绑定</a><a href="#tasks-heading" data-i18n="navTasks">每周任务</a><a href="#profile-heading" data-i18n="navProfile">学生资料</a></nav><div class="workflow-controls"><label class="checkbox"><input id="review-draft" type="checkbox"><span data-i18n="reviewDraft">我已核对课表与组别。</span></label><div class="toolbar"><button id="verify-all-bindings" type="button" data-i18n="verifyAllForms">一键打开全部并核对</button><button id="check-setup" type="button" class="secondary" data-i18n="testAllForms">测试全部课型 · 不提交</button><button id="confirm-all-setup" type="button" class="secondary" hidden disabled data-i18n="confirmAllForms">一键确认全部课型</button><button id="create-tasks" type="button" class="primary" data-i18n="enableTasks">启用每周任务</button><button id="cancel-setup" type="button" class="quiet" hidden data-i18n="cancelChecks">取消检查</button></div></div></div></aside>
+  <aside id="workflow-dock" class="workflow-dock" data-i18n-aria-label="workflowLabel"><button id="dock-toggle" type="button" aria-expanded="false" aria-controls="workflow-panel" data-i18n="workflowToggle">操作</button><div id="workflow-panel" class="workflow-panel" inert><nav data-i18n-aria-label="pageNavigation"><a href="#import-heading" data-i18n="navTimetable">课表</a><a href="#binding-heading" data-i18n="navBindings">表单绑定</a><a href="#tasks-heading" data-i18n="navTasks">每周任务</a><a href="#profile-heading" data-i18n="navProfile">学生资料</a></nav><div class="workflow-controls"><label class="checkbox"><input id="review-draft" type="checkbox"><span data-i18n="reviewDraft">我已核对课表与组别。</span></label><div class="toolbar"><button id="verify-all-bindings" type="button" class="primary" data-i18n="verifyAllForms">自动扫描并保存全部</button><button id="create-tasks" type="button" class="primary" data-i18n="enableTasks">启用每周任务</button></div></div></div></aside>
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
   <script type="module" src="options.js"></script>
 </body>

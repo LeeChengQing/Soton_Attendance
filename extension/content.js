@@ -46,11 +46,12 @@
     return mapping.map((entry, i) => {
       const q = questions[i];
       let value;
+      if (q.type === "date" && q.required === false) return { type: "date", field: entry.field, skip: true };
       const expectedType = ["student", "name"].includes(entry.field) ? "text" : entry.field === "date" ? "date" : /^(?:delivery|local)(?::|$)/.test(entry.field) ? "radio" : null;
       if (expectedType && q.type !== expectedType) throw Error(`\u7B2C ${i + 1} \u9898\u6620\u5C04\u4E0E\u9898\u578B\u4E0D\u4E00\u81F4\uFF0C\u672A\u63D0\u4EA4\u3002`);
       if (entry.field === "student") value = profile.student;
       else if (entry.field === "name") value = profile.name;
-      else if (entry.field === "date") value = formatDate(q.placeholder, date);
+      else if (entry.field === "date") value = q.nativeDate ? date : formatDate(q.placeholder, date);
       else if (entry.field === "delivery" || ["delivery:lecture", "delivery:tutorial", "delivery:lab", "delivery:laboratory"].includes(entry.field)) {
         const target = entry.field === "delivery" ? deliveryFromCourse(course) : entry.field.split(":")[1];
         value = deliveryOption(q.options || [], target === "laboratory" ? "lab" : target);
@@ -170,24 +171,27 @@
   function readQuestions() {
     return items().map((item) => {
       const inputs = [...item.querySelectorAll("input")], radio = inputs.filter((e) => e.type === "radio");
-      const date = inputs.find((e) => e.getAttribute("role") === "combobox");
+      const title = item.querySelector('[data-automation-id="questionTitle"]')?.textContent?.trim() || "";
+      const date = inputs.find((e) => e.type === "date" || e.getAttribute("role") === "combobox" && (/date|日期/i.test(title) || /yyyy|yy|MM[/.-]|[/.-]MM/i.test(e.placeholder)));
       const text = inputs.filter((e) => e.matches('[data-automation-id="textInput"]'));
       if (item.querySelector('textarea,select,input[type="checkbox"]') || !radio.length && !date && text.length !== 1) throw Error("\u8868\u5355\u542B\u6682\u4E0D\u652F\u6301\u7684\u9898\u578B\uFF0C\u65E0\u6CD5\u542F\u7528\u81EA\u52A8\u6253\u5361\u3002");
-      return { title: item.querySelector('[data-automation-id="questionTitle"]')?.textContent?.trim() || "", type: radio.length ? "radio" : date ? "date" : "text", placeholder: date?.placeholder || "", options: radio.map((e) => e.value) };
+      const required = Boolean(item.querySelector('[required],[aria-required="true"],[data-automation-id="questionRequired"],[data-automation-id="requiredStar"],[aria-label="Required"],[aria-label="\u5FC5\u586B"]')) || /\*/.test(title) || item.getAttribute("data-required") === "true";
+      return { title, type: radio.length ? "radio" : date ? "date" : "text", required, placeholder: date?.placeholder || "", nativeDate: date?.type === "date", options: radio.map((e) => e.value) };
     });
   }
   function control(index, entry) {
     const item = items()[index];
     if (!item) return null;
     if (entry.type === "radio") return [...item.querySelectorAll('input[type="radio"]')].find((e) => e.value === entry.value);
-    return item.querySelector(entry.type === "date" ? 'input[role="combobox"]' : 'input[data-automation-id="textInput"]');
+    return item.querySelector(entry.type === "date" ? 'input[role="combobox"],input[type="date"]' : 'input[data-automation-id="textInput"]');
   }
   async function fill(plan) {
     for (let i = 0; i < plan.length; i++) {
       const entry = plan[i], el = control(i, entry);
+      if (entry.skip) continue;
       if (!el || el.disabled || el.readOnly && entry.type !== "date") throw Error(`\u7B2C ${i + 1} \u9898\u65E0\u6CD5\u586B\u5199\u3002`);
       if (entry.type === "radio") el.click();
-      else if (entry.type === "date") await fillDate(el, entry.value);
+      else if (entry.type === "date" && el.type !== "date") await fillDate(el, entry.value);
       else {
         el.focus();
         Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value").set.call(el, entry.value);
@@ -204,6 +208,7 @@
     const questions = items();
     if (questions.length !== plan.length) return false;
     return plan.every((entry, i) => {
+      if (entry.skip) return true;
       const el = control(i, entry);
       if (!el || el.getAttribute("aria-invalid") === "true") return false;
       if (entry.type === "radio") {
@@ -259,13 +264,14 @@
       if (!binding?.verified || !profile?.student || !profile?.name) throw Error("\u8BF7\u5148\u5728\u6269\u5C55\u8BBE\u7F6E\u9875\u5B8C\u6210\u8D44\u6599\u548C\u8868\u5355\u914D\u7F6E\u3002");
       validateBindingForCourse(binding, occ.course, profile, occ.date);
       const now = /* @__PURE__ */ new Date(), computerDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
-      assertDateAgreement(occ.date, todayMalaysia(now), computerDate);
       const expected = validateFormsUrl(binding.url), actual = validateFormsUrl(location.href);
       if (expected.hostname !== actual.hostname || expected.pathname !== actual.pathname || expected.searchParams.get("id") !== actual.searchParams.get("id")) throw Error("\u5F53\u524D\u8868\u5355\u4E0E\u8BFE\u7A0B\u7ED1\u5B9A\u7684\u8868\u5355\u4E0D\u4E00\u81F4\u3002");
       if (formTitle() !== binding.title) throw Error("\u8868\u5355\u6807\u9898\u53D1\u751F\u53D8\u5316\uFF0C\u672A\u63D0\u4EA4\u3002");
       const plan = buildFillPlan(readQuestions(), binding.mapping, profile, occ.date, occ.course);
+      const requiresDate = plan.some((entry) => entry.type === "date" && !entry.skip);
+      if (requiresDate) assertDateAgreement(occ.date, todayMalaysia(now), computerDate);
       show(`${occ.course}
-\u6B63\u5728\u586B\u5199\u5E76\u6838\u5BF9\u8D44\u6599\u4E0E\u5F53\u65E5\u65E5\u671F\u2026`);
+\u6B63\u5728\u586B\u5199\u5E76\u6838\u5BF9\u8D44\u6599${requiresDate ? "\u4E0E\u5F53\u65E5\u65E5\u671F" : ""}\u2026`);
       await fill(plan);
       if (!answersMatch(plan)) throw Error("\u8868\u5355\u7B54\u6848\u5DF2\u53D8\u5316\uFF0C\u672A\u901A\u8FC7\u6838\u5BF9\uFF1B\u672A\u63D0\u4EA4\u3002");
       if (!key) {

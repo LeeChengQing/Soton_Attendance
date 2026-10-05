@@ -3,7 +3,6 @@ import {importTimetable,decodeQrFile} from './importer.js';
 import {validateFormsUrl} from './forms.js';
 import {fieldMappingForQuestion} from './mapping.js';
 import {moduleKey,bindingForCourse,legacyLinkSuggestion,validateBindingForCourse} from './bindings.js';
-import {collectBindingInspectionTargets} from './binding-inspection.js';
 import {mergeSessions,normalizeDate,todayMalaysia,toWeeklySession} from './schedule.js';
 import {ensureCloudDevice,getEntitlementStatus,redeemActivationKey,startPhoneSubscriptionRecovery,completePhoneSubscriptionRecovery,phoneSubscriptionRecoveryStatus,cancelPhoneSubscriptionRecovery} from './cloud-client.js';
 import {createOptionsUpgrade} from './options-upgrade.js';
@@ -11,7 +10,7 @@ import {t,currentLanguage,setLanguage,localizeMessage} from './options-locale.js
 
 const $=id=>document.getElementById(id);
 const preview=[],cards=new Map();
-let inspecting=new Map(),toastTimer,importGeneration=0,activeBindingKey=null,recoveryCooldownUntil=0,recoveryCooldownTimer,recoveryBusy=false,recoveryChallengeId='',recoveryExpiresAt=0,recoveryRequestedAt=0,recoveryCanCancel=false;
+let inspecting=new Map(),scanRequests=new Map(),bindingWrites=Promise.resolve(),batchScanning=false,toastTimer,importGeneration=0,recoveryCooldownUntil=0,recoveryCooldownTimer,recoveryBusy=false,recoveryChallengeId='',recoveryExpiresAt=0,recoveryRequestedAt=0,recoveryCanCancel=false;
 let subscriptionCurrency='rm';
 const SUBSCRIPTION_RM_PRICE=11.99;
 const SUBSCRIPTION_RMB_PRICE=19.9;
@@ -144,7 +143,6 @@ function bindingUiState() {
     url:info.url.value,
     schema:info.schema,
     selected:[...info.card.querySelectorAll('.mapping select')].map(select=>select.value),
-    confirmed:Boolean(info.card.querySelector('.mapping label input[type="checkbox"]')?.checked),
   }]));
 }
 async function changeLanguage(language) {
@@ -336,72 +334,132 @@ function moduleGroups(sessions=[]) {
   }
   return [...groups.entries()].sort(([a],[b])=>a.localeCompare(b));
 }
-async function renderBindings(preserved=new Map()) {
+async function renderBindings(preserved=bindingUiState()) {
   const {attendanceSessions:sessions=[],attendanceBindings:bindings={},attendanceProfile:p={}}=await getData();
   const root=$('bindings');root.replaceChildren();cards.clear();
   const groups=moduleGroups(sessions);
   if(!groups.length) {root.append(node('p',{className:'muted',text:t('emptyBindings')}));return;}
   for(const [key,courses] of groups) {
     const saved=bindings[key],legacy=legacyLinkSuggestion(bindings,courses);
-    const ready=courses.every(course=>{try {validateBindingForCourse(bindingForCourse(bindings,course),course,p,todayMalaysia());return true;} catch {return false;}});
+    const ready=courses.every(course=>{try {validateBindingForCourse(bindingForCourse(bindings,course),course,{student:p.student||'Student ID',name:p.name||'Name',studentType:p.studentType||'local'},todayMalaysia());return true;} catch {return false;}});
     const card=node('article',{className:'binding'}),title=node('h3',{text:key});
     const variants=node('p',{className:'binding-variants',text:t('inspectFormsCopy',{courses:courses.join(' · ')})});
     const previous=preserved.get(key);
     const row=node('div',{className:'toolbar'}),url=node('input',{type:'url',placeholder:t('formsUrlPlaceholder'),value:previous?.url??saved?.url??legacy.url});
     url.setAttribute('aria-label',t('formsUrlLabel',{key}));
     const fileLabel=node('label',{className:'file-button',text:t('uploadQr')}),file=node('input',{type:'file',accept:'.png,.jpg,.jpeg,image/png,image/jpeg'});fileLabel.append(file);
-    const status=node('p',{className:'status',text:ready?t('bindingReady',{title:saved.title}):legacy.conflict?t('legacyConflict'):t('bindingNeedsReview')});
+    const status=node('p',{className:`status${ready?' success':''}`,text:ready?t('boundSuccessfully'):legacy.conflict?t('legacyConflict'):t('bindingNeedsReview')});
+    status.setAttribute('role','status');status.setAttribute('aria-live','polite');
     row.append(url,fileLabel);card.append(title,variants,row,status);
     root.append(card);cards.set(key,{card,url,status,courses,schema:previous?.schema});
-    if(previous?.schema) renderInspection(key,previous.schema,previous.selected,previous.confirmed);
-    url.addEventListener('focus',()=>activeBindingKey=key);
-    url.addEventListener('input',()=>activeBindingKey=key);
-    file.addEventListener('change',async()=>{try {activeBindingKey=key;const decoded=await decodeQrFile(file.files[0]);url.value=decoded;status.textContent=t('qrRead');} catch(error){toast(error.message,true);}file.value='';});
+    if(previous?.schema) renderInspection(key,previous.schema,previous.selected);
+    else if(saved?.verified&&saved.questions) renderInspection(key,{url:saved.url,title:saved.title,questions:saved.questions},saved.mapping.map(entry=>entry.field));
+    let debounce,qrRevision=0;
+    const changed=()=>{
+      qrRevision++;clearTimeout(debounce);cancelInspection(key);
+      infoStatus(key,t('bindingNeedsReview'));
+      cards.get(key).schema=undefined;card.querySelector('.mapping')?.remove();
+      const value=url.value.trim();
+      void writeBinding(key,()=>({url:value,title:'',verified:false,scope:'module'})).catch(error=>infoStatus(key,error.message,true));
+      if(value) debounce=setTimeout(()=>void scanBinding(key).catch(error=>infoStatus(key,error.message,true)),350);
+    };
+    url.addEventListener('input',changed);
+    url.addEventListener('change',()=>{clearTimeout(debounce);if(url.value.trim()) void scanBinding(key).catch(error=>infoStatus(key,error.message,true));});
+    file.addEventListener('change',async()=>{
+      const image=file.files?.[0];if(!image) return;
+      let revision=++qrRevision;
+      try {infoStatus(key,t('readingQr'));const decoded=await decodeQrFile(image);if(revision!==qrRevision) return;url.value=decoded;changed();revision=qrRevision;clearTimeout(debounce);await scanBinding(key);}
+      catch(error){if(revision===qrRevision) infoStatus(key,error.message,true);}
+      finally {file.value='';}
+    });
   }
 }
 
-function bindingNeedsReview(key,info,bindings,studentProfile) {
-  const saved=bindings[key];
-  if(!saved?.verified||info.url.value.trim()!==saved.url) return true;
-  try {for(const course of info.courses) validateBindingForCourse(saved,course,studentProfile,todayMalaysia());return false;}
-  catch {return true;}
+function infoStatus(key,message,error=false,success=false) {
+  const info=cards.get(key);if(!info) return;
+  info.status.textContent=localizeMessage(message);info.status.className=`status${error?' error':success?' success':''}`;
 }
-
+function writeBinding(key,create) {
+  const write=bindingWrites.catch(()=>{}).then(async()=>{
+    const {attendanceBindings:bindings={}}=await getData();
+    const binding=create();if(!binding) return;
+    await chrome.storage.local.set({attendanceBindings:{...bindings,[key]:binding}});
+  });
+  bindingWrites=write;return write;
+}
+function finishInspection(inspection,error) {
+  if(inspecting.get(inspection.tabId)!==inspection) return;
+  clearTimeout(inspection.timer);inspecting.delete(inspection.tabId);
+  void chrome.tabs.remove(inspection.tabId).catch(()=>{});
+  if(error) {infoStatus(inspection.key,error.message,true);inspection.reject(error);}
+  else inspection.resolve();
+}
+function cancelInspection(key) {
+  for(const inspection of inspecting.values()) if(inspection.key===key) finishInspection(inspection,Error(t('scanCancelled')));
+}
 function clearInspections() {
-  for(const inspection of inspecting.values()) clearTimeout(inspection.timer);
-  inspecting.clear();
+  for(const inspection of [...inspecting.values()]) finishInspection(inspection,Error(t('scanCancelled')));
 }
-
+function scanBinding(key) {
+  const source=cards.get(key)?.url.value.trim();
+  const existing=scanRequests.get(key);
+  if(existing?.source===source) return existing.promise;
+  const request={source};
+  request.promise=scanBindingNow(key).finally(()=>{if(scanRequests.get(key)===request) scanRequests.delete(key);});
+  scanRequests.set(key,request);return request.promise;
+}
+async function scanBindingNow(key) {
+  const info=cards.get(key);if(!info) return;
+  const source=info.url.value.trim(),url=validateFormsUrl(source).href;
+  const existing=[...inspecting.values()].find(item=>item.key===key&&item.source===source);
+  if(existing) return existing.promise;
+  cancelInspection(key);infoStatus(key,t('openingForm'));
+  await writeBinding(key,()=>cards.get(key)?.url.value.trim()===source?{url,title:'',verified:false,scope:'module'}:null);
+  const tab=await chrome.tabs.create({url:'about:blank',active:false});
+  if(cards.get(key)?.url.value.trim()!==source) {await chrome.tabs.remove(tab.id);return;}
+  const inspection={key,source,tabId:tab.id};
+  inspection.promise=new Promise((resolve,reject)=>{inspection.resolve=resolve;inspection.reject=reject;});
+  inspecting.set(tab.id,inspection);
+  inspection.timer=setTimeout(()=>finishInspection(inspection,Error(t('inspectionTimeout'))),90000);
+  void chrome.tabs.update(tab.id,{url}).catch(error=>finishInspection(inspection,error));
+  return inspection.promise;
+}
 async function openAllBindings() {
-  if(inspecting.size) throw Error(t('inspectionBusy'));
-  const entries=[...cards.entries()].map(([key,info])=>({key,url:info.url.value}));
-  const targets=collectBindingInspectionTargets(entries,validateFormsUrl);
-  const tabs=await Promise.all(targets.map((target,index)=>chrome.tabs.create({url:'about:blank',active:index===0})));
-  for(const [index,target] of targets.entries()) {
-    const tab=tabs[index],info=cards.get(target.key);
-    if(!info) continue;
-    info.status.textContent=t('openingForm');
-    const inspection={key:target.key,tabId:tab.id};
-    inspection.timer=setTimeout(()=>{
-      if(inspecting.get(tab.id)!==inspection) return;
-      info.status.textContent=t('inspectionTimeout');
-      inspecting.delete(tab.id);
-    },90000);
-    inspecting.set(tab.id,inspection);
-  }
-  await Promise.all(tabs.map((tab,index)=>chrome.tabs.update(tab.id,{url:targets[index].url})));
-  toast(t('openedForms',{count:targets.length}));
+  if(batchScanning) return;
+  const entries=[...cards.entries()].map(([key,info])=>({key,url:info.url.value})).filter(entry=>entry.url.trim());
+  if(!entries.length) throw Error(t('noFormLinks'));
+  // Validate each subject independently so a broken link does not stop the others.
+  const button=$('verify-all-bindings');batchScanning=true;button.disabled=true;button.textContent=t('scanningAll');
+  let succeeded=0,failed=0;
+  try {
+    for(const entry of entries) {
+      try {await scanBinding(entry.key);succeeded++;}
+      catch(error) {failed++;infoStatus(entry.key,error.message,true);}
+    }
+    await rebuild();await upgrade.render();
+    toast(t('scanSummary',{succeeded,failed}),failed>0);
+  } finally {batchScanning=false;button.disabled=false;button.textContent=t('verifyAllForms');}
+}
+async function saveInspection(key,schema,selects) {
+  const info=cards.get(key);if(!info) return;
+  const source=info.url.value.trim(),p=profile();
+  const mapping=schema.questions.map((q,i)=>({title:q.title,type:q.type,required:q.required,options:q.options||[],field:selects[i].value}));
+  if(mapping.some(x=>!x.field)) throw Error(t('mapEveryQuestion'));
+  const binding={url:validateFormsUrl(schema.url).href,title:schema.title,questions:schema.questions,mapping,verified:true,scope:'module'};
+  for(const variant of info.courses) validateBindingForCourse(binding,variant,{student:p.student||'Student ID',name:p.name||'Name',studentType:p.studentType||'local'},todayMalaysia());
+  await writeBinding(key,()=>cards.get(key)?.url.value.trim()===source&&cards.get(key)?.schema===schema?binding:null);
+  if(cards.get(key)?.url.value.trim()!==source||cards.get(key)?.schema!==schema) return;
+  infoStatus(key,t('boundSuccessfully'),false,true);
+  await syncCloudSafe();
 }
 
-function renderInspection(key,schema,selectedValues=[],wasConfirmed=false) {
+function renderInspection(key,schema,selectedValues=[]) {
   const info=cards.get(key);if(!info) return;
   info.schema=schema;
   const courses=info.courses,course=courses[0];
   info.card.querySelector('.mapping')?.remove();
   const box=node('div',{className:'mapping'});
   box.append(node('p',{text:t('actualForm',{title:schema.title,url:schema.url})}));
-  const code=key.match(/[A-Za-z]{2,}\d{3,}/)?.[0];
-  if(code&&!schema.title.toLowerCase().includes(code.toLowerCase())) box.append(node('p',{className:'status',text:t('courseCodeMissing',{code})}));
   const selects=[];
   const fields=node('details',{className:'mapping-fields'});fields.append(node('summary',{text:t('editMapping')}));
   for(const [i,q] of schema.questions.entries()) {
@@ -411,46 +469,31 @@ function renderInspection(key,schema,selectedValues=[],wasConfirmed=false) {
     const {choices,selected}=fieldMappingForQuestion(q,course);
     for(const [value,text] of choices) select.append(node('option',{value,text}));
     select.value=selectedValues[i]&&choices.some(([value])=>value===selectedValues[i])?selectedValues[i]:selected;selects.push(select);line.append(label,select);fields.append(line);
+    select.addEventListener('change',()=>{
+      infoStatus(key,t('openingForm'));
+      void writeBinding(key,()=>({...schema,scope:'module',verified:false})).then(()=>saveInspection(key,schema,selects)).catch(error=>infoStatus(key,error.message,true));
+    });
   }
-  fields.open=selects.some(select=>!select.value);box.append(fields);
-  const confirmLabel=node('label',{className:'checkbox'}),confirm=node('input',{type:'checkbox'});
-  confirm.checked=wasConfirmed;
-  confirmLabel.append(confirm,node('span',{text:t('bindingConfirmation',{key,courses:courses.join(currentLanguage()==='en'?', ':'、')})}));box.append(confirmLabel);
-  const save=node('button',{type:'button',text:t('saveBinding'),className:'save-binding'});box.append(save);info.card.append(box);
-  save.addEventListener('click',async()=>{
-    try {
-      if(!confirm.checked) throw Error(t('verifyBeforeSave'));
-      const p=validateProfile(profile());
-      const mapping=schema.questions.map((q,i)=>({title:q.title,type:q.type,options:q.options||[],field:selects[i].value}));
-      if(mapping.some(x=>!x.field)) throw Error(t('mapEveryQuestion'));
-      const binding={url:validateFormsUrl(schema.url).href,title:schema.title,questions:schema.questions,mapping,verified:true,scope:'module'};
-      for(const variant of courses) validateBindingForCourse(binding,variant,p,todayMalaysia());
-      const {attendanceBindings:bindings={}}=await getData();
-      bindings[key]=binding;
-      await chrome.storage.local.set({attendanceBindings:bindings,attendanceProfile:p});
-      await syncCloudSafe({sessions:(await getData()).attendanceSessions||[],bindings});
-      info.card.querySelector('.mapping')?.remove();
-      info.schema=undefined;
-      info.status.textContent=t('verifiedForm',{title:schema.title});
-      toast(t('bindingSaved',{key}));
-    } catch(error) {toast(error.message,true);}
-  });
+  fields.open=selects.some(select=>!select.value);box.append(fields);info.card.append(box);
+  return selects;
 }
-
 chrome.runtime.onMessage.addListener((message,sender)=>{
   const inspection=inspecting.get(sender.tab?.id);
   if(!inspection) return;
   const key=inspection.key,info=cards.get(key);
-  if(!info) return;
-  if(message.type==='FORM_SETUP_ERROR') {info.status.textContent=localizeMessage(message.error);clearTimeout(inspection.timer);inspecting.delete(sender.tab.id);return;}
+  if(!info||info.url.value.trim()!==inspection.source) {finishInspection(inspection,Error(t('scanCancelled')));return;}
+  if(message.type==='FORM_SETUP_ERROR') {finishInspection(inspection,Error(message.error));return;}
   if(message.type!=='FORM_READY') return;
-  try {
-    const url=validateFormsUrl(message.url);
-    if(!/^\/Pages\/ResponsePage\.aspx$/i.test(url.pathname)||!message.title||!message.questions?.length) throw Error(t('formsNotFound'));
-    clearTimeout(inspection.timer);inspecting.delete(sender.tab.id);
-    info.status.textContent=t('reviewForm');
-    renderInspection(key,{url:url.href,title:message.title,questions:message.questions});
-  } catch(error) {info.status.textContent=localizeMessage(error.message);clearTimeout(inspection.timer);inspecting.delete(sender.tab.id);}
+  if(inspection.saving) return;inspection.saving=true;
+  void (async()=>{
+    try {
+      const url=validateFormsUrl(message.url);
+      if(sender.tab.url&&validateFormsUrl(sender.tab.url).href!==url.href||!message.title||!message.questions?.length) throw Error(t('formsNotFound'));
+      const schema={url:url.href,title:message.title,questions:message.questions};
+      const selects=renderInspection(key,schema);
+      await saveInspection(key,schema,selects);finishInspection(inspection);
+    } catch(error) {finishInspection(inspection,error);}
+  })();
 });
 
 async function renderSaved() {await upgrade.render();}
@@ -488,9 +531,9 @@ $('clear-preview').addEventListener('click',async()=>{
 $('clear-bindings').addEventListener('click',async()=>{
   if(!confirm(t('clearBindingsConfirm'))) return;
   try {
-    clearInspections();
+    clearInspections();await bindingWrites.catch(()=>{});
     await chrome.storage.local.set({attendanceBindings:{}});
-    await rebuild();await upgrade.render();await renderBindings();
+    await rebuild();await upgrade.render();await renderBindings(new Map());
     toast(t('bindingsCleared'));
   } catch(error) {toast(error.message,true);}
 });

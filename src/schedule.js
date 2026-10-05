@@ -80,7 +80,11 @@ export function toWeeklySession(session) {
   return {...weekly,kind:'weekly',weekday};
 }
 
-const fingerprint=s=>[s.course?.trim().toLowerCase(),s.kind,s.kind==='dated'?s.date:s.weekday,s.time,s.endTime].join('|');
+const fingerprint=s=>{
+  const kind=s.kind||(s.date?'dated':'weekly');
+  const day=kind==='dated'?s.date:(s.weekday??s.day);
+  return [s.course?.trim().toLowerCase(),kind,day,s.time??s.start,s.endTime??s.end].join('|');
+};
 export function mergeSessions(existing,incoming) {
   const merged=[...existing], seen=new Set(existing.map(fingerprint));
   for(const row of incoming) if(!seen.has(fingerprint(row))) {merged.push(row);seen.add(fingerprint(row));}

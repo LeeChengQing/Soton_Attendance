@@ -42,7 +42,7 @@ async function enqueueCloud(action,payload,extra={}) {
 }
 async function persistTerminal(records,key) {
   const r=records[key],o=r.occ;
-  const cloudStatus=r.state==='submitted_pending_confirmation'?'unknown':r.state==='missed_sleep'?'missed':r.state;
+  const cloudStatus=r.state==='missed_sleep'?'missed':r.state==='submitted_pending_confirmation'?'unknown':r.state;
   await enqueueCloud('event',{status:cloudStatus,courseCode:o.course,classDate:o.date,startTime:o.time,endTime:o.endTime,formUrl:r.formUrl||undefined,occurrenceKey:o.key,detail:r.detail}, {attendanceRecords:records});
 }
 let draining=false;

@@ -1,7 +1,7 @@
 // Pure queue operations. Only the background worker writes this storage key.
 export function enqueue(snapshot={},action,payload,now=Date.now()) {
   const q={version:snapshot.version||0,items:[...(snapshot.items||[])]};
-  const logical=action==='sync'?'sync':action==='event'?`event:${payload.occurrenceKey}`:`${action}:${payload.sessionId}`;
+  const logical=action==='sync'?'sync':action==='event'?`event:${payload.occurrenceKey}:${payload.status}`:`${action}:${payload.sessionId}`;
   if(action!=='sync'&&q.items.some(item=>item.logical===logical)) return q;
   if(action==='sync') {
     q.version=Math.max(q.version+1,now);

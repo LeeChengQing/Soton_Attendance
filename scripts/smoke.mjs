@@ -188,7 +188,9 @@ try {
   if(image[0]!==0xff || image[1]!==0xd8) throw Error(`Screenshot was not JPEG: ${Buffer.from(image).subarray(0,8).toString('hex')}`);
   let before=await page.locator('#preview-rows .session-card').count();
   await page.locator('#timetable-file').setInputFiles({name:'scan.jpg',mimeType:'image/jpeg',buffer:image});
-  await page.waitForFunction(before=>document.querySelectorAll('#preview-rows .session-card').length>=before+1,before,{timeout:90000});
+  await page.waitForFunction(before=>document.querySelectorAll('#preview-rows .session-card').length>=before+1||document.querySelector('#import-status')?.textContent?.includes('表格网格检测失败'),before,{timeout:90000});
+  if(await page.locator('#preview-rows .session-card').count()<before+1) throw Error(`JPEG import failed: ${await page.locator('#import-status').textContent()}`);
+  if(await page.locator('.import-grid-warning').count()===0) throw Error('Grid fallback did not mark its OCR result for review');
   const png=await page.locator('#scan-fixture').screenshot({type:'png'});
   before=await page.locator('#preview-rows .session-card').count();
   await page.locator('#timetable-file').setInputFiles({name:'scan.png',mimeType:'image/png',buffer:png});
@@ -256,7 +258,7 @@ try {
   await setupForm.waitForFunction(()=>window.__setupMessages.some(m=>m.type==='CONFIRM_SETUP_ITEM'));
   if(await setupForm.evaluate(()=>window.__submitClicks)!==0||await setupForm.locator('[data-automation-id="submitButton"]').count()!==1) throw Error('Complete setup check clicked submit');
   await form.addInitScript(({formUrl,day})=>{
-    window.__reports=[];
+    window.__reports=[];window.__reservations=0;
     const chrome=window.chrome||{};
     chrome.runtime={sendMessage:async message=>{
       if(message.type==='GET_RUN') return {occ:{course:'COMP1311',date:day,time:'09:00'},binding:{url:formUrl,title:'COMP1311 Attendance',verified:true,mapping:[
@@ -264,6 +266,7 @@ try {
         {title:'Name',type:'text',options:[],field:'name'},
         {title:'Date',type:'date',options:[],field:'date'}
       ]},profile:{student:'12345',name:'Test Student',studentType:'local'}};
+      if(message.type==='RESERVE_SUBMISSION') return {ok:true,granted:++window.__reservations===1};
       if(message.type==='REPORT_RUN') window.__reports.push(message.state);
       return {ok:true};
     }};window.chrome=chrome;
@@ -274,6 +277,7 @@ try {
   await form.waitForFunction(()=>window.__reports?.includes('success'),null,{timeout:30000});
   const values=await form.locator('[data-automation-id="questionItem"] input').evaluateAll(elements=>elements.map(x=>x.value));
   if(JSON.stringify(values)!==JSON.stringify(['12345','Test Student',shownDate])) throw Error(`Form values incorrect: ${JSON.stringify(values)}`);
+  if(await form.evaluate(()=>window.__reservations)!==1) throw Error('Form did not obtain exactly one submission reservation');
   if(!await form.evaluate(()=>window.__dateClicked&&window.__goTodayClicked)) throw Error('Date did not go to today before selection');
   const calendar=await browser.newPage(),calendarUrl='https://forms.cloud.microsoft/Pages/ResponsePage.aspx?id=calendar';
   const previous=new Date(`${day}T00:00:00Z`);previous.setUTCDate(previous.getUTCDate()-1);
@@ -281,9 +285,10 @@ try {
   const calendarDate=`${day.slice(0,4)}/${Number(day.slice(5,7))}/${Number(day.slice(8,10))}`;
   const calendarHtml=`<!doctype html><meta charset="utf-8"><div data-automation-id="formTitle">COMP1311 Calendar Test</div><div data-automation-id="questionItem"><div data-automation-id="questionTitle">Date</div><input required id="date-input" role="combobox" aria-expanded="true" aria-controls="DatePicker-Callout1" placeholder="yyyy/M/d" value="${previousDate}" onclick="window.__calendarToggled=true"></div><div id="DatePicker-Callout1"><button class="js-goToday" onclick="window.__goTodayClicked=true">转到今日</button><table><tr><td role="gridcell" aria-current="date" aria-disabled="false"><button type="button" onclick="if(window.__goTodayClicked) document.querySelector('#date-input').value='${calendarDate}'">${Number(day.slice(8,10))}</button></td></tr></table></div><button data-automation-id="submitButton" onclick="this.remove();document.body.append('Your response was submitted')">Submit</button>`;
   await calendar.addInitScript(({calendarUrl,day})=>{
-    window.__reports=[];const chrome=window.chrome||{};
+    window.__reports=[];window.__reservations=0;const chrome=window.chrome||{};
     chrome.runtime={sendMessage:async message=>{
       if(message.type==='GET_RUN') return {occ:{course:'COMP1311',date:day,time:'09:00'},binding:{url:calendarUrl,title:'COMP1311 Calendar Test',verified:true,mapping:[{title:'Date',type:'date',options:[],field:'date'}]},profile:{student:'12345',name:'Test Student',studentType:'local'}};
+      if(message.type==='RESERVE_SUBMISSION') return {ok:true,granted:++window.__reservations===1};
       if(message.type==='REPORT_RUN') window.__reports.push(message.state);
       return {ok:true};
     }};window.chrome=chrome;
@@ -292,6 +297,7 @@ try {
   await calendar.goto(calendarUrl+'#attendanceRun=calendar');
   await calendar.addScriptTag({content:await readFile(join(extension,'content.js'),'utf8')});
   await calendar.waitForFunction(()=>window.__reports?.includes('success'),null,{timeout:30000});
+  if(await calendar.evaluate(()=>window.__reservations)!==1) throw Error('Calendar form did not obtain exactly one submission reservation');
   if(await calendar.locator('#date-input').inputValue()!==calendarDate || await calendar.evaluate(()=>window.__calendarToggled||!window.__goTodayClicked)) throw Error('Already-open calendar did not correct the previous date safely');
   const labForm=await browser.newPage(),labFormUrl='https://forms.cloud.microsoft/Pages/ResponsePage.aspx?id=lab-smoke';
   const labFormHtml='<!doctype html><meta charset="utf-8"><div data-automation-id="formTitle">COMP9999 Attendance</div><div data-automation-id="questionItem"><div data-automation-id="questionTitle">Student ID</div><input data-automation-id="textInput"></div><div data-automation-id="questionItem"><div data-automation-id="questionTitle">Name</div><input data-automation-id="textInput"></div><div data-automation-id="questionItem"><div data-automation-id="questionTitle">Module Delivery</div><label><input type="radio" name="delivery" value="Lecture">Lecture</label><label><input type="radio" name="delivery" value="Lab">Lab</label></div><button data-automation-id="submitButton">Submit</button>';

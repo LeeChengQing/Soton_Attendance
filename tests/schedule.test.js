@@ -72,3 +72,11 @@ test('parses grid time ranges split into separate OCR words', () => {
   ];
   assert.deepEqual(parseScheduleTokens(tokens).map(x=>x.course),['COMP1311']);
 });
+
+test('keeps scanned PDF grid rows for the same course on different weekdays',()=>{
+  const rows=[
+    {day:'Mo',start:'09:00',end:'10:00',course:'COMP1313-LEC'},
+    {day:'Tu',start:'09:00',end:'10:00',course:'COMP1313-LEC'}
+  ];
+  assert.equal(mergeSessions([],rows).length,2);
+});

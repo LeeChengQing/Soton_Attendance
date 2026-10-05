@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {isExplicitSuccess,submissionSignals,questionDiff,normalizeComparable,verifyQuestions,buildFillPlan} from '../src/forms.js';
+import {isExplicitSuccess,submissionSignals,questionDiff,normalizeComparable,verifyQuestions,buildFillPlan,validatePreSubmit} from '../src/forms.js';
 
 test('normalizes whitespace, case, and full-width punctuation for comparison',()=>{
   assert.equal(normalizeComparable(' Ｓｔｕｄｅｎｔ　ID\n '),'student id');
@@ -34,6 +34,14 @@ test('explicit text wins over structure evidence',()=>{
 test('no text and no enabled structure signal is pending',()=>{
   const result=submissionSignals({questionCount:2,submitVisible:true},{questionCount:2,submitVisible:true},{structureSelectorsEnabled:false});
   assert.deepEqual(result,{state:'submitted_pending_confirmation',signal:'none'});
+});
+
+test('validates mapped optional answers and rejects conflicting radio selections',()=>{
+  const plan=[{questionTitle:'Module Delivery',type:'radio',value:'Tutorial'}];
+  const questions=[{title:'Module Delivery',type:'radio',required:false,options:['Lecture','Tutorial']}];
+  assert.equal(validatePreSubmit(plan,questions,[{value:'Tutorial',checked:true,selectedValues:['Tutorial']}]).ok,true);
+  assert.equal(validatePreSubmit(plan,questions,[{value:'Tutorial',checked:false,selectedValues:['Lecture']}]).ok,false);
+  assert.equal(validatePreSubmit(plan,questions,[{value:'Tutorial',checked:true,selectedValues:['Lecture','Tutorial']}]).ok,false);
 });
 
 const expected=[

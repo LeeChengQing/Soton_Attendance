@@ -58,12 +58,14 @@ async function main() {
   }
   for(const name of ['options.html','options.css','icon.png']) if(!(await readFile(join(root,'src',name))).equals(files.find(f=>f.name===name).data)) throw Error(`${name} source mismatch`);
   if(!(await readFile(join(root,'README.md'))).equals(files.find(f=>f.name==='README.md').data)) throw Error('README source mismatch');
-  const sources=[];for(const folder of ['src','supabase','scripts','test']) for(const f of await tree(join(root,folder))) sources.push({path:`${folder}/${f.name}`,sha256:sha(f.data)});
+  const tracked=execFileSync('git',['ls-files','-z','--','src','supabase','scripts','tests'],{cwd:root}).toString('utf8').split('\0').filter(Boolean).sort((a,b)=>a.localeCompare(b,'en'));
+  const sources=[];for(const path of tracked) sources.push({path,sha256:sha(await readFile(join(root,path)))});
   const zip=createZip(files),verified=zipEntries(zip);if(verified.length!==files.length||verified.some((f,i)=>!f.data.equals(files[i].data))) throw Error('ZIP roundtrip mismatch');
   if(!zip.equals(createZip(files))) throw Error('ZIP is not deterministic');
   const directory=join(root,'outputs');await mkdir(directory,{recursive:true});
-  const filename=release?'Soton-Auto-Check-V1.0-Release-Windows-macOS.zip':`Soton-Auto-Check-v${pkg.version}-candidate-Windows-macOS.zip`;
-  const provenance={candidate:!release,release,releaseName:release?'V1.0 Release':undefined,version:pkg.version,baseRevision:execFileSync('git',['rev-parse','HEAD'],{cwd:root,encoding:'utf8'}).trim(),sourceTreeSha256:sha(JSON.stringify(sources)),packageJsonSha256:sha(await readFile(join(root,'package.json'))),zipSha256:sha(zip),sourceFiles:sources,files:files.map(f=>({name:f.name,sha256:sha(f.data),bytes:f.data.length})),verificationLimits:['Database rollback/concurrency requires isolated PostgreSQL','Installed Windows/macOS Chrome and novice student trial require release review'],productionDeployment:false};
+  const filename=release?'Soton-Auto-Check-v1.0.0-latest-Windows-macOS.zip':`Soton-Auto-Check-v${pkg.version}-candidate-Windows-macOS.zip`;
+  const releaseDate=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Kuala_Lumpur'}).format(new Date());
+  const provenance={candidate:!release,release,releaseName:release?'Soton Auto-Check V1.0.0 Release':undefined,releaseDate:release?releaseDate:undefined,version:pkg.version,baseRevision:execFileSync('git',['rev-parse','HEAD'],{cwd:root,encoding:'utf8'}).trim(),sourceTreeSha256:sha(JSON.stringify(sources)),packageJsonSha256:sha(await readFile(join(root,'package.json'))),zipSha256:sha(zip),sourceFiles:sources,files:files.map(f=>({name:f.name,sha256:sha(f.data),bytes:f.data.length})),verificationLimits:['Database rollback/concurrency requires isolated PostgreSQL','Installed Windows/macOS Chrome and novice student trial require release review'],productionDeployment:false};
   const stem=release?'release-provenance':'candidate-provenance';
   await writeFile(join(directory,filename),zip);await writeFile(join(directory,`${filename}.sha256`),`${sha(zip)}  ${filename}\n`);await writeFile(join(directory,`${stem}.json`),JSON.stringify(provenance,null,2));
   console.log(`${release?'Release':'Candidate'}: ${join(directory,filename)}\nSHA-256: ${sha(zip)}\nVerified ${files.length} files, current bundles, deterministic ZIP.`);

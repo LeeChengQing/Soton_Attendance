@@ -21,3 +21,29 @@ test('unknown questions do not offer unrelated field categories', () => {
   assert.deepEqual(fieldMappingForQuestion({title:'Other text',type:'text',options:[]},'COMP1311').choices.map(([field])=>field),['','student','name']);
   assert.deepEqual(fieldMappingForQuestion({title:'Other choice',type:'radio',options:['Yes','No']},'COMP1311').choices.map(([field])=>field),['']);
 });
+
+test('semantically recognizes alternate student ID, name, and date wording', () => {
+  const questions=[
+    {title:'Enter ID number',type:'text'},
+    {title:'Your Full Name',type:'text'},
+    {title:'Date of attendance',type:'date'}
+  ];
+  assert.deepEqual(questions.map(question=>fieldMappingForQuestion(question).selected),['student','name','date']);
+});
+
+test('recognizes delivery and student type options embedded in longer labels', () => {
+  const delivery=fieldMappingForQuestion({title:'How will you attend?',type:'radio',options:['Attend a Lecture','Attend a Tutorial','Attend a Lab']},'COMP1312-LAB');
+  const identity=fieldMappingForQuestion({title:'Student category',type:'radio',options:['I am a Local student','I am an International student']});
+  assert.equal(delivery.selected,'delivery');
+  assert.equal(identity.selected,'local');
+});
+
+test('does not preselect an ambiguous mixed delivery option',()=>{
+  const question={title:'Session type',type:'radio',options:['Lecture or Tutorial','Laboratory']};
+  assert.equal(fieldMappingForQuestion(question,'COMP1311-LEC').selected,'');
+});
+
+test('ignores negative identity labels when choosing local or international',()=>{
+  const question={title:'Student category',type:'radio',options:['Not a local student','Local student','International student']};
+  assert.equal(fieldMappingForQuestion(question).selected,'local');
+});

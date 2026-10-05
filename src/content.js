@@ -1,13 +1,21 @@
 import {fillDate} from './form-date.js';
-import {buildFillPlan,submissionSignals,assertDateAgreement,validateFormsUrl,sameDateValue,normalizeComparable} from './forms.js';
+import {buildFillPlan,submissionSignals,assertDateAgreement,validateFormsUrl,validatePreSubmit,normalizeComparable} from './forms.js';
 import {todayMalaysia} from './schedule.js';
 import {bindingForCourse,validateBindingForCourse} from './bindings.js';
 import {randomSubmitDelay} from './submit-delay.js';
 
 const pause=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 const items=()=>[...document.querySelectorAll('[data-automation-id="questionItem"]')];
-const submitButton=()=>document.querySelector('[data-automation-id="submitButton"]');
+const submitButton=()=>document.querySelector('[data-automation-id="submitButton"],button[type="submit"],input[type="submit"]')||[...document.querySelectorAll('button')].find(button=>button.textContent.trim().toLowerCase()==='submit');
 const formTitle=()=>document.querySelector('[data-automation-id="formTitle"]')?.textContent?.trim()||'';
+
+function assertFormAvailable() {
+  const visible=selector=>[...document.querySelectorAll(selector)].some(element=>element.getClientRects().length>0);
+  if(visible('iframe[src*="captcha" i],iframe[title*="captcha" i],iframe[title*="challenge" i],[data-sitekey],#captcha,[id*="captcha" i]')) throw Error('检测到 CAPTCHA 验证，需要人工完成后重新运行。');
+  const text=(document.body?.innerText||'').replace(/\s+/g,' ').toLowerCase();
+  if(/(?:this form|the form) is (?:now )?closed|no longer accepting responses|form is not accepting responses|此表单已关闭|不再接受回复/.test(text)) throw Error('表单已关闭，未提交。');
+  if(/your session has expired|sign in to access this form|please sign in to continue|登录已过期|请先登录/.test(text)) throw Error('Microsoft 登录已过期或需要登录，请人工处理。');
+}
 
 function show(message,positive=false) {
   let box=document.getElementById('attendance-helper-status');
@@ -32,10 +40,18 @@ function readQuestions() {
 }
 
 function control(index,entry) {
-  const item=items().find(candidate=>normalizeComparable(candidate.querySelector('[data-automation-id="questionTitle"]')?.textContent||'')===normalizeComparable(entry.questionTitle))||items()[index];
+  const current=items(),item=entry.questionTitle
+    ?current.find(candidate=>normalizeComparable(candidate.querySelector('[data-automation-id="questionTitle"]')?.textContent||'')===normalizeComparable(entry.questionTitle))
+    :current[index];
   if(!item) return null;
   if(entry.type==='radio') return [...item.querySelectorAll('input[type="radio"]')].find(e=>e.value===entry.value);
   return item.querySelector(entry.type==='date'?'input[role="combobox"],input[type="date"]':'input[data-automation-id="textInput"]');
+}
+function selectedRadioValues(index,entry) {
+  const current=items(),item=entry.questionTitle
+    ?current.find(candidate=>normalizeComparable(candidate.querySelector('[data-automation-id="questionTitle"]')?.textContent||'')===normalizeComparable(entry.questionTitle))
+    :current[index];
+  return item?[...item.querySelectorAll('input[type="radio"]:checked')].map(element=>element.value):[];
 }
 
 
@@ -57,18 +73,27 @@ async function fill(plan) {
 }
 
 function answersMatch(plan) {
-  const questions=items();
-  if(questions.length!==plan.length) return false;
-  return plan.every((entry,i)=>{
-    if(entry.skip) return true;
-    const el=control(i,entry);
-    if(!el || el.getAttribute('aria-invalid')==='true') return false;
-    if(entry.type==='radio') {
-      const checked=[...questions[i].querySelectorAll('input[type="radio"]')].filter(input=>input.checked);
-      return checked.length===1 && checked[0]===el && el.value===entry.value;
-    }
-    return entry.type==='date'?sameDateValue(el.value,entry.value):el.value===entry.value;
+  const questions=readQuestions();
+  const answers=plan.map((entry,index)=>{
+    if(entry.skip) return {value:'',valid:true};
+    const el=control(index,entry);
+    if(!el||el.getAttribute('aria-invalid')==='true') return {value:'',valid:false};
+    if(entry.type==='radio') return {value:el.value,checked:el.checked,valid:true,selectedValues:selectedRadioValues(index,entry)};
+    return {value:el.value,valid:true};
   });
+  return validatePreSubmit(plan,questions,answers).ok;
+}
+
+function assertPreSubmit(plan) {
+  const questions=readQuestions();
+  const answers=plan.map((entry,index)=>{
+    if(entry.skip) return {value:'',valid:true};
+    const el=control(index,entry);
+    if(!el||el.getAttribute('aria-invalid')==='true') return {value:'',valid:false};
+    return entry.type==='radio'?{value:el.value,checked:el.checked,valid:true,selectedValues:selectedRadioValues(index,entry)}:{value:el.value,valid:true};
+  });
+  const result=validatePreSubmit(plan,questions,answers);
+  if(!result.ok) throw Error(`提交前校验失败：${result.errors.join('；')}`);
 }
 
 function watchDryRun(plan,course,onInvalid) {
@@ -102,7 +127,7 @@ const diffDescription=diff=>[
 ].filter(Boolean).join('\n');
 
 async function run(key,checkCourse,setupId,itemId) {
-  let reserved=false;
+  let clicked=false;
   const setupMessage=async(type,extra={})=>{
     const result=await chrome.runtime.sendMessage({type,sessionId:setupId,itemId,...extra});
     if(result?.error) throw Error(result.error);return result;
@@ -127,6 +152,7 @@ async function run(key,checkCourse,setupId,itemId) {
     const now=new Date(),computerDate=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
     const expected=validateFormsUrl(binding.url),actual=validateFormsUrl(location.href);
     if(expected.hostname!==actual.hostname || expected.pathname!==actual.pathname || expected.searchParams.get('id')!==actual.searchParams.get('id')) throw Error('当前表单与课程绑定的表单不一致。');
+    assertFormAvailable();
     if(formTitle()!==binding.title) throw Error('表单标题发生变化，未提交。');
     const plan=buildFillPlan(readQuestions(),binding.mapping,profile,occ.date,occ.course);
     const requiresDate=plan.some(entry=>entry.type==='date'&&!entry.skip);
@@ -135,7 +161,7 @@ async function run(key,checkCourse,setupId,itemId) {
     if(key) await reportPhase(key,'checking');
     if(key) await reportPhase(key,'filling');
     await fill(plan);
-    if(!answersMatch(plan)) throw Error('表单答案已变化，未通过核对；未提交。');
+    assertPreSubmit(plan);
     if(!key) {
       const delivery=plan.find(entry=>entry.field?.startsWith('delivery'))?.value;
       show(`已填写 · 仅填写，未提交\n${occ.course}${delivery?` · Module Delivery: ${delivery}`:''}${setupId?'\n请逐题查看答案，再确认此课型。':'\n请查看答案；单项测试不计入完整设置检查。'}`,true);
@@ -155,22 +181,25 @@ async function run(key,checkCourse,setupId,itemId) {
       }
       watchDryRun(plan,occ.course,setupId?()=>setupMessage('REPORT_SETUP_ITEM',{state:'failed',detail:'表单答案已变化，核对不再通过；未提交。'}).catch(()=>{}):null);return;
     }
+    assertFormAvailable();
     if(todayMalaysia()!==occ.date) throw Error('提交前日期已变化，未提交。');
-    if(!answersMatch(plan)) throw Error('提交前表单答案已变化，未提交。');
+    assertPreSubmit(plan);
     if(!submitButton() || submitButton().disabled) throw Error('表单无法提交。');
     const reservation=await chrome.runtime.sendMessage({type:'RESERVE_SUBMISSION',key});
     if(reservation?.error) throw Error(reservation.error);
     if(!reservation?.granted) {show(`${occ.course}\n此时段已经尝试提交过，为避免重复打卡不会再次点击提交。`);return;}
-    reserved=true;
     buildFillPlan(readQuestions(),binding.mapping,profile,occ.date,occ.course);
+    assertFormAvailable();
     if(todayMalaysia()!==occ.date||!answersMatch(plan)||formTitle()!==binding.title||!submitButton()||submitButton().disabled) throw Error('授权后表单或日期已变化，停止提交。');
     const submitDelay=randomSubmitDelay();
     show(`${occ.course}\n资料与日期核对通过，将在 ${Math.round(submitDelay/1000)} 秒后提交…`);
     await pause(submitDelay);
+    assertFormAvailable();
     if(todayMalaysia()!==occ.date||!answersMatch(plan)||formTitle()!==binding.title||!submitButton()||submitButton().disabled) throw Error('等待期间表单或日期发生变化，停止提交。');
     await reportPhase(key,'confirming');
     const before={questionCount:items().length,submitVisible:Boolean(submitButton())};
     show(`${occ.course}\n资料与日期核对通过，正在提交…`);
+    clicked=true;
     submitButton().click();
     let structureSeen=false;
     for(let i=0;i<60;i++) {
@@ -185,7 +214,7 @@ async function run(key,checkCourse,setupId,itemId) {
   } catch(error) {
     show(`${checkCourse||key}\n${error.message}${error.diff?`\n${diffDescription(error.diff)}`:''}`);
     if(setupId) await setupMessage('REPORT_SETUP_ITEM',{state:'failed',detail:error.message}).catch(()=>{});
-    if(key) try {await report(key,reserved?'submitted_pending_confirmation':'failed',reserved?'phase_error':error.code==='form_schema_changed'?'schema_changed':safeRunDetail(error.message));} catch { /* watchdog or previous result has already resolved this run */ }
+    if(key) try {await report(key,clicked?'submitted_pending_confirmation':'failed',clicked?'phase_error':error.code==='form_schema_changed'?'schema_changed':safeRunDetail(error.message));} catch { /* watchdog or previous result has already resolved this run */ }
   }
 }
 

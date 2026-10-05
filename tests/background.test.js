@@ -15,7 +15,8 @@ function fakeChrome(store) {
     action:{onClicked:event('action')},
     alarms:{onAlarm:event('alarm'),create:async(name,data)=>alarms.set(name,data),clear:async name=>alarms.delete(name)},
     notifications:{onButtonClicked:event('button'),onClicked:event('notificationClick'),create:async(id,options)=>{notifications.push({id,options});return id;},clear:async()=>{}},
-    tabs:{onRemoved:event('tabRemoved'),get:async id=>{const tab=tabs.find(t=>t.id===id);if(!tab) throw Error('No tab');return tab;},create:async options=>{const tab={id:tabs.length+1,...options};tabs.push(tab);return tab;},update:async(id,options)=>Object.assign(tabs.find(t=>t.id===id),options)}
+    tabs:{onRemoved:event('tabRemoved'),onUpdated:event('tabUpdated'),get:async id=>{const tab=tabs.find(t=>t.id===id);if(!tab) throw Error('No tab');return tab;},create:async options=>{const tab={id:tabs.length+1,...options};tabs.push(tab);return tab;},update:async(id,options)=>Object.assign(tabs.find(t=>t.id===id),options)},
+    scripting:{executeScript:async()=>[]}
   };
   return {listeners,notifications,tabs,alarms};
 }
@@ -70,6 +71,7 @@ test('stalled cloud with real runtime ID cannot delay local authorization or wat
     const result=await new Promise(resolve=>fake.listeners.message({type:'GET_RUN',key},{tab:{id:1}},resolve));
     assert.equal(result.occ.id,'cloud');
     await fake.listeners.alarm({name:`attendance-watch:${key}`});
+    await fake.listeners.alarm({name:`attendance-watch:${key}`});
     assert.equal(store.attendanceRecords[key].state,'failed');
     assert.ok(fake.notifications.some(n=>n.options.title==='打卡失败'));
     assert.ok(store.attendanceCloudOutbox.items.some(i=>i.action==='event'&&i.payload.status==='failed'));
@@ -95,7 +97,7 @@ test('restart resolves overdue pending as unknown without launching the occurren
   const store={attendanceScheduleMode:'weekly',attendanceSessions:[occ],attendanceRecords:{[key]:{state:'pending',at:new Date(Date.now()-120000).toISOString(),occ,tabId:99}}};
   const fake=fakeChrome(store);
   await import(`../src/background.js?test=restart-${Date.now()}`);await fake.listeners.startup();
-  assert.equal(store.attendanceRecords[key].state,'unknown');assert.equal(fake.tabs.length,0);
+  assert.equal(store.attendanceRecords[key].state,'submitted_pending_confirmation');assert.equal(fake.tabs.length,0);
   await fake.listeners.startup();assert.equal(fake.tabs.length,0);
 });
 
@@ -205,4 +207,53 @@ test('a tutorial occurrence launches the shared module form link',async()=>{
   assert.match(afterClear.error,/已删除/);
   const pendingAfterClear=await new Promise(resolve=>fake.listeners.message({type:'REPORT_RUN',key,state:'pending'},{tab:{id:1}},resolve));
   assert.match(pendingAfterClear.error,/已删除/);
+});
+
+test('background serialization grants one permanent submission reservation across duplicate callers and watchdog paths',async()=>{
+  const date=todayMalaysia(),time=localTime(-56),endTime=localTime(4);
+  const store={attendanceSessions:[{id:'idempotent',course:'COMP1311',kind:'dated',date,time,endTime,createdAt:new Date(Date.now()-180000).toISOString()}],attendanceBindings:{COMP1311:{verified:true,url:'https://forms.cloud.microsoft/Pages/ResponsePage.aspx?id=test'}},attendanceRecords:{}};
+  const fake=fakeChrome(store);await import(`../src/background.js?test=idempotent-${Date.now()}`);await fake.listeners.installed();
+  const key=Object.keys(store.attendanceRecords)[0];
+  const send=message=>new Promise(resolve=>fake.listeners.message({key,...message},{tab:{id:1}},resolve));
+  const results=await Promise.all([send({type:'RESERVE_SUBMISSION'}),send({type:'RESERVE_SUBMISSION'})]);
+  assert.equal(results.filter(result=>result.granted).length,1);assert.ok(store.attendanceRecords[key].submissionAttemptedAt);
+  await fake.listeners.alarm({name:`attendance-watch:${key}`});
+  assert.equal(store.attendanceRecords[key].state,'submitted_pending_confirmation');
+  const afterTimeout=await send({type:'RESERVE_SUBMISSION'});assert.equal(afterTimeout.granted,false);assert.equal(afterTimeout.reason,'already_attempted');
+  await fake.listeners.startup();
+  const afterRestart=await send({type:'RESERVE_SUBMISSION'});assert.equal(afterRestart.granted,false);
+});
+
+test('submitted_pending_confirmation stays local and maps to the existing cloud unknown state',async()=>{
+  const date=todayMalaysia(),key='pending-cloud-occurrence';
+  const store={attendanceRecords:{[key]:{state:'pending',tabId:1,submissionAttemptedAt:new Date().toISOString(),occ:{key,course:'COMP1311',date,time:'09:00',endTime:'10:00'}}}};
+  const fake=fakeChrome(store),previousId=chrome.runtime.id;chrome.runtime.id='test-extension-id';
+  try {
+    await import(`../src/background.js?test=pending-cloud-${Date.now()}`);
+    const sender={tab:{id:1}};
+    const result=await new Promise(resolve=>fake.listeners.message({type:'REPORT_RUN',key,state:'submitted_pending_confirmation',detail:'none'},sender,resolve));
+    assert.deepEqual(result,{ok:true});
+    assert.equal(store.attendanceRecords[key].state,'submitted_pending_confirmation');
+    assert.equal(store.attendanceCloudOutbox.items.find(item=>item.action==='event')?.payload.status,'unknown');
+  } finally {chrome.runtime.id=previousId;}
+});
+
+test('login navigation fails an unopened task quickly and notifies the user',async()=>{
+  const date=todayMalaysia(),time=localTime(-56),endTime=localTime(4);
+  const store={attendanceSessions:[{id:'login',course:'COMP1311',kind:'dated',date,time,endTime,createdAt:new Date(Date.now()-180000).toISOString()}],attendanceBindings:{COMP1311:{verified:true,url:'https://forms.cloud.microsoft/Pages/ResponsePage.aspx?id=test'}},attendanceRecords:{}};
+  const fake=fakeChrome(store);await import(`../src/background.js?test=login-${Date.now()}`);await fake.listeners.installed();
+  const key=Object.keys(store.attendanceRecords)[0];await fake.listeners.tabUpdated(1,{url:'https://login.microsoftonline.com/common/authorize'},{id:1});
+  assert.equal(store.attendanceRecords[key].state,'failed');assert.ok(fake.notifications.some(item=>item.options.title==='需要登录学校账号'));
+});
+
+test('manual confirmation changes only the user-selected record and release requires explicit confirmation',async()=>{
+  const date=todayMalaysia(),time=localTime(-56),endTime=localTime(4);
+  const store={attendanceSessions:[{id:'manual',course:'COMP1311',kind:'dated',date,time,endTime,createdAt:new Date(Date.now()-180000).toISOString()}],attendanceBindings:{COMP1311:{verified:true,url:'https://forms.cloud.microsoft/Pages/ResponsePage.aspx?id=test'}},attendanceRecords:{}};
+  const fake=fakeChrome(store);await import(`../src/background.js?test=manual-${Date.now()}`);await fake.listeners.installed();
+  const key=Object.keys(store.attendanceRecords)[0],settings=settingsSender();
+  await new Promise(resolve=>fake.listeners.message({type:'RESERVE_SUBMISSION',key},{tab:{id:1}},resolve));await fake.listeners.alarm({name:`attendance-watch:${key}`});
+  const marked=await new Promise(resolve=>fake.listeners.message({type:'MARK_SUBMITTED',key},settings,resolve));assert.deepEqual(marked,{ok:true});assert.equal(store.attendanceRecords[key].state,'success');
+  const nextKey=`${key}:second`;store.attendanceRecords[nextKey]={...store.attendanceRecords[key],state:'submitted_pending_confirmation',submissionKey:nextKey,submissionAttemptedAt:'2026-10-05T07:00:00.000Z',occ:{...store.attendanceRecords[key].occ,key:nextKey},tabId:1};
+  const denied=await new Promise(resolve=>fake.listeners.message({type:'RELEASE_SUBMISSION',key:nextKey,confirm:false},settings,resolve));assert.match(denied.error,/明确确认/);assert.ok(store.attendanceRecords[nextKey].submissionAttemptedAt);
+  const released=await new Promise(resolve=>fake.listeners.message({type:'RELEASE_SUBMISSION',key:nextKey,confirm:true},settings,resolve));assert.deepEqual(released,{ok:true});assert.equal(store.attendanceRecords[nextKey].submissionAttemptedAt,undefined);assert.equal(store.attendanceRecords[nextKey].state,'submitted_pending_confirmation');
 });

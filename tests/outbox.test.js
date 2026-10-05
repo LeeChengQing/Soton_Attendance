@@ -20,3 +20,11 @@ test('logical terminal events deduplicate and retries retain identity with backo
   assert.equal(nextReady(q,100000).id,id);
   q=acknowledge(q,id);assert.equal(q.items.length,0);
 });
+
+test('terminal status progression keeps a distinct cloud event so manual confirmation can replace uncertainty',()=>{
+  let q=enqueue({},'event',{occurrenceKey:'same-class',status:'submitted_pending_confirmation'},100);
+  q=enqueue(q,'event',{occurrenceKey:'same-class',status:'success'},101);
+  q=enqueue(q,'event',{occurrenceKey:'same-class',status:'success'},102);
+  assert.deepEqual(q.items.map(item=>item.payload.status),['submitted_pending_confirmation','success']);
+  assert.equal(q.items.length,2);
+});

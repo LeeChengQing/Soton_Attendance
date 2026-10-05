@@ -3,11 +3,63 @@
   var HOSTS = /* @__PURE__ */ new Set(["forms.office.com", "forms.cloud.microsoft"]);
   var normalize = (s) => String(s || "").replace(/\s+/g, " ").trim().toLowerCase();
   var normalizeComparable = (value) => normalize(String(value ?? "").normalize("NFKC"));
-  function sameDateValue(actual, expected) {
-    const pattern = /^\s*\d{1,4}\s*[/.-]\s*\d{1,2}\s*[/.-]\s*\d{1,4}\s*$/;
-    if (!pattern.test(String(actual || "")) || !pattern.test(String(expected || ""))) return false;
-    const left = String(actual).match(/\d+/g), right = String(expected).match(/\d+/g);
-    return left.length === 3 && right.length === 3 && left.every((part, i) => Number(part) === Number(right[i]));
+  function calendarDate(value, order = "") {
+    const text = String(value || "").normalize("NFKC").trim();
+    if (!/^\d{1,4}\s*[/.-]\s*\d{1,2}\s*[/.-]\s*\d{1,4}$/.test(text)) return [];
+    const parts = text.match(/\d+/g);
+    if (!parts || parts.length !== 3) return [];
+    let y, m, d;
+    if (order) {
+      const names = order.split(/[/.-]/).map((part) => part.toLowerCase());
+      const values = Object.fromEntries(names.map((name, index) => [name[0], Number(parts[index])]));
+      ({ y, m, d } = values);
+    } else if (parts[0].length === 4) [y, m, d] = parts.map(Number);
+    else if (parts[2].length === 4) {
+      const [first, second, year] = parts.map(Number);
+      const candidates = [[year, first, second], [year, second, first]];
+      return candidates.map((value2) => canonicalDate(...value2)).filter(Boolean);
+    } else return [];
+    const normalized = canonicalDate(y, m, d);
+    return normalized ? [normalized] : [];
+  }
+  function canonicalDate(year, month, day) {
+    if (!Number.isInteger(year) || !Number.isInteger(month) || !Number.isInteger(day)) return null;
+    const date = new Date(Date.UTC(year, month - 1, day));
+    if (date.getUTCFullYear() !== year || date.getUTCMonth() !== month - 1 || date.getUTCDate() !== day) return null;
+    return `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+  }
+  function sameDateValue(actual, expected, formatHint = "") {
+    const hint = formatHint.match(/(?:yyyy|yy|MM|M|dd|d)([/.-])(?:yyyy|yy|MM|M|dd|d)(?:\1)(?:yyyy|yy|MM|M|dd|d)/i)?.[0] || "";
+    const iso = /^\d{4}-\d{2}-\d{2}$/.test(String(expected || ""));
+    const actualIso = /^\d{4}-\d{2}-\d{2}$/.test(String(actual || ""));
+    const expectedCanonical = calendarDate(expected, iso ? "" : hint), actualCanonical = calendarDate(actual, actualIso ? "" : hint);
+    return expectedCanonical.some((date) => actualCanonical.includes(date));
+  }
+  function validatePreSubmit(plan = [], questions = [], answers = []) {
+    const errors = [], mapped = new Map(plan.map((entry, index) => [normalizeComparable(entry.questionTitle), { ...entry, answer: answers[index] }]));
+    if (!questions.length) errors.push("\u65E0\u6CD5\u8BFB\u53D6\u8868\u5355\u9898\u76EE\u3002");
+    const currentTitles = new Set(questions.map((question) => normalizeComparable(question.title)));
+    for (const entry of plan) if (!entry.skip && !currentTitles.has(normalizeComparable(entry.questionTitle))) errors.push(`${entry.questionTitle || "\u5DF2\u6620\u5C04\u9898\u76EE"}\u5DF2\u4ECE\u8868\u5355\u4E2D\u6D88\u5931\u3002`);
+    for (const question of questions) {
+      const title = String(question.title || "").trim() || "Untitled question";
+      const entry = mapped.get(normalizeComparable(title));
+      if (question.required === false && (!entry || entry.skip)) continue;
+      if (!entry || entry.skip) {
+        errors.push(`${title} is required but is not mapped.`);
+        continue;
+      }
+      const answer = entry.answer;
+      if (!answer || answer.valid === false || answer.value == null || String(answer.value).trim() === "") {
+        errors.push(`${title} is empty.`);
+        continue;
+      }
+      if (entry.type === "radio" && answer.checked !== true) errors.push(`${title} has no selected option.`);
+      if (entry.type === "radio" && Array.isArray(answer.selectedValues) && answer.selectedValues.length > 1) errors.push(`${title} has conflicting selections.`);
+      if (entry.type === "date" && !sameDateValue(answer.value, entry.expectedDate || entry.value, entry.dateFormat || "")) errors.push(`${title} does not match the expected date.`);
+      if (entry.type === "text" && String(answer.value) !== String(entry.value)) errors.push(`${title} does not match the expected value.`);
+      if (entry.type === "radio" && String(answer.value) !== String(entry.value)) errors.push(`${title} does not match the expected option.`);
+    }
+    return { ok: errors.length === 0, errors };
   }
   function validateFormsUrl(value) {
     let url;
@@ -20,16 +72,6 @@
     if (/^\/Pages\//i.test(url.pathname) && !url.searchParams.get("id")) throw Error("\u8868\u5355\u94FE\u63A5\u7F3A\u5C11 ID\u3002");
     url.hash = "";
     return url;
-  }
-  function verifyQuestions(questions, mapping) {
-    if (!Array.isArray(questions) || questions.length !== mapping?.length) return false;
-    const actual = new Map(questions.map((q) => [normalizeComparable(q.title), q]));
-    return mapping.every((entry) => {
-      const q = actual.get(normalizeComparable(entry.title));
-      if (!q || q.type !== entry.type) return false;
-      if (q.type !== "radio") return true;
-      return JSON.stringify([...new Set(optionList(q))].sort()) === JSON.stringify([...new Set(optionList(entry))].sort());
-    });
   }
   var successRules = [
     ["en_answers_submitted", /\byour answers? have been submitted successfully\b/i],
@@ -94,20 +136,35 @@
     throw Error("\u65E0\u6CD5\u5224\u65AD\u6B64\u8BFE\u7A0B\u7C7B\u578B\uFF0C\u8BF7\u9009\u62E9 Lecture\u3001Tutorial \u6216 Laboratory\u3002");
   }
   function deliveryOption(options, target) {
-    return options.find((value) => target === "lab" ? ["lab", "laboratory"].includes(normalize(value)) : normalize(value) === target);
+    const words = (value) => normalize(value).match(/[a-z]+/g) || [];
+    const kinds = (value) => [...new Set(words(value).map((word) => word === "laboratory" ? "lab" : word).filter((word) => ["lecture", "tutorial", "lab"].includes(word)))];
+    const matches = options.filter((value) => {
+      const labels = words(value), negative = labels.some((word, index) => ["no", "not", "non", "without", "never"].includes(word) && labels.slice(index + 1, index + 4).some((next) => ["lecture", "tutorial", "lab", "laboratory"].includes(next)));
+      return !negative && kinds(value).length === 1 && kinds(value)[0] === target;
+    });
+    return matches.length === 1 ? matches[0] : void 0;
   }
   function identityOption(options, target) {
-    return options.find((value) => target === "international" ? /international/i.test(value) : /\blocal\b/i.test(value) && !/international/i.test(value));
+    const matches = options.filter((value) => {
+      const text = normalize(value), negative = /\b(?:not|no|non|without|never)\b/.test(text);
+      return !negative && (target === "international" ? /\binternational\b/.test(text) : /\blocal\b/.test(text) && !/\binternational\b/.test(text));
+    });
+    return matches.length === 1 ? matches[0] : void 0;
   }
   function buildFillPlan(questions, mapping, profile, date, course) {
-    if (!verifyQuestions(questions, mapping)) {
+    const unused = new Set(questions), resolved = mapping.map((entry) => {
+      let question = questions.find((item) => unused.has(item) && normalizeComparable(item.title) === normalizeComparable(entry.title));
+      if (!question) question = questions.find((item) => unused.has(item) && matchesMappedMeaning(entry, item));
+      if (question) unused.delete(question);
+      return { entry, question };
+    });
+    if (resolved.some((item) => !item.question)) {
       const error = Error("\u8868\u5355\u9898\u76EE\u53D1\u751F\u53D8\u5316\uFF0C\u5DF2\u505C\u6B62\u3002");
       error.code = "form_schema_changed";
       error.diff = questionDiff(mapping, questions);
       throw error;
     }
-    return mapping.map((entry, i) => {
-      const q = questions.find((item) => normalizeComparable(item.title) === normalizeComparable(entry.title));
+    return resolved.map(({ entry, question: q }, i) => {
       let value;
       if (q.type === "date" && q.required === false) return { type: "date", field: entry.field, skip: true };
       const expectedType = ["student", "name"].includes(entry.field) ? "text" : entry.field === "date" ? "date" : /^(?:delivery|local)(?::|$)/.test(entry.field) ? "radio" : null;
@@ -123,8 +180,24 @@
         value = identityOption(q.options || [], target);
       } else throw Error(`\u672A\u914D\u7F6E\u7B2C ${i + 1} \u9898\u3002`);
       if (!value) throw Error(`\u7B2C ${i + 1} \u9898\u6CA1\u6709\u5339\u914D\u7684\u7B54\u6848\u3002`);
-      return { type: q.type, value, field: entry.field, questionTitle: q.title };
+      return { type: q.type, value, field: entry.field, questionTitle: q.title, ...q.type === "date" ? { expectedDate: date, dateFormat: q.placeholder || "" } : {} };
     });
+  }
+  function matchesMappedMeaning(entry, question) {
+    const title = normalizeComparable(question.title), options = (question.options || []).map(normalizeComparable), field = entry.field || "";
+    if ((field === "student" || field === "name") && question.type !== "text") return false;
+    if ((field === "delivery" || field.startsWith("delivery:")) && question.type !== "radio") return false;
+    if ((field === "local" || field.startsWith("local:")) && question.type !== "radio") return false;
+    if (field === "student") return /\b(?:student|university|learner)\b.*\b(?:id|number|no)\b|\b(?:id|identification)\s*(?:number|no\.?|#)\b|学号/.test(title);
+    if (field === "name") return /\bname\b|姓名/.test(title);
+    if (field === "date") return question.type === "date";
+    if (field === "skip") return question.type === "date" && question.required === false;
+    if (field === "delivery" || field.startsWith("delivery:")) {
+      const kinds = ["lecture", "tutorial", "lab"].filter((kind) => options.some((option) => kind === "lab" ? /\b(?:lab|laboratory)\b/.test(option) : new RegExp(`\\b${kind}\\b`).test(option)));
+      return kinds.length >= 2 || /\b(?:delivery|session type|class type|lesson type)\b/.test(title);
+    }
+    if (field === "local" || field.startsWith("local:")) return options.some((option) => /\blocal\b/.test(option)) && options.some((option) => /\binternational\b/.test(option));
+    return false;
   }
   function assertDateAgreement(occDate, malaysiaDate, computerDate) {
     if (occDate !== malaysiaDate) throw Error("\u4EFB\u52A1\u65E5\u671F\u4E0E\u9A6C\u6765\u897F\u4E9A\u5F53\u5929\u65E5\u671F\u4E0D\u4E00\u81F4\uFF0C\u5DF2\u505C\u6B62\u3002");
@@ -215,8 +288,15 @@
   // src/content.js
   var pause2 = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
   var items = () => [...document.querySelectorAll('[data-automation-id="questionItem"]')];
-  var submitButton = () => document.querySelector('[data-automation-id="submitButton"]');
+  var submitButton = () => document.querySelector('[data-automation-id="submitButton"],button[type="submit"],input[type="submit"]') || [...document.querySelectorAll("button")].find((button) => button.textContent.trim().toLowerCase() === "submit");
   var formTitle = () => document.querySelector('[data-automation-id="formTitle"]')?.textContent?.trim() || "";
+  function assertFormAvailable() {
+    const visible = (selector) => [...document.querySelectorAll(selector)].some((element) => element.getClientRects().length > 0);
+    if (visible('iframe[src*="captcha" i],iframe[title*="captcha" i],iframe[title*="challenge" i],[data-sitekey],#captcha,[id*="captcha" i]')) throw Error("\u68C0\u6D4B\u5230 CAPTCHA \u9A8C\u8BC1\uFF0C\u9700\u8981\u4EBA\u5DE5\u5B8C\u6210\u540E\u91CD\u65B0\u8FD0\u884C\u3002");
+    const text = (document.body?.innerText || "").replace(/\s+/g, " ").toLowerCase();
+    if (/(?:this form|the form) is (?:now )?closed|no longer accepting responses|form is not accepting responses|此表单已关闭|不再接受回复/.test(text)) throw Error("\u8868\u5355\u5DF2\u5173\u95ED\uFF0C\u672A\u63D0\u4EA4\u3002");
+    if (/your session has expired|sign in to access this form|please sign in to continue|登录已过期|请先登录/.test(text)) throw Error("Microsoft \u767B\u5F55\u5DF2\u8FC7\u671F\u6216\u9700\u8981\u767B\u5F55\uFF0C\u8BF7\u4EBA\u5DE5\u5904\u7406\u3002");
+  }
   function show(message, positive = false) {
     let box = document.getElementById("attendance-helper-status");
     if (!box) {
@@ -242,10 +322,14 @@
     });
   }
   function control(index, entry) {
-    const item = items().find((candidate) => normalizeComparable(candidate.querySelector('[data-automation-id="questionTitle"]')?.textContent || "") === normalizeComparable(entry.questionTitle)) || items()[index];
+    const current = items(), item = entry.questionTitle ? current.find((candidate) => normalizeComparable(candidate.querySelector('[data-automation-id="questionTitle"]')?.textContent || "") === normalizeComparable(entry.questionTitle)) : current[index];
     if (!item) return null;
     if (entry.type === "radio") return [...item.querySelectorAll('input[type="radio"]')].find((e) => e.value === entry.value);
     return item.querySelector(entry.type === "date" ? 'input[role="combobox"],input[type="date"]' : 'input[data-automation-id="textInput"]');
+  }
+  function selectedRadioValues(index, entry) {
+    const current = items(), item = entry.questionTitle ? current.find((candidate) => normalizeComparable(candidate.querySelector('[data-automation-id="questionTitle"]')?.textContent || "") === normalizeComparable(entry.questionTitle)) : current[index];
+    return item ? [...item.querySelectorAll('input[type="radio"]:checked')].map((element) => element.value) : [];
   }
   async function fill(plan) {
     for (let i = 0; i < plan.length; i++) {
@@ -267,18 +351,26 @@
     if (!answersMatch(plan)) throw Error("\u586B\u5199\u540E\u7684\u7B54\u6848\u6216\u65E5\u671F\u6838\u5BF9\u5931\u8D25\uFF0C\u672A\u63D0\u4EA4\u3002");
   }
   function answersMatch(plan) {
-    const questions = items();
-    if (questions.length !== plan.length) return false;
-    return plan.every((entry, i) => {
-      if (entry.skip) return true;
-      const el = control(i, entry);
-      if (!el || el.getAttribute("aria-invalid") === "true") return false;
-      if (entry.type === "radio") {
-        const checked = [...questions[i].querySelectorAll('input[type="radio"]')].filter((input) => input.checked);
-        return checked.length === 1 && checked[0] === el && el.value === entry.value;
-      }
-      return entry.type === "date" ? sameDateValue(el.value, entry.value) : el.value === entry.value;
+    const questions = readQuestions();
+    const answers = plan.map((entry, index) => {
+      if (entry.skip) return { value: "", valid: true };
+      const el = control(index, entry);
+      if (!el || el.getAttribute("aria-invalid") === "true") return { value: "", valid: false };
+      if (entry.type === "radio") return { value: el.value, checked: el.checked, valid: true, selectedValues: selectedRadioValues(index, entry) };
+      return { value: el.value, valid: true };
     });
+    return validatePreSubmit(plan, questions, answers).ok;
+  }
+  function assertPreSubmit(plan) {
+    const questions = readQuestions();
+    const answers = plan.map((entry, index) => {
+      if (entry.skip) return { value: "", valid: true };
+      const el = control(index, entry);
+      if (!el || el.getAttribute("aria-invalid") === "true") return { value: "", valid: false };
+      return entry.type === "radio" ? { value: el.value, checked: el.checked, valid: true, selectedValues: selectedRadioValues(index, entry) } : { value: el.value, valid: true };
+    });
+    const result = validatePreSubmit(plan, questions, answers);
+    if (!result.ok) throw Error(`\u63D0\u4EA4\u524D\u6821\u9A8C\u5931\u8D25\uFF1A${result.errors.join("\uFF1B")}`);
   }
   function watchDryRun(plan, course, onInvalid) {
     const check = () => {
@@ -310,7 +402,7 @@
     diff?.options?.length ? `\u9009\u9879\u53D8\u5316\uFF1A${diff.options.map((item) => item.title).join("\u3001")}` : ""
   ].filter(Boolean).join("\n");
   async function run(key, checkCourse, setupId, itemId) {
-    let reserved = false;
+    let clicked = false;
     const setupMessage = async (type, extra = {}) => {
       const result = await chrome.runtime.sendMessage({ type, sessionId: setupId, itemId, ...extra });
       if (result?.error) throw Error(result.error);
@@ -339,6 +431,7 @@
       const now = /* @__PURE__ */ new Date(), computerDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
       const expected = validateFormsUrl(binding.url), actual = validateFormsUrl(location.href);
       if (expected.hostname !== actual.hostname || expected.pathname !== actual.pathname || expected.searchParams.get("id") !== actual.searchParams.get("id")) throw Error("\u5F53\u524D\u8868\u5355\u4E0E\u8BFE\u7A0B\u7ED1\u5B9A\u7684\u8868\u5355\u4E0D\u4E00\u81F4\u3002");
+      assertFormAvailable();
       if (formTitle() !== binding.title) throw Error("\u8868\u5355\u6807\u9898\u53D1\u751F\u53D8\u5316\uFF0C\u672A\u63D0\u4EA4\u3002");
       const plan = buildFillPlan(readQuestions(), binding.mapping, profile, occ.date, occ.course);
       const requiresDate = plan.some((entry) => entry.type === "date" && !entry.skip);
@@ -348,7 +441,7 @@
       if (key) await reportPhase(key, "checking");
       if (key) await reportPhase(key, "filling");
       await fill(plan);
-      if (!answersMatch(plan)) throw Error("\u8868\u5355\u7B54\u6848\u5DF2\u53D8\u5316\uFF0C\u672A\u901A\u8FC7\u6838\u5BF9\uFF1B\u672A\u63D0\u4EA4\u3002");
+      assertPreSubmit(plan);
       if (!key) {
         const delivery = plan.find((entry) => entry.field?.startsWith("delivery"))?.value;
         show(`\u5DF2\u586B\u5199 \xB7 \u4EC5\u586B\u5199\uFF0C\u672A\u63D0\u4EA4
@@ -379,8 +472,9 @@ ${occ.course}${delivery ? ` \xB7 Module Delivery: ${delivery}` : ""}${setupId ? 
         }) : null);
         return;
       }
+      assertFormAvailable();
       if (todayMalaysia() !== occ.date) throw Error("\u63D0\u4EA4\u524D\u65E5\u671F\u5DF2\u53D8\u5316\uFF0C\u672A\u63D0\u4EA4\u3002");
-      if (!answersMatch(plan)) throw Error("\u63D0\u4EA4\u524D\u8868\u5355\u7B54\u6848\u5DF2\u53D8\u5316\uFF0C\u672A\u63D0\u4EA4\u3002");
+      assertPreSubmit(plan);
       if (!submitButton() || submitButton().disabled) throw Error("\u8868\u5355\u65E0\u6CD5\u63D0\u4EA4\u3002");
       const reservation = await chrome.runtime.sendMessage({ type: "RESERVE_SUBMISSION", key });
       if (reservation?.error) throw Error(reservation.error);
@@ -389,18 +483,20 @@ ${occ.course}${delivery ? ` \xB7 Module Delivery: ${delivery}` : ""}${setupId ? 
 \u6B64\u65F6\u6BB5\u5DF2\u7ECF\u5C1D\u8BD5\u63D0\u4EA4\u8FC7\uFF0C\u4E3A\u907F\u514D\u91CD\u590D\u6253\u5361\u4E0D\u4F1A\u518D\u6B21\u70B9\u51FB\u63D0\u4EA4\u3002`);
         return;
       }
-      reserved = true;
       buildFillPlan(readQuestions(), binding.mapping, profile, occ.date, occ.course);
+      assertFormAvailable();
       if (todayMalaysia() !== occ.date || !answersMatch(plan) || formTitle() !== binding.title || !submitButton() || submitButton().disabled) throw Error("\u6388\u6743\u540E\u8868\u5355\u6216\u65E5\u671F\u5DF2\u53D8\u5316\uFF0C\u505C\u6B62\u63D0\u4EA4\u3002");
       const submitDelay = randomSubmitDelay();
       show(`${occ.course}
 \u8D44\u6599\u4E0E\u65E5\u671F\u6838\u5BF9\u901A\u8FC7\uFF0C\u5C06\u5728 ${Math.round(submitDelay / 1e3)} \u79D2\u540E\u63D0\u4EA4\u2026`);
       await pause2(submitDelay);
+      assertFormAvailable();
       if (todayMalaysia() !== occ.date || !answersMatch(plan) || formTitle() !== binding.title || !submitButton() || submitButton().disabled) throw Error("\u7B49\u5F85\u671F\u95F4\u8868\u5355\u6216\u65E5\u671F\u53D1\u751F\u53D8\u5316\uFF0C\u505C\u6B62\u63D0\u4EA4\u3002");
       await reportPhase(key, "confirming");
       const before = { questionCount: items().length, submitVisible: Boolean(submitButton()) };
       show(`${occ.course}
 \u8D44\u6599\u4E0E\u65E5\u671F\u6838\u5BF9\u901A\u8FC7\uFF0C\u6B63\u5728\u63D0\u4EA4\u2026`);
+      clicked = true;
       submitButton().click();
       let structureSeen = false;
       for (let i = 0; i < 60; i++) {
@@ -425,7 +521,7 @@ ${diffDescription(error.diff)}` : ""}`);
       if (setupId) await setupMessage("REPORT_SETUP_ITEM", { state: "failed", detail: error.message }).catch(() => {
       });
       if (key) try {
-        await report(key, reserved ? "submitted_pending_confirmation" : "failed", reserved ? "phase_error" : error.code === "form_schema_changed" ? "schema_changed" : safeRunDetail(error.message));
+        await report(key, clicked ? "submitted_pending_confirmation" : "failed", clicked ? "phase_error" : error.code === "form_schema_changed" ? "schema_changed" : safeRunDetail(error.message));
       } catch {
       }
     }

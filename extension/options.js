@@ -41406,7 +41406,11 @@ function toWeeklySession(session) {
   if (!Number.isInteger(weekday) || weekday < 0 || weekday > 6) throw Error(`${session.course || "\u8BFE\u7A0B"} \u7F3A\u5C11\u6709\u6548\u661F\u671F\u3002`);
   return { ...weekly, kind: "weekly", weekday };
 }
-var fingerprint = (s) => [s.course?.trim().toLowerCase(), s.kind, s.kind === "dated" ? s.date : s.weekday, s.time, s.endTime].join("|");
+var fingerprint = (s) => {
+  const kind = s.kind || (s.date ? "dated" : "weekly");
+  const day = kind === "dated" ? s.date : s.weekday ?? s.day;
+  return [s.course?.trim().toLowerCase(), kind, day, s.time ?? s.start, s.endTime ?? s.end].join("|");
+};
 function mergeSessions(existing, incoming) {
   const merged = [...existing], seen = new Set(existing.map(fingerprint));
   for (const row of incoming) if (!seen.has(fingerprint(row))) {
@@ -41530,6 +41534,51 @@ function rowsFromPage({ text = "", tokens = [] }) {
 
 // src/timetable-grid.js
 var DAY_NAMES = ["Mo", "Tu", "We", "Th", "Fr"];
+function otsuThreshold(imageData) {
+  const { width, height, data } = imageData || {};
+  if (!Number.isInteger(width) || !Number.isInteger(height) || !data || data.length < width * height * 4) throw new TypeError("invalid pixel image");
+  const histogram = new Uint32Array(256), total = width * height;
+  for (let i = 0; i < total; i++) {
+    const at = i * 4, gray = Math.round(0.299 * data[at] + 0.587 * data[at + 1] + 0.114 * data[at + 2]);
+    histogram[gray]++;
+  }
+  let sum = 0;
+  for (let value = 0; value < 256; value++) sum += value * histogram[value];
+  let backgroundWeight = 0, backgroundSum = 0, bestVariance = -1, threshold = 127;
+  for (let value = 0; value < 256; value++) {
+    backgroundWeight += histogram[value];
+    if (!backgroundWeight) continue;
+    const foregroundWeight = total - backgroundWeight;
+    if (!foregroundWeight) break;
+    backgroundSum += value * histogram[value];
+    const meanBackground = backgroundSum / backgroundWeight, meanForeground = (sum - backgroundSum) / foregroundWeight;
+    const variance = backgroundWeight * foregroundWeight * (meanBackground - meanForeground) ** 2;
+    if (variance > bestVariance) {
+      bestVariance = variance;
+      threshold = value;
+    }
+  }
+  return threshold;
+}
+function hasForeground(imageData, minPixels = 1) {
+  const { width, height, data } = imageData || {};
+  if (!Number.isInteger(width) || !Number.isInteger(height) || !data || data.length < width * height * 4) throw new TypeError("invalid pixel image");
+  let count = 0, minimum = 255, maximum = 0;
+  for (let i = 0; i < width * height; i++) {
+    const at = i * 4, gray = Math.round(0.299 * data[at] + 0.587 * data[at + 1] + 0.114 * data[at + 2]);
+    minimum = Math.min(minimum, gray);
+    maximum = Math.max(maximum, gray);
+  }
+  if (maximum - minimum < 12) return false;
+  const threshold = otsuThreshold(imageData);
+  for (let i = 0; i < width * height; i++) {
+    const at = i * 4, gray = Math.round(0.299 * data[at] + 0.587 * data[at + 1] + 0.114 * data[at + 2]);
+    if (gray <= threshold || gray < 150) {
+      if (++count >= minPixels) return true;
+    }
+  }
+  return false;
+}
 function darkAt(image, x, y, radius = 2) {
   for (let dy = -radius; dy <= radius; dy++) for (let dx = -radius; dx <= radius; dx++) {
     const px = x + dx, py = y + dy;
@@ -41543,6 +41592,7 @@ function adaptiveMask(image) {
     const at = i * 4;
     gray[i] = Math.round(0.299 * data[at] + 0.587 * data[at + 1] + 0.114 * data[at + 2]);
   }
+  const globalThreshold = otsuThreshold(image);
   for (let y = 1; y <= height; y++) {
     let row = 0;
     for (let x = 1; x <= width; x++) {
@@ -41554,7 +41604,7 @@ function adaptiveMask(image) {
   for (let y = 0; y < height; y++) for (let x = 0; x < width; x++) {
     const x0 = Math.max(0, x - radius), x1 = Math.min(width, x + radius + 1), y0 = Math.max(0, y - radius), y1 = Math.min(height, y + radius + 1);
     const sum = integral[y1 * stride + x1] - integral[y0 * stride + x1] - integral[y1 * stride + x0] + integral[y0 * stride + x0], mean = sum / ((x1 - x0) * (y1 - y0)), value = gray[y * width + x];
-    if (value < 150 || value < mean - 18) mask[y * width + x] = 1;
+    if (value <= globalThreshold || value < 150 || value < mean - 18) mask[y * width + x] = 1;
   }
   return { width, height, data, mask };
 }
@@ -41644,11 +41694,16 @@ function detectTimetableGrid(imageData, { expectedPeriods = 11, expectedWeekdays
         segmentTop = split.center;
       }
       if (row.bottom - segmentTop > 3) groupSegments.push({ top: segmentTop, bottom: row.bottom });
-      cells.push({ day: row.day, periodStart: first + 1, periodEnd: last + 1, left, right, top: row.top, bottom: row.bottom, groupSegments });
+      cells.push({ day: row.day, periodStart: first + 1, periodEnd: last + 1, left, right, top: row.top, bottom: row.bottom, x: left, y: row.top, width: right - left, height: row.bottom - row.top, groupSegments });
       col = last + 1;
     }
   }
-  return { ok: true, table: { left: tableLeft, right: tableRight, top: tableTop, headerBottom, bottom: tableBottom, dayBoundary }, dayRows, periodColumns, cells, lines: { horizontal, verticalHeader } };
+  const matrix = Array.from({ length: expectedWeekdays }, () => Array(expectedPeriods).fill(null));
+  for (const cell of cells) {
+    const row = DAY_NAMES.indexOf(cell.day);
+    for (let col = cell.periodStart; col <= cell.periodEnd; col++) matrix[row][col - 1] = cell;
+  }
+  return { ok: true, table: { left: tableLeft, right: tableRight, top: tableTop, headerBottom, bottom: tableBottom, dayBoundary }, dayRows, periodColumns, cells, matrix, lines: { horizontal, verticalHeader } };
 }
 
 // src/timetable-fields.js
@@ -41670,16 +41725,20 @@ var editDistance = (left, right) => {
 function periodTime(periodStart, periodEnd = periodStart, { startHour = 8, minutesPerPeriod = 60, header = null } = {}) {
   if (!Number.isInteger(periodStart) || !Number.isInteger(periodEnd) || periodStart < 1 || periodEnd < periodStart || !Number.isFinite(startHour) || !Number.isFinite(minutesPerPeriod) || minutesPerPeriod <= 0) throw new TypeError("invalid period mapping");
   const startMinutes = startHour * 60 + periodStart * minutesPerPeriod, endMinutes = startHour * 60 + (periodEnd + 1) * minutesPerPeriod;
-  const start = minuteClock(startMinutes), end = minuteClock(endMinutes);
-  const conflict = header && (header.start && header.start !== start || header.end && header.end !== end);
-  return { start, end, needsReview: Boolean(conflict) };
+  const mappedStart = minuteClock(startMinutes), mappedEnd = minuteClock(endMinutes);
+  const validClock = (value) => typeof value === "string" && /^\d{1,2}:[0-5]\d$/.test(value) && Number(value.split(":")[0]) < 24;
+  const headerStart = validClock(header?.start) ? header.start.padStart(5, "0") : "";
+  const headerEnd = validClock(header?.end) ? header.end.padStart(5, "0") : "";
+  const headerUsable = headerStart && headerEnd && headerEnd > headerStart;
+  const conflict = headerUsable && (headerStart !== mappedStart || headerEnd !== mappedEnd);
+  return { start: headerUsable ? headerStart : mappedStart, end: headerUsable ? headerEnd : mappedEnd, needsReview: Boolean(conflict || (header?.start || header?.end) && !headerUsable) };
 }
 function normalizedLines(text) {
   return String(text || "").replace(/[｜¦]/g, " ").replace(/[‐‑‒–—]/g, "-").split(/\r?\n/).map((line) => line.replace(/\s+/g, " ").trim()).filter(Boolean);
 }
 function parseCellText(text, context = {}) {
   const lines = normalizedLines(text), raw = lines.join("\n"), corrections = [];
-  const courseMatch = raw.match(/\b([A-Z]{3,}\d{4})\b/i);
+  const courseMatch = raw.match(/\b([A-Z]{4}\d{4})\b/i);
   const codeRaw = courseMatch?.[1] || "";
   const code = codeRaw.toUpperCase();
   const typeCandidates = lines.flatMap((line) => [...line.matchAll(/-?\s*([A-Z0-9]{3})\b/gi)]).map((match) => match[1].toUpperCase());
@@ -41700,13 +41759,13 @@ function parseCellText(text, context = {}) {
     }
   }
   const groupMatch = raw.match(/\bGroup\s*([12])\b/i), group = groupMatch?.[1] || "";
-  const metadataPattern = /^(?:[A-Z]{3,}\d{4}|-?\s*[A-Z0-9]{3}|(?:3[RRO]0[0-9OG]{2}|R\d{3})|Group\s*[12])$/i;
+  const metadataPattern = /^(?:[A-Z]{4}\d{4}(?:\s*-\s*(?:LEC|LAB|TUT))?|-?\s*[A-Z0-9]{3}|(?:3[RRO]0[0-9OG]{2}|R\d{3})|Group\s*[12])$/i;
   const lecturer = lines.find((line) => {
     const clean = line.replace(/[|¦]/g, " ").trim();
     return !metadataPattern.test(clean) && !/^[\s.-]+$/.test(clean);
   }) || "";
   const fields = {
-    code: { raw: codeRaw, value: code, confidence: code?.match(/^[A-Z]{3,}\d{4}$/) ? codeRaw === code ? 0.94 : 0.8 : 0 },
+    code: { raw: codeRaw, value: code, confidence: code?.match(/^[A-Z]{4}\d{4}$/) ? codeRaw === code ? 0.94 : 0.8 : 0 },
     type: { raw: typeRaw, value: type, confidence: type ? ["LEC", "LAB", "TUT"].includes(typeRaw) ? 0.92 : 0.68 : 0 },
     group: { raw: groupMatch?.[0] || "", value: group, confidence: group ? 0.9 : 0.75 },
     room: { raw: roomCandidate, value: room, confidence: room ? roomCandidate.toUpperCase() === room ? 0.9 : 0.68 : 0 },
@@ -41715,7 +41774,8 @@ function parseCellText(text, context = {}) {
   const evidence = Number.isFinite(context.ocrConfidence) ? Math.max(0.2, Math.min(1, context.ocrConfidence)) : 1;
   for (const value of Object.values(fields)) value.confidence = Number((value.confidence * evidence).toFixed(2));
   const confidence = Object.fromEntries(Object.entries(fields).map(([key, value]) => [key, value.confidence]));
-  const base = { ...context, code, type, group, room, lecturer, confidence, fields, raw, corrections };
+  const course = code ? `${code}${type ? `-${type}` : ""}${group ? ` Group ${group}` : ""}` : raw.replace(/\s+/g, " ").trim();
+  const base = { ...context, code, type, group, room, lecturer, course, confidence, fields, raw, corrections };
   return { ...base, needsReview: Boolean(context.needsReview || corrections.length || !code || !type || Object.values(confidence).some((value) => value < 0.7)) };
 }
 
@@ -41731,6 +41791,8 @@ var copy = {
     studentId: "\u5B66\u53F7",
     studentName: "\u59D3\u540D",
     studentType: "\u5B66\u751F\u8EAB\u4EFD",
+    studentGroup: "\u8BFE\u8868\u7EC4\u522B",
+    groupAny: "\u4E0D\u7B5B\u9009",
     localStudent: "\u672C\u5730\u5B66\u751F",
     internationalStudent: "\u56FD\u9645\u5B66\u751F",
     saveProfile: "\u4FDD\u5B58\u8D44\u6599",
@@ -41740,7 +41802,7 @@ var copy = {
     clearDraft: "\u6E05\u7A7A\u8349\u7A3F",
     importTimetable: "\u5BFC\u5165\u8BFE\u8868",
     addCourse: "\u6DFB\u52A0\u8BFE\u7A0B",
-    timetableHint: "\u652F\u6301 JPG\u3001PNG\u3001PDF\u3002Group 1\uFF0F2 \u53EA\u4FDD\u7559\u81EA\u5DF1\u7684\u7EC4\u522B\u3002",
+    timetableHint: "\u652F\u6301 JPG\u3001PNG\u3001PDF\u3002\u9009\u62E9\u7EC4\u522B\u540E\uFF0C\u53EA\u8FC7\u6EE4\u660E\u786E\u6807\u8BB0\u4E3A\u5176\u4ED6\u7EC4\u7684 Lab\uFF1B\u5176\u4ED6\u8BFE\u7A0B\u548C\u65E0\u6CD5\u8BC6\u522B\u7EC4\u522B\u7684\u8BFE\u7A0B\u4F1A\u4FDD\u7559\u3002",
     noTimetable: "\u8FD8\u6CA1\u6709\u5BFC\u5165\u8BFE\u8868\u3002",
     draftAutoSave: "\u8349\u7A3F\u81EA\u52A8\u4FDD\u5B58\uFF0C\u542F\u7528\u540E\u624D\u4F1A\u6267\u884C\u3002",
     bindingHeading: "\u8868\u5355\u7ED1\u5B9A",
@@ -41835,7 +41897,9 @@ var copy = {
     recognizingTimetable: "\u6B63\u5728\u672C\u673A\u8BC6\u522B\u2026",
     noRecognizedLessons: "\u6CA1\u6709\u53EF\u9760\u8BC6\u522B\u51FA\u8BFE\u7A0B\u3002\u8BF7\u624B\u52A8\u6DFB\u52A0\uFF0C\u6216\u4E0A\u4F20\u66F4\u6E05\u6670\u7684\u8BFE\u8868\u3002",
     recognizedLessons: "\u8BC6\u522B\u51FA {count} \u884C\u3002{groupWarning}\u8BF7\u9010\u884C\u6838\u5BF9\uFF0C\u518D\u7ED1\u5B9A\u4E8C\u7EF4\u7801\u3002",
-    groupWarning: "\u8BF7\u5220\u9664\u4E0D\u5C5E\u4E8E\u81EA\u5DF1\u7684 Group \u8BFE\u7A0B\u3002",
+    groupWarning: "\u53EF\u5728\u5B66\u751F\u8D44\u6599\u4E2D\u9009\u62E9\u81EA\u5DF1\u7684\u7EC4\u522B\uFF0C\u81EA\u52A8\u8FC7\u6EE4\u660E\u786E\u6807\u8BB0\u4E3A\u5176\u4ED6\u7EC4\u7684 Lab\uFF1B\u65E0\u6CD5\u8BC6\u522B\u7EC4\u522B\u7684\u8BFE\u7A0B\u4F1A\u4FDD\u7559\u3002",
+    groupFilterSummary: "\u5DF2\u9009\u62E9 Group {group}\uFF0C\u8FC7\u6EE4\u4E86 {count} \u4E2A\u5176\u4ED6\u7EC4 Lab\uFF1B\u65E0\u6CD5\u8BC6\u522B\u7EC4\u522B\u7684\u8BFE\u7A0B\u5DF2\u4FDD\u7559\u3002",
+    noMatchingGroupLessons: "\u6240\u9009 Group {group} \u4E0B\u6CA1\u6709\u53EF\u5BFC\u5165\u7684\u8BFE\u7A0B\u3002\u8BF7\u68C0\u67E5\u7EC4\u522B\uFF0C\u6216\u6539\u4E3A\u201C\u4E0D\u7B5B\u9009\u201D\u3002",
     noImportYet: "\u8FD8\u6CA1\u6709\u5BFC\u5165\u8BFE\u8868\u3002",
     savingDraftFailed: "\u8349\u7A3F\u4FDD\u5B58\u5931\u8D25\uFF1A{error}",
     draftSavedNeedsReview: "\u8349\u7A3F\u5DF2\u5728\u672C\u673A\u81EA\u52A8\u4FDD\u5B58\uFF1B\u91CD\u65B0\u6838\u5BF9\u540E\u52FE\u9009\u786E\u8BA4\u3002\u4FDD\u5B58\u8349\u7A3F\u4E0D\u4F1A\u542F\u7528\u4EFB\u52A1\u3002",
@@ -41896,6 +41960,8 @@ var copy = {
     importerQrImage: "\u8BF7\u4E0A\u4F20\u4E8C\u7EF4\u7801\u56FE\u7247\uFF08PNG \u6216 JPG\uFF09\u3002",
     importerQrUnread: "\u672A\u80FD\u4ECE\u56FE\u7247\u4E2D\u8BC6\u522B\u4E8C\u7EF4\u7801\uFF0C\u8BF7\u6362\u6E05\u6670\u622A\u56FE\u6216\u7C98\u8D34\u94FE\u63A5\u3002",
     importerRecognizeHeader: "\u6B63\u5728\u8BC6\u522B\u8BFE\u8868\u7684\u65E5\u671F\u3001\u65F6\u95F4\u548C\u661F\u671F",
+    importerGridFallback: "\u8868\u683C\u7F51\u683C\u6821\u9A8C\u672A\u901A\u8FC7\uFF08{reason}\uFF09\uFF0C\u6B63\u5728\u5C1D\u8BD5\u6574\u56FE OCR\u3002\u8BC6\u522B\u7ED3\u679C\u9700\u8981\u4EBA\u5DE5\u6838\u5BF9\u3002",
+    gridFallbackNotice: "\u7F51\u683C\u6821\u9A8C\u672A\u901A\u8FC7\uFF0C\u5F53\u524D\u5185\u5BB9\u6765\u81EA\u6574\u56FE OCR\uFF1B\u8BF7\u6838\u5BF9\u8BFE\u7A0B\u3001\u661F\u671F\u548C\u65F6\u95F4\u3002",
     importerFileLimit: "\u8BF7\u9009\u62E9\u4E0D\u8D85\u8FC7 20 MB \u7684 JPG\u3001PNG \u6216 PDF\u3002",
     importerPdfPages: "PDF \u6700\u591A\u652F\u6301 20 \u9875\u3002",
     importerReadingPage: "\u6B63\u5728\u8BFB\u53D6 PDF \u7B2C {page}/{pages} \u9875",
@@ -42045,6 +42111,8 @@ var copy = {
     studentId: "Student ID",
     studentName: "Name",
     studentType: "Student type",
+    studentGroup: "Timetable group",
+    groupAny: "Do not filter",
     localStudent: "Local student",
     internationalStudent: "International student",
     saveProfile: "Save profile",
@@ -42054,7 +42122,7 @@ var copy = {
     clearDraft: "Clear draft",
     importTimetable: "Import timetable",
     addCourse: "Add lesson",
-    timetableHint: "JPG, PNG, and PDF supported. Keep only your own Group 1 or Group 2 lessons.",
+    timetableHint: "JPG, PNG, and PDF supported. When a group is selected, only Lab sessions clearly assigned to other groups are filtered; other and unknown-group sessions stay for review.",
     noTimetable: "No timetable imported yet.",
     draftAutoSave: "Drafts save automatically and run only after you enable them.",
     bindingHeading: "Form bindings",
@@ -42149,7 +42217,9 @@ var copy = {
     recognizingTimetable: "Reading timetable on this device\u2026",
     noRecognizedLessons: "No lessons could be reliably recognized. Add them manually or upload a clearer timetable.",
     recognizedLessons: "Recognized {count} row(s). {groupWarning}Review each row, then bind its QR code.",
-    groupWarning: "Remove Group lessons that are not yours. ",
+    groupWarning: "Choose your group in Student profile to filter out clearly marked Lab sessions from other groups. Unknown groups are kept for review. ",
+    groupFilterSummary: "Group {group} selected; filtered out {count} Lab session(s) from other groups. Unknown groups are kept for review.",
+    noMatchingGroupLessons: "No courses remain for Group {group}. Check the selected group or choose \u201CDo not filter\u201D.",
     noImportYet: "No timetable imported yet.",
     savingDraftFailed: "Could not save the draft: {error}",
     draftSavedNeedsReview: "Draft saved on this device. Review it again and confirm before continuing. Saving a draft does not enable tasks.",
@@ -42210,6 +42280,8 @@ var copy = {
     importerQrImage: "Upload a QR code image (PNG or JPG).",
     importerQrUnread: "Could not read a QR code from this image. Use a clearer image or paste the link.",
     importerRecognizeHeader: "Recognizing timetable dates, times, and weekdays",
+    importerGridFallback: "Grid validation failed ({reason}); trying full-page OCR. Review the result before enabling tasks.",
+    gridFallbackNotice: "Grid validation failed; this row came from full-page OCR. Review the course, day, and time.",
     importerFileLimit: "Choose a JPG, PNG, or PDF no larger than 20 MB.",
     importerPdfPages: "PDFs are limited to 20 pages.",
     importerReadingPage: "Reading PDF page {page}/{pages}",
@@ -42450,49 +42522,66 @@ function enhancedCanvas(source, scale = 3) {
   canvas.height = source.height * scale;
   const context = canvas.getContext("2d", { willReadFrequently: true });
   context.drawImage(source, 0, 0, canvas.width, canvas.height);
-  const image = context.getImageData(0, 0, canvas.width, canvas.height), gray = new Uint8Array(canvas.width * canvas.height);
-  for (let i = 0; i < gray.length; i++) {
-    const at = i * 4;
-    gray[i] = Math.round(0.299 * image.data[at] + 0.587 * image.data[at + 1] + 0.114 * image.data[at + 2]);
-  }
-  const radius = Math.max(8, Math.round(12 * scale)), stride = canvas.width + 1, integral = new Uint32Array((canvas.width + 1) * (canvas.height + 1));
-  for (let y = 1; y <= canvas.height; y++) {
-    let row = 0;
-    for (let x = 1; x <= canvas.width; x++) {
-      row += gray[(y - 1) * canvas.width + x - 1];
-      integral[y * stride + x] = integral[(y - 1) * stride + x] + row;
-    }
-  }
-  for (let y = 0; y < canvas.height; y++) for (let x = 0; x < canvas.width; x++) {
-    const x0 = Math.max(0, x - radius), x1 = Math.min(canvas.width, x + radius + 1), y0 = Math.max(0, y - radius), y1 = Math.min(canvas.height, y + radius + 1);
-    const sum = integral[y1 * stride + x1] - integral[y0 * stride + x1] - integral[y1 * stride + x0] + integral[y0 * stride + x0], mean = sum / ((x1 - x0) * (y1 - y0));
-    const value = gray[y * canvas.width + x] < mean - 8 ? 0 : 255, at = (y * canvas.width + x) * 4;
-    image.data[at] = image.data[at + 1] = image.data[at + 2] = value;
-    image.data[at + 3] = 255;
+  const image = context.getImageData(0, 0, canvas.width, canvas.height), threshold = otsuThreshold(image);
+  for (let i = 0; i < image.data.length; i += 4) {
+    const value = Math.round(0.299 * image.data[i] + 0.587 * image.data[i + 1] + 0.114 * image.data[i + 2]) <= threshold ? 0 : 255;
+    image.data[i] = image.data[i + 1] = image.data[i + 2] = value;
+    image.data[i + 3] = 255;
   }
   context.putImageData(image, 0, 0);
   return canvas;
 }
+function cropCanvas(source, left, top, width, height, scale = 3) {
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.max(1, Math.ceil(width * scale));
+  canvas.height = Math.max(1, Math.ceil(height * scale));
+  const context = canvas.getContext("2d", { willReadFrequently: true });
+  context.fillStyle = "#fff";
+  context.fillRect(0, 0, canvas.width, canvas.height);
+  context.drawImage(source, left, top, width, height, 0, 0, canvas.width, canvas.height);
+  return canvas;
+}
+function hasInk(source, left, top, right, bottom) {
+  const width = right - left, height = bottom - top;
+  if (width < 4 || height < 4) return false;
+  const image = source.getContext("2d", { willReadFrequently: true }).getImageData(left, top, width, height);
+  return hasForeground(image, Math.max(2, width * height * 1e-3));
+}
 async function makeWorker(onProgress) {
   return (0, import_tesseract.createWorker)("eng", 1, { workerPath: asset("worker.min.js"), corePath: asset("tesseract-core"), langPath: asset("lang"), workerBlobURL: false, cacheMethod: "none", logger: (m) => onProgress?.(`${m.status} ${Math.round((m.progress || 0) * 100)}%`) });
 }
-function extractOcr(data, scale = 1) {
+function extractOcr(data, scale = 1, offset = { x: 0, y: 0 }) {
   const tokens = [];
   for (const block of data.blocks || []) for (const para of block.paragraphs || []) for (const line of para.lines || []) for (const word of line.words || []) {
     const b = word.bbox;
-    tokens.push({ text: word.text, x: b.x0 / scale, y: b.y0 / scale, width: (b.x1 - b.x0) / scale, height: (b.y1 - b.y0) / scale, confidence: word.confidence });
+    tokens.push({ text: word.text, x: offset.x + b.x0 / scale, y: offset.y + b.y0 / scale, width: (b.x1 - b.x0) / scale, height: (b.y1 - b.y0) / scale, confidence: word.confidence });
   }
   return { text: data.text || "", tokens };
 }
 async function recognizeImageGrid(source, onProgress) {
   const ctx = source.getContext("2d", { willReadFrequently: true }), grid = detectTimetableGrid(ctx.getImageData(0, 0, source.width, source.height));
-  if (!grid.ok) {
-    onProgress?.(`\u8868\u683C\u7F51\u683C\u68C0\u6D4B\u5931\u8D25\uFF0C\u56DE\u9000\u5230\u6574\u56FE OCR\uFF1A${grid.reason}`);
-    return null;
-  }
-  const worker = await makeWorker(onProgress), headerCanvas = enhancedCanvas(source, 3);
+  if (!grid.ok) return { rows: [], gridFailure: grid.reason };
+  const worker = await makeWorker(onProgress);
   try {
-    const header = extractOcr((await worker.recognize(headerCanvas, {}, { text: true, blocks: true })).data, 3), dates = weekDates(header.text), weekdayIds = { Mo: 1, Tu: 2, We: 3, Th: 4, Fr: 5 }, rows = [];
+    const titleBounds = { left: 0, top: 0, width: source.width, height: Math.max(1, grid.table.top) };
+    const timeBounds = { left: grid.table.left, top: grid.table.top, width: grid.table.right - grid.table.left, height: grid.table.headerBottom - grid.table.top };
+    const dayBounds = { left: grid.table.left, top: grid.table.headerBottom, width: grid.table.dayBoundary - grid.table.left, height: grid.table.bottom - grid.table.headerBottom };
+    const titleCanvas = enhancedCanvas(cropCanvas(source, titleBounds.left, titleBounds.top, titleBounds.width, titleBounds.height, 2), 1);
+    const timeCanvas = enhancedCanvas(cropCanvas(source, timeBounds.left, timeBounds.top, timeBounds.width, timeBounds.height, 3), 1);
+    const dayCanvas = enhancedCanvas(cropCanvas(source, dayBounds.left, dayBounds.top, dayBounds.width, dayBounds.height, 2), 1);
+    await worker.setParameters({ tessedit_pageseg_mode: import_tesseract.PSM.SINGLE_BLOCK, tessedit_char_whitelist: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 :/.-()" });
+    const title = extractOcr((await worker.recognize(titleCanvas, {}, { text: true, blocks: true })).data, 1);
+    const header = extractOcr((await worker.recognize(timeCanvas, {}, { text: true, blocks: true })).data, 3, { x: timeBounds.left, y: timeBounds.top });
+    await worker.setParameters({ tessedit_pageseg_mode: import_tesseract.PSM.SINGLE_BLOCK, tessedit_char_whitelist: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz" });
+    const dayLabels = extractOcr((await worker.recognize(dayCanvas, {}, { text: true, blocks: true })).data, 2, { x: dayBounds.left, y: dayBounds.top });
+    const dates = weekDates(title.text), weekdayIds = { Mo: 1, Tu: 2, We: 3, Th: 4, Fr: 5 }, rows = [];
+    const weekdayNames = { mo: "Mo", mon: "Mo", monday: "Mo", tu: "Tu", tue: "Tu", tues: "Tu", tuesday: "Tu", we: "We", wed: "We", wednesday: "We", th: "Th", thu: "Th", thur: "Th", thurs: "Th", thursday: "Th", fr: "Fr", fri: "Fr", friday: "Fr" };
+    const rowDays = /* @__PURE__ */ new Map();
+    for (const row of grid.dayRows) {
+      const label = dayLabels.tokens.toSorted((a, b) => Math.abs(a.y + a.height / 2 - row.center) - Math.abs(b.y + b.height / 2 - row.center)).find((token) => Math.abs(token.y + token.height / 2 - row.center) < (row.bottom - row.top) * 0.42);
+      const normalized = label?.text.toLowerCase().replace(/[^a-z]/g, "");
+      if (weekdayNames[normalized]) rowDays.set(row.day, weekdayNames[normalized]);
+    }
     const headerRanges = header.tokens.flatMap((token) => {
       const found = [...token.text.matchAll(/(\d{1,2}:[0-5]\d)\s*[-–—]\s*(\d{1,2}:[0-5]\d)/g)];
       return found.map((match) => ({ x: token.x + token.width / 2, start: match[1], end: match[2] }));
@@ -42504,28 +42593,56 @@ async function recognizeImageGrid(source, onProgress) {
     }
     for (const cell of grid.cells) for (const segment of cell.groupSegments) {
       const padding = Math.max(1, Math.round(Math.min(source.width, source.height) * 2e-3)), left = Math.ceil(cell.left + padding), top = Math.ceil(segment.top + padding), right = Math.floor(cell.right - padding), bottom = Math.floor(segment.bottom - padding);
-      if (right - left < 4 || bottom - top < 4) continue;
-      const crop = document.createElement("canvas");
-      crop.width = (right - left) * 3;
-      crop.height = (bottom - top) * 3;
+      if (!hasInk(source, left, top, right, bottom)) continue;
+      const crop = cropCanvas(source, left, top, right - left, bottom - top, 3);
       const cropCtx = crop.getContext("2d", { willReadFrequently: true });
-      cropCtx.fillStyle = "#fff";
-      cropCtx.fillRect(0, 0, crop.width, crop.height);
-      cropCtx.drawImage(source, left, top, right - left, bottom - top, 0, 0, crop.width, crop.height);
       cropCtx.fillStyle = "#fff";
       cropCtx.fillRect(0, 0, crop.width, 3);
       cropCtx.fillRect(0, crop.height - 3, crop.width, 3);
       cropCtx.fillRect(0, 0, 3, crop.height);
       cropCtx.fillRect(crop.width - 3, 0, 3, crop.height);
-      const recognized = extractOcr((await worker.recognize(crop, {}, { text: true, blocks: true })).data);
-      if (!recognized.text.trim()) continue;
-      const periodCenter = (grid.periodColumns[cell.periodStart - 1].center + grid.periodColumns[cell.periodEnd - 1].center) / 2;
-      const headerTime = headerRanges.toSorted((a, b) => Math.abs(a.x - periodCenter) - Math.abs(b.x - periodCenter))[0];
+      const prepared = enhancedCanvas(crop, 1);
+      await worker.setParameters({ tessedit_pageseg_mode: import_tesseract.PSM.SINGLE_BLOCK, tessedit_char_whitelist: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 -" });
+      const recognized = extractOcr((await worker.recognize(prepared, {}, { text: true, blocks: true })).data);
+      const nearestHeader = (period) => headerRanges.toSorted((a, b) => Math.abs(a.x - grid.periodColumns[period - 1].center) - Math.abs(b.x - grid.periodColumns[period - 1].center))[0];
+      const firstHeader = nearestHeader(cell.periodStart), lastHeader = nearestHeader(cell.periodEnd);
+      const headerTime = firstHeader && lastHeader ? { start: firstHeader.start, end: lastHeader.end } : null;
       const mapped = periodTime(cell.periodStart, cell.periodEnd, { header: headerTime });
-      const parsed = parseCellText(recognized.text, { day: cell.day, date: dates?.get(weekdayIds[cell.day]) || null, start: mapped.start, end: mapped.end, needsReview: mapped.needsReview, ocrConfidence: recognized.tokens.length ? recognized.tokens.reduce((sum, item) => sum + item.confidence, 0) / recognized.tokens.length / 100 : 0 });
+      const day = rowDays.get(cell.day) || cell.day;
+      const context = { day, date: dates?.get(weekdayIds[day]) || null, start: mapped.start, end: mapped.end, needsReview: mapped.needsReview || !rowDays.has(cell.day), ocrConfidence: recognized.tokens.length ? recognized.tokens.reduce((sum, item) => sum + item.confidence, 0) / recognized.tokens.length / 100 : 0 };
+      const parsed = recognized.text.trim() ? parseCellText(recognized.text, context) : { ...parseCellText("", { ...context, needsReview: true }), course: "\u672A\u8BC6\u522B\u8BFE\u7A0B\uFF08\u9700\u590D\u6838\uFF09", needsReview: true };
       rows.push(parsed);
     }
-    return { rows, header };
+    return { rows, header, title };
+  } finally {
+    await worker.terminate();
+  }
+}
+async function ocr(canvas, onProgress) {
+  const worker = await makeWorker(onProgress);
+  try {
+    const result = extractOcr((await worker.recognize(canvas, {}, { text: true, blocks: true })).data);
+    if (rowsFromPage(result).length) return result;
+    const courses = result.tokens.filter((token) => /\b[A-Z]{2,}\d{3,}/i.test(token.text));
+    if (!courses.length) return result;
+    const firstY = Math.min(...courses.map((token) => token.y)), lastY = Math.max(...courses.map((token) => token.y + token.height));
+    const firstX = Math.min(...courses.map((token) => token.x));
+    const headerTop = Math.floor(firstY * 0.48), headerLeft = Math.floor(firstX * 0.75), daysTop = Math.floor(firstY * 0.75);
+    const titleLeft = Math.floor(canvas.width * 0.18), titleTop = Math.floor(firstY * 0.08);
+    const regions = [
+      { left: titleLeft, top: titleTop, width: Math.floor(canvas.width * 0.72), height: Math.ceil(firstY * 0.3) },
+      { left: headerLeft, top: headerTop, width: canvas.width - headerLeft, height: Math.ceil(firstY * 0.36) },
+      { left: 0, top: daysTop, width: Math.ceil(firstX * 0.95), height: Math.min(canvas.height - daysTop, Math.ceil(lastY * 1.15 - daysTop)) }
+    ].filter((region) => region.width > 0 && region.height > 0);
+    onProgress?.(t("importerRecognizeHeader"));
+    await worker.setParameters({ tessedit_pageseg_mode: import_tesseract.PSM.SINGLE_BLOCK });
+    for (const rectangle of regions) {
+      const part = extractOcr((await worker.recognize(canvas, { rectangle }, { text: true, blocks: true })).data, 1, { x: rectangle.left, y: rectangle.top });
+      result.text += `
+${part.text}`;
+      result.tokens.push(...part.tokens);
+    }
+    return result;
   } finally {
     await worker.terminate();
   }
@@ -42537,50 +42654,6 @@ async function decodeQrFile(file) {
   const url = decodeQrPixelsInRegions(data.data, canvas.width, canvas.height, qrScanRegions(canvas.width, canvas.height));
   if (!url) throw Error(t("importerQrUnread"));
   return url;
-}
-async function ocr(canvas, onProgress) {
-  const worker = await (0, import_tesseract.createWorker)("eng", 1, {
-    workerPath: asset("worker.min.js"),
-    corePath: asset("tesseract-core"),
-    langPath: asset("lang"),
-    workerBlobURL: false,
-    cacheMethod: "none",
-    logger: (m) => onProgress?.(`${m.status} ${Math.round((m.progress || 0) * 100)}%`)
-  });
-  try {
-    const extract = (data) => {
-      const tokens = [];
-      for (const block of data.blocks || []) for (const para of block.paragraphs || []) for (const line of para.lines || []) for (const word of line.words || []) {
-        const b = word.bbox;
-        tokens.push({ text: word.text, x: b.x0, y: b.y0, width: b.x1 - b.x0, height: b.y1 - b.y0 });
-      }
-      return { text: data.text || "", tokens };
-    };
-    const result = extract((await worker.recognize(canvas, {}, { text: true, blocks: true })).data);
-    if (rowsFromPage(result).length) return result;
-    const courses = result.tokens.filter((t2) => /\b[A-Z]{2,}\d{3,}/i.test(t2.text));
-    if (!courses.length) return result;
-    const firstY = Math.min(...courses.map((t2) => t2.y)), lastY = Math.max(...courses.map((t2) => t2.y + t2.height));
-    const firstX = Math.min(...courses.map((t2) => t2.x));
-    const headerTop = Math.floor(firstY * 0.48), headerLeft = Math.floor(firstX * 0.75), daysTop = Math.floor(firstY * 0.75);
-    const titleLeft = Math.floor(canvas.width * 0.18), titleTop = Math.floor(firstY * 0.08);
-    const regions = [
-      { left: titleLeft, top: titleTop, width: Math.floor(canvas.width * 0.72), height: Math.ceil(firstY * 0.3) },
-      { left: headerLeft, top: headerTop, width: canvas.width - headerLeft, height: Math.ceil(firstY * 0.36) },
-      { left: 0, top: daysTop, width: Math.ceil(firstX * 0.95), height: Math.min(canvas.height - daysTop, Math.ceil(lastY * 1.15 - daysTop)) }
-    ];
-    onProgress?.(t("importerRecognizeHeader"));
-    await worker.setParameters({ tessedit_pageseg_mode: import_tesseract.PSM.SINGLE_BLOCK });
-    for (const rectangle of regions) {
-      const part = extract((await worker.recognize(canvas, { rectangle }, { text: true, blocks: true })).data);
-      result.text += `
-${part.text}`;
-      result.tokens.push(...part.tokens);
-    }
-    return result;
-  } finally {
-    await worker.terminate();
-  }
 }
 async function importTimetable(file, onProgress) {
   if (!file || file.size > 20 * 1024 * 1024) throw Error(t("importerFileLimit"));
@@ -42612,13 +42685,13 @@ async function importTimetable(file, onProgress) {
   } else if (file.type === "image/jpeg" || file.type === "image/png" || /\.(?:jpe?g|png)$/i.test(file.name)) {
     onProgress?.(t("importerOcrImage"));
     const original = await imageCanvas(file), gridResult = await recognizeImageGrid(original, onProgress);
-    if (gridResult) rows = gridResult.rows;
-    if (!rows.length) {
-      const prepared = enhancedCanvas(original, 3);
-      rows = rowsFromPage(await ocr(prepared, onProgress));
+    if (gridResult.gridFailure) {
+      onProgress?.(t("importerGridFallback", { reason: gridResult.gridFailure }));
+      rows = rowsFromPage(await ocr(enhancedCanvas(original, 3), onProgress));
       if (!rows.length) rows = rowsFromPage(await ocr(original, onProgress));
-      if (rows.length) rows = rows.map((row) => ({ ...row, needsReview: true, confidence: { legacy: 0.45 }, gridFailure: "\u7F51\u683C\u9010\u683C\u8BC6\u522B\u672A\u5B8C\u6210\uFF1B\u7ED3\u679C\u6765\u81EA\u6574\u56FE\u56DE\u9000\u89E3\u6790" }));
-    }
+      if (rows.length) rows = rows.map((row) => ({ ...row, needsReview: true, confidence: { legacy: 0.45 }, gridFailure: gridResult.gridFailure }));
+    } else rows = gridResult.rows;
+    if (!rows.length) throw Error("\u5DF2\u68C0\u6D4B\u5230\u8BFE\u8868\u7F51\u683C\uFF0C\u4F46\u6CA1\u6709\u8BC6\u522B\u51FA\u8BFE\u7A0B\u5185\u5BB9\u3002\u8BF7\u8C03\u6574\u56FE\u7247\u6216\u624B\u52A8\u6DFB\u52A0\u8BFE\u7A0B\u3002");
   } else throw Error(t("importerUnsupported"));
   return rows;
 }
@@ -42638,16 +42711,6 @@ function validateFormsUrl(value) {
   if (/^\/Pages\//i.test(url.pathname) && !url.searchParams.get("id")) throw Error("\u8868\u5355\u94FE\u63A5\u7F3A\u5C11 ID\u3002");
   url.hash = "";
   return url;
-}
-function verifyQuestions(questions, mapping) {
-  if (!Array.isArray(questions) || questions.length !== mapping?.length) return false;
-  const actual = new Map(questions.map((q) => [normalizeComparable(q.title), q]));
-  return mapping.every((entry) => {
-    const q = actual.get(normalizeComparable(entry.title));
-    if (!q || q.type !== entry.type) return false;
-    if (q.type !== "radio") return true;
-    return JSON.stringify([...new Set(optionList(q))].sort()) === JSON.stringify([...new Set(optionList(entry))].sort());
-  });
 }
 var questionKey = (question) => normalizeComparable(question?.title);
 var optionList = (question) => [...question?.options || []].map(normalizeComparable);
@@ -42690,20 +42753,35 @@ function deliveryFromCourse(course) {
   throw Error("\u65E0\u6CD5\u5224\u65AD\u6B64\u8BFE\u7A0B\u7C7B\u578B\uFF0C\u8BF7\u9009\u62E9 Lecture\u3001Tutorial \u6216 Laboratory\u3002");
 }
 function deliveryOption(options, target) {
-  return options.find((value) => target === "lab" ? ["lab", "laboratory"].includes(normalize(value)) : normalize(value) === target);
+  const words = (value) => normalize(value).match(/[a-z]+/g) || [];
+  const kinds = (value) => [...new Set(words(value).map((word) => word === "laboratory" ? "lab" : word).filter((word) => ["lecture", "tutorial", "lab"].includes(word)))];
+  const matches = options.filter((value) => {
+    const labels = words(value), negative = labels.some((word, index) => ["no", "not", "non", "without", "never"].includes(word) && labels.slice(index + 1, index + 4).some((next) => ["lecture", "tutorial", "lab", "laboratory"].includes(next)));
+    return !negative && kinds(value).length === 1 && kinds(value)[0] === target;
+  });
+  return matches.length === 1 ? matches[0] : void 0;
 }
 function identityOption(options, target) {
-  return options.find((value) => target === "international" ? /international/i.test(value) : /\blocal\b/i.test(value) && !/international/i.test(value));
+  const matches = options.filter((value) => {
+    const text = normalize(value), negative = /\b(?:not|no|non|without|never)\b/.test(text);
+    return !negative && (target === "international" ? /\binternational\b/.test(text) : /\blocal\b/.test(text) && !/\binternational\b/.test(text));
+  });
+  return matches.length === 1 ? matches[0] : void 0;
 }
 function buildFillPlan(questions, mapping, profile2, date, course) {
-  if (!verifyQuestions(questions, mapping)) {
+  const unused = new Set(questions), resolved = mapping.map((entry) => {
+    let question = questions.find((item) => unused.has(item) && normalizeComparable(item.title) === normalizeComparable(entry.title));
+    if (!question) question = questions.find((item) => unused.has(item) && matchesMappedMeaning(entry, item));
+    if (question) unused.delete(question);
+    return { entry, question };
+  });
+  if (resolved.some((item) => !item.question)) {
     const error = Error("\u8868\u5355\u9898\u76EE\u53D1\u751F\u53D8\u5316\uFF0C\u5DF2\u505C\u6B62\u3002");
     error.code = "form_schema_changed";
     error.diff = questionDiff(mapping, questions);
     throw error;
   }
-  return mapping.map((entry, i) => {
-    const q = questions.find((item) => normalizeComparable(item.title) === normalizeComparable(entry.title));
+  return resolved.map(({ entry, question: q }, i) => {
     let value;
     if (q.type === "date" && q.required === false) return { type: "date", field: entry.field, skip: true };
     const expectedType = ["student", "name"].includes(entry.field) ? "text" : entry.field === "date" ? "date" : /^(?:delivery|local)(?::|$)/.test(entry.field) ? "radio" : null;
@@ -42719,26 +42797,58 @@ function buildFillPlan(questions, mapping, profile2, date, course) {
       value = identityOption(q.options || [], target);
     } else throw Error(`\u672A\u914D\u7F6E\u7B2C ${i + 1} \u9898\u3002`);
     if (!value) throw Error(`\u7B2C ${i + 1} \u9898\u6CA1\u6709\u5339\u914D\u7684\u7B54\u6848\u3002`);
-    return { type: q.type, value, field: entry.field, questionTitle: q.title };
+    return { type: q.type, value, field: entry.field, questionTitle: q.title, ...q.type === "date" ? { expectedDate: date, dateFormat: q.placeholder || "" } : {} };
   });
+}
+function matchesMappedMeaning(entry, question) {
+  const title = normalizeComparable(question.title), options = (question.options || []).map(normalizeComparable), field2 = entry.field || "";
+  if ((field2 === "student" || field2 === "name") && question.type !== "text") return false;
+  if ((field2 === "delivery" || field2.startsWith("delivery:")) && question.type !== "radio") return false;
+  if ((field2 === "local" || field2.startsWith("local:")) && question.type !== "radio") return false;
+  if (field2 === "student") return /\b(?:student|university|learner)\b.*\b(?:id|number|no)\b|\b(?:id|identification)\s*(?:number|no\.?|#)\b|学号/.test(title);
+  if (field2 === "name") return /\bname\b|姓名/.test(title);
+  if (field2 === "date") return question.type === "date";
+  if (field2 === "skip") return question.type === "date" && question.required === false;
+  if (field2 === "delivery" || field2.startsWith("delivery:")) {
+    const kinds = ["lecture", "tutorial", "lab"].filter((kind) => options.some((option) => kind === "lab" ? /\b(?:lab|laboratory)\b/.test(option) : new RegExp(`\\b${kind}\\b`).test(option)));
+    return kinds.length >= 2 || /\b(?:delivery|session type|class type|lesson type)\b/.test(title);
+  }
+  if (field2 === "local" || field2.startsWith("local:")) return options.some((option) => /\blocal\b/.test(option)) && options.some((option) => /\binternational\b/.test(option));
+  return false;
 }
 
 // src/mapping.js
 var placeholder = (label) => [["", label]];
-var radioOption = (options, kind) => options.find((option) => kind === "lab" ? ["lab", "laboratory"].includes(normalize(option)) : normalize(option) === kind);
-var identityOption2 = (options, kind) => options.find((option) => kind === "local" ? /\blocal\b/i.test(option) && !/international/i.test(option) : /international/i.test(option));
+var optionHas = (option, kind) => {
+  const words = normalize(option).match(/[a-z]+/g) || [];
+  const kinds = [...new Set(words.map((word) => word === "laboratory" ? "lab" : word).filter((word) => ["lecture", "tutorial", "lab"].includes(word)))];
+  const negative = words.some((word, index) => ["no", "not", "non", "without", "never"].includes(word) && words.slice(index + 1, index + 4).some((next) => ["lecture", "tutorial", "lab", "laboratory"].includes(next)));
+  return !negative && kinds.length === 1 && kinds[0] === kind;
+};
+var radioOption = (options, kind) => {
+  const matches = options.filter((option) => optionHas(option, kind));
+  return matches.length === 1 ? matches[0] : void 0;
+};
+var identityOption2 = (options, kind) => {
+  const matches = options.filter((option) => {
+    const title = normalize(option);
+    if (/\b(?:not|no|non|without|never)\b/.test(title)) return false;
+    return kind === "local" ? /\blocal\b/.test(title) && !/\binternational\b/.test(title) : /\binternational\b/.test(title);
+  });
+  return matches.length === 1 ? matches[0] : void 0;
+};
 function fieldMappingForQuestion(question, course = "") {
   const title = normalize(question.title), options = question.options || [];
   if (question.type === "date") return { choices: [[question.required === false ? "skip" : "date", t(question.required === false ? "dateOptional" : "dateAutoCheck")]], selected: question.required === false ? "skip" : "date" };
   if (question.type === "text") {
-    if (/student.*id|university.*id|学号/.test(title)) return { choices: [["student", t("profileFieldStudent")]], selected: "student" };
+    if (/(?:student|university|learner|id|identification).*(?:\bid\b|number|no\.?\b)|学号/.test(title)) return { choices: [["student", t("profileFieldStudent")]], selected: "student" };
     if (/\bname\b|姓名/.test(title)) return { choices: [["name", t("profileFieldName")]], selected: "name" };
     if (/\bdate\b|日期/.test(title)) return { choices: placeholder(t("dateMismatchQuestion")), selected: "" };
     return { choices: [...placeholder(t("selectTextData")), ["student", t("profileFieldStudent")], ["name", t("profileFieldName")]], selected: "" };
   }
   if (question.type === "radio") {
     const deliveryKinds = ["lecture", "tutorial", "lab"].filter((kind) => radioOption(options, kind));
-    if (/delivery|授课/.test(title) || deliveryKinds.length >= 2) {
+    if (/delivery|授课|session type|class type|lesson type/.test(title) || deliveryKinds.length >= 2) {
       const choices = [["delivery", t("courseKindAuto")]];
       for (const kind of deliveryKinds) choices.push([`delivery:${kind}`, t("fixedOption", { option: radioOption(options, kind) })]);
       const courseKind = /(?:^|\W)(?:tut|tutorial)\b/i.test(course) ? "tutorial" : /(?:^|\W)(?:lab|laboratory)\b/i.test(course) ? "lab" : /(?:^|\W)(?:lec|lecture)\b/i.test(course) ? "lecture" : null;
@@ -42866,7 +42976,7 @@ function terminalRecords(records = {}) {
 }
 function createBackup(data) {
   const p = data.attendanceProfile;
-  return { format: "soton-attendance-configuration", version: 1, exportedAt: (/* @__PURE__ */ new Date()).toISOString(), profile: p?.student && p?.name ? { student: p.student, name: p.name, studentType: p.studentType } : null, bindings: Object.fromEntries(Object.entries(data.attendanceBindings || {}).map(([key, b]) => [key, { scope: b.scope, url: b.url, title: b.title, questions: b.questions, mapping: b.mapping, verified: b.verified }])), sessions: (data.attendanceSessions || []).map((s) => ({ id: s.id, kind: "weekly", course: s.course, weekday: s.weekday, time: s.time, endTime: s.endTime, exceptions: s.exceptions || [], enabled: s.enabled !== false })), records: terminalRecords(data.attendanceRecords) };
+  return { format: "soton-attendance-configuration", version: 1, exportedAt: (/* @__PURE__ */ new Date()).toISOString(), profile: p?.student && p?.name ? { student: p.student, name: p.name, studentType: p.studentType, group: p.group || "all" } : null, bindings: Object.fromEntries(Object.entries(data.attendanceBindings || {}).map(([key, b]) => [key, { scope: b.scope, url: b.url, title: b.title, questions: b.questions, mapping: b.mapping, verified: b.verified }])), sessions: (data.attendanceSessions || []).map((s) => ({ id: s.id, kind: "weekly", course: s.course, weekday: s.weekday, time: s.time, endTime: s.endTime, exceptions: s.exceptions || [], enabled: s.enabled !== false })), records: terminalRecords(data.attendanceRecords) };
 }
 function recoveryForRecord(record) {
   if (record.state === "submitted_pending_confirmation") return { action: "inspect", label: "\u6211\u8981\u624B\u52A8\u68C0\u67E5", description: "\u5DF2\u63D0\u4EA4\u4F46\u5C1A\u672A\u786E\u8BA4\u3002\u8BF7\u68C0\u67E5\u5B66\u6821\u8BB0\u5F55\uFF1B\u7CFB\u7EDF\u4E0D\u4F1A\u91CD\u590D\u63D0\u4EA4\u3002" };
@@ -42880,8 +42990,8 @@ function recoveryForRecord(record) {
 // src/profile.js
 function sameProfile(saved, current) {
   if (!saved || !current) return false;
-  return ["student", "name", "studentType"].every((key) => {
-    const value = (profile2) => String(profile2[key] ?? (key === "studentType" ? "local" : "")).trim();
+  return ["student", "name", "studentType", "group"].every((key) => {
+    const value = (profile2) => String(profile2[key] ?? (key === "studentType" ? "local" : key === "group" ? "all" : "")).trim();
     return value(saved) === value(current);
   });
 }
@@ -43204,6 +43314,35 @@ function createOptionsUpgrade(api) {
   return { init, draftChanged, render, activateDraft, refreshLocale };
 }
 
+// src/timetable-groups.js
+var validGroups = /* @__PURE__ */ new Set(["all", "1", "2", "3"]);
+function normalizeTimetableGroup(value) {
+  const group = String(value ?? "all");
+  return validGroups.has(group) ? group : "all";
+}
+function labSession(row) {
+  return /^(?:lab|laboratory)$/i.test(String(row?.type || "").trim()) || /(?:^|[-\s])lab(?:oratory)?(?:$|\s)/i.test(String(row?.course || ""));
+}
+function detectedGroup(row) {
+  const explicit = String(row?.group || "").match(/^(?:group\s*)?([123])$/i)?.[1];
+  if (explicit) return explicit;
+  return String(row?.course || "").match(/\bgroup\s*([123])\b/i)?.[1] || "";
+}
+function filterOtherLabGroups(rows, selectedGroup = "all") {
+  const group = normalizeTimetableGroup(selectedGroup);
+  if (group === "all") return rows;
+  return rows.filter((row) => {
+    if (!labSession(row)) return true;
+    const detected = detectedGroup(row);
+    return !detected || detected === group;
+  });
+}
+
+// src/subscription-link.js
+function subscriptionCheckoutUrl(currency = "rm") {
+  return currency === "rmb" ? "https://shop.368fk.cn/shop/CFI5VKXO" : "https://vf-auto-check.vercel.app/?product=mobile_notification&billing=semester#hero";
+}
+
 // src/options.js
 var $2 = (id) => document.getElementById(id);
 var preview = [];
@@ -43246,11 +43385,12 @@ function node2(tag, props = {}) {
   return el;
 }
 function profile() {
-  return { student: profileForm.elements.student.value.trim(), name: profileForm.elements.name.value.trim(), studentType: profileForm.elements.studentType.value };
+  return { student: profileForm.elements.student.value.trim(), name: profileForm.elements.name.value.trim(), studentType: profileForm.elements.studentType.value, group: normalizeTimetableGroup(profileForm.elements.group.value) };
 }
 function validateProfile(p) {
-  if (!p.student || p.student.length > 50 || !p.name || p.name.length > 100) throw Error(t("profileInvalid"));
-  return p;
+  const group = p.group ?? "all";
+  if (!p.student || p.student.length > 50 || !p.name || p.name.length > 100 || !["all", "1", "2", "3"].includes(group)) throw Error(t("profileInvalid"));
+  return { ...p, group };
 }
 async function getData() {
   return chrome.storage.local.get(["attendanceProfile", "attendanceSessions", "attendanceBindings", "attendanceRecords", "attendanceDraft", "attendanceSetupSession", "attendanceSetupHistory", "attendanceSetupCoverageEpoch", "attendanceCloudOutbox", "attendanceNtfyTopic", "attendanceLanguage", "attendanceSubscriptionCurrency"]);
@@ -43372,7 +43512,7 @@ async function setSubscriptionCurrency(currency, persist = true) {
   subscriptionCurrency = currency === "rmb" ? "rmb" : "rm";
   const rmb = subscriptionCurrency === "rmb", link = $2("purchase-subscription");
   $2("subscription-price").textContent = rmb ? `\xA5${SUBSCRIPTION_RMB_PRICE.toFixed(1)}` : `RM ${SUBSCRIPTION_RM_PRICE.toFixed(2)}`;
-  link.href = rmb ? "https://shop.368fk.cn/shop/CFI5VKXO" : "https://vf-auto-check.vercel.app/?product=mobile_notification#hero";
+  link.href = subscriptionCheckoutUrl(subscriptionCurrency);
   link.textContent = t(rmb ? "purchaseRmb" : "purchaseRm");
   $2("currency-rm").setAttribute("aria-pressed", String(!rmb));
   $2("currency-rmb").setAttribute("aria-pressed", String(rmb));
@@ -43647,6 +43787,7 @@ function renderPreview(expandId) {
         if (row.lecturer !== void 0) editable("lecturer", "\u6559\u5E08");
         if (row.date !== void 0) editable("date", "\u65E5\u671F");
         if (row.corrections?.length) metadata.append(node2("small", { className: "import-corrections", text: row.corrections.map((item) => `${item.raw} \u2192 ${item.corrected}`).join("\uFF1B") }));
+        if (row.gridFailure) metadata.append(node2("small", { className: "import-grid-warning", text: t("gridFallbackNotice") }));
         if (row.confidence) metadata.append(node2("small", { className: "import-confidence", text: `\u7F6E\u4FE1\u5EA6\uFF1A${Object.entries(row.confidence).map(([key2, value2]) => `${key2} ${Math.round(value2 * 100)}%`).join(" \xB7 ")}` }));
         if (row.type === "LAB") {
           const choice = node2("select");
@@ -43980,13 +44121,16 @@ $2("timetable-file").addEventListener("change", async (event) => {
     });
     if (generation !== importGeneration) return;
     if (!rows.length) throw Error(t("noRecognizedLessons"));
-    preview.push(...rows.map((r) => {
+    const group = normalizeTimetableGroup(profileForm.elements.group.value), filteredRows = filterOtherLabGroups(rows, group), excluded = rows.length - filteredRows.length;
+    if (!filteredRows.length) throw Error(t("noMatchingGroupLessons", { group }));
+    preview.push(...filteredRows.map((r) => {
       const dayNumber = { Mo: 1, Tu: 2, We: 3, Th: 4, Fr: 5 }[r.day] ?? r.weekday ?? 1;
       const course = r.course || `${r.code || ""}${r.type ? `-${r.type}` : ""}${r.group ? ` Group ${r.group}` : ""}`;
       const weekly = toWeeklySession({ kind: "weekly", weekday: dayNumber, course, time: r.start || r.time, endTime: r.end || r.endTime });
       return { ...weekly, id: crypto.randomUUID(), exceptions: [], ...r, course, weekday: dayNumber, time: r.start || r.time, endTime: r.end || r.endTime };
     }));
-    $2("import-status").textContent = t("recognizedLessons", { count: rows.length, groupWarning: rows.some((r) => /\bGroup\s*\d+\b/i.test(r.course)) ? t("groupWarning") : "" });
+    const hasGroupRows = rows.some((r) => /\bGroup\s*\d+\b/i.test(r.course || ""));
+    $2("import-status").textContent = t("recognizedLessons", { count: filteredRows.length, groupWarning: group !== "all" ? t("groupFilterSummary", { group, count: excluded }) : hasGroupRows ? t("groupWarning") : "" });
     renderPreview();
     await renderBindings();
   } catch (error) {
@@ -44071,6 +44215,7 @@ for (const link of document.querySelectorAll('a[href="#profile-heading"]')) link
   profileForm.elements.student.value = p.student || "";
   profileForm.elements.name.value = p.name || "";
   profileForm.elements.studentType.value = p.studentType || "local";
+  profileForm.elements.group.value = normalizeTimetableGroup(p.group);
   $2("profile-details").open = !(p.student && p.name);
   await upgrade.init(data);
   await renderBindings();

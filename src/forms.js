@@ -2,11 +2,60 @@ const HOSTS=new Set(['forms.office.com','forms.cloud.microsoft']);
 export const normalize=s=>String(s||'').replace(/\s+/g,' ').trim().toLowerCase();
 export const normalizeComparable=value=>normalize(String(value??'').normalize('NFKC'));
 
-export function sameDateValue(actual,expected) {
-  const pattern=/^\s*\d{1,4}\s*[/.-]\s*\d{1,2}\s*[/.-]\s*\d{1,4}\s*$/;
-  if(!pattern.test(String(actual||''))||!pattern.test(String(expected||''))) return false;
-  const left=String(actual).match(/\d+/g),right=String(expected).match(/\d+/g);
-  return left.length===3&&right.length===3&&left.every((part,i)=>Number(part)===Number(right[i]));
+function calendarDate(value,order='') {
+  const text=String(value||'').normalize('NFKC').trim();
+  if(!/^\d{1,4}\s*[/.-]\s*\d{1,2}\s*[/.-]\s*\d{1,4}$/.test(text)) return [];
+  const parts=text.match(/\d+/g);
+  if(!parts||parts.length!==3) return [];
+  let y,m,d;
+  if(order) {
+    const names=order.split(/[/.-]/).map(part=>part.toLowerCase());
+    const values=Object.fromEntries(names.map((name,index)=>[name[0],Number(parts[index])]));
+    ({y,m,d}=values);
+  } else if(parts[0].length===4) [y,m,d]=parts.map(Number);
+  else if(parts[2].length===4) {
+    const [first,second,year]=parts.map(Number);
+    const candidates=[[year,first,second],[year,second,first]];
+    return candidates.map(value=>canonicalDate(...value)).filter(Boolean);
+  } else return [];
+  const normalized=canonicalDate(y,m,d);
+  return normalized?[normalized]:[];
+}
+
+function canonicalDate(year,month,day) {
+  if(!Number.isInteger(year)||!Number.isInteger(month)||!Number.isInteger(day)) return null;
+  const date=new Date(Date.UTC(year,month-1,day));
+  if(date.getUTCFullYear()!==year||date.getUTCMonth()!==month-1||date.getUTCDate()!==day) return null;
+  return `${year}-${String(month).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+}
+
+export function sameDateValue(actual,expected,formatHint='') {
+  const hint=formatHint.match(/(?:yyyy|yy|MM|M|dd|d)([/.-])(?:yyyy|yy|MM|M|dd|d)(?:\1)(?:yyyy|yy|MM|M|dd|d)/i)?.[0]||'';
+  const iso=/^\d{4}-\d{2}-\d{2}$/.test(String(expected||''));
+  const actualIso=/^\d{4}-\d{2}-\d{2}$/.test(String(actual||''));
+  const expectedCanonical=calendarDate(expected,iso?'':hint),actualCanonical=calendarDate(actual,actualIso?'':hint);
+  return expectedCanonical.some(date=>actualCanonical.includes(date));
+}
+
+export function validatePreSubmit(plan=[],questions=[],answers=[]) {
+  const errors=[],mapped=new Map(plan.map((entry,index)=>[normalizeComparable(entry.questionTitle),{...entry,answer:answers[index]}]));
+  if(!questions.length) errors.push('无法读取表单题目。');
+  const currentTitles=new Set(questions.map(question=>normalizeComparable(question.title)));
+  for(const entry of plan) if(!entry.skip&&!currentTitles.has(normalizeComparable(entry.questionTitle))) errors.push(`${entry.questionTitle||'已映射题目'}已从表单中消失。`);
+  for(const question of questions) {
+    const title=String(question.title||'').trim()||'Untitled question';
+    const entry=mapped.get(normalizeComparable(title));
+    if(question.required===false&&(!entry||entry.skip)) continue;
+    if(!entry||entry.skip) {errors.push(`${title} is required but is not mapped.`);continue;}
+    const answer=entry.answer;
+    if(!answer||answer.valid===false||answer.value==null||String(answer.value).trim()==='') {errors.push(`${title} is empty.`);continue;}
+    if(entry.type==='radio'&&answer.checked!==true) errors.push(`${title} has no selected option.`);
+    if(entry.type==='radio'&&Array.isArray(answer.selectedValues)&&answer.selectedValues.length>1) errors.push(`${title} has conflicting selections.`);
+    if(entry.type==='date'&&!sameDateValue(answer.value,entry.expectedDate||entry.value,entry.dateFormat||'')) errors.push(`${title} does not match the expected date.`);
+    if(entry.type==='text'&&String(answer.value)!==String(entry.value)) errors.push(`${title} does not match the expected value.`);
+    if(entry.type==='radio'&&String(answer.value)!==String(entry.value)) errors.push(`${title} does not match the expected option.`);
+  }
+  return {ok:errors.length===0,errors};
 }
 
 export function validateFormsUrl(value) {
@@ -95,19 +144,35 @@ function deliveryFromCourse(course) {
 }
 
 function deliveryOption(options,target) {
-  return options.find(value=>target==='lab'?['lab','laboratory'].includes(normalize(value)):normalize(value)===target);
+  const words=value=>normalize(value).match(/[a-z]+/g)||[];
+  const kinds=value=>[...new Set(words(value).map(word=>word==='laboratory'?'lab':word).filter(word=>['lecture','tutorial','lab'].includes(word)))];
+  const matches=options.filter(value=>{
+    const labels=words(value),negative=labels.some((word,index)=>['no','not','non','without','never'].includes(word)&&labels.slice(index+1,index+4).some(next=>['lecture','tutorial','lab','laboratory'].includes(next)));
+    return !negative&&kinds(value).length===1&&kinds(value)[0]===target;
+  });
+  return matches.length===1?matches[0]:undefined;
 }
 
 function identityOption(options,target) {
-  return options.find(value=>target==='international'?/international/i.test(value):/\blocal\b/i.test(value)&&!/international/i.test(value));
+  const matches=options.filter(value=>{
+    const text=normalize(value),negative=/\b(?:not|no|non|without|never)\b/.test(text);
+    return !negative&&(target==='international'?/\binternational\b/.test(text):/\blocal\b/.test(text)&&!/\binternational\b/.test(text));
+  });
+  return matches.length===1?matches[0]:undefined;
 }
 
 export function buildFillPlan(questions,mapping,profile,date,course) {
-  if(!verifyQuestions(questions,mapping)) {
+  const unused=new Set(questions),resolved=mapping.map(entry=>{
+    let question=questions.find(item=>unused.has(item)&&normalizeComparable(item.title)===normalizeComparable(entry.title));
+    if(!question) question=questions.find(item=>unused.has(item)&&matchesMappedMeaning(entry,item));
+    if(question) unused.delete(question);
+    return {entry,question};
+  });
+  if(resolved.some(item=>!item.question)) {
     const error=Error('表单题目发生变化，已停止。');error.code='form_schema_changed';error.diff=questionDiff(mapping,questions);throw error;
   }
-  return mapping.map((entry,i)=>{
-    const q=questions.find(item=>normalizeComparable(item.title)===normalizeComparable(entry.title));let value;
+  return resolved.map(({entry,question:q},i)=>{
+    let value;
     // An optional calendar is left untouched, including its format and value.
     if(q.type==='date'&&q.required===false) return {type:'date',field:entry.field,skip:true};
     const expectedType=['student','name'].includes(entry.field)?'text':entry.field==='date'?'date':/^(?:delivery|local)(?::|$)/.test(entry.field)?'radio':null;
@@ -125,8 +190,25 @@ export function buildFillPlan(questions,mapping,profile,date,course) {
     }
     else throw Error(`未配置第 ${i+1} 题。`);
     if(!value) throw Error(`第 ${i+1} 题没有匹配的答案。`);
-    return {type:q.type,value,field:entry.field,questionTitle:q.title};
+    return {type:q.type,value,field:entry.field,questionTitle:q.title,...(q.type==='date'?{expectedDate:date,dateFormat:q.placeholder||''}:{})};
   });
+}
+
+function matchesMappedMeaning(entry,question) {
+  const title=normalizeComparable(question.title),options=(question.options||[]).map(normalizeComparable),field=entry.field||'';
+  if((field==='student'||field==='name')&&question.type!=='text') return false;
+  if((field==='delivery'||field.startsWith('delivery:'))&&question.type!=='radio') return false;
+  if((field==='local'||field.startsWith('local:'))&&question.type!=='radio') return false;
+  if(field==='student') return /\b(?:student|university|learner)\b.*\b(?:id|number|no)\b|\b(?:id|identification)\s*(?:number|no\.?|#)\b|学号/.test(title);
+  if(field==='name') return /\bname\b|姓名/.test(title);
+  if(field==='date') return question.type==='date';
+  if(field==='skip') return question.type==='date'&&question.required===false;
+  if(field==='delivery'||field.startsWith('delivery:')) {
+    const kinds=['lecture','tutorial','lab'].filter(kind=>options.some(option=>kind==='lab'?/\b(?:lab|laboratory)\b/.test(option):new RegExp(`\\b${kind}\\b`).test(option)));
+    return kinds.length>=2||/\b(?:delivery|session type|class type|lesson type)\b/.test(title);
+  }
+  if(field==='local'||field.startsWith('local:')) return options.some(option=>/\blocal\b/.test(option))&&options.some(option=>/\binternational\b/.test(option));
+  return false;
 }
 
 export const isSuccess=text=>Boolean(isExplicitSuccess(text));

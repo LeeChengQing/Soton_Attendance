@@ -7,6 +7,8 @@ import {mergeSessions,normalizeDate,todayMalaysia,toWeeklySession} from './sched
 import {ensureCloudDevice,getEntitlementStatus,redeemActivationKey,startPhoneSubscriptionRecovery,completePhoneSubscriptionRecovery,phoneSubscriptionRecoveryStatus,cancelPhoneSubscriptionRecovery} from './cloud-client.js';
 import {createOptionsUpgrade} from './options-upgrade.js';
 import {t,currentLanguage,setLanguage,localizeMessage} from './options-locale.js';
+import {filterOtherLabGroups,normalizeTimetableGroup} from './timetable-groups.js';
+import {subscriptionCheckoutUrl} from './subscription-link.js';
 
 const $=id=>document.getElementById(id);
 const preview=[],cards=new Map();
@@ -25,8 +27,8 @@ function toast(message,error=false) {
   clearTimeout(toastTimer);toastTimer=setTimeout(()=>box.className='toast',6500);
 }
 function node(tag,props={}) {const el=document.createElement(tag);for(const [key,value] of Object.entries(props)) {if(key==='text') el.textContent=value;else if(key==='className') el.className=value;else el[key]=value;}return el;}
-function profile() {return {student:profileForm.elements.student.value.trim(),name:profileForm.elements.name.value.trim(),studentType:profileForm.elements.studentType.value};}
-function validateProfile(p) {if(!p.student||p.student.length>50||!p.name||p.name.length>100) throw Error(t('profileInvalid'));return p;}
+function profile() {return {student:profileForm.elements.student.value.trim(),name:profileForm.elements.name.value.trim(),studentType:profileForm.elements.studentType.value,group:normalizeTimetableGroup(profileForm.elements.group.value)};}
+function validateProfile(p) {const group=p.group??'all';if(!p.student||p.student.length>50||!p.name||p.name.length>100||!['all','1','2','3'].includes(group)) throw Error(t('profileInvalid'));return {...p,group};}
 async function getData() {return chrome.storage.local.get(['attendanceProfile','attendanceSessions','attendanceBindings','attendanceRecords','attendanceDraft','attendanceSetupSession','attendanceSetupHistory','attendanceSetupCoverageEpoch','attendanceCloudOutbox','attendanceNtfyTopic','attendanceLanguage','attendanceSubscriptionCurrency']);}
 async function rebuild() {const response=await chrome.runtime.sendMessage({type:'REBUILD_SCHEDULE'});if(response?.error) throw Error(response.error);}
 async function syncCloudSafe() {await rebuild();await upgrade.render();}
@@ -128,7 +130,7 @@ async function setSubscriptionCurrency(currency,persist=true) {
   subscriptionCurrency=currency==='rmb'?'rmb':'rm';
   const rmb=subscriptionCurrency==='rmb',link=$('purchase-subscription');
   $('subscription-price').textContent=rmb?`¥${SUBSCRIPTION_RMB_PRICE.toFixed(1)}`:`RM ${SUBSCRIPTION_RM_PRICE.toFixed(2)}`;
-  link.href=rmb?'https://shop.368fk.cn/shop/CFI5VKXO':'https://vf-auto-check.vercel.app/?product=mobile_notification#hero';
+  link.href=subscriptionCheckoutUrl(subscriptionCurrency);
   link.textContent=t(rmb?'purchaseRmb':'purchaseRm');
   $('currency-rm').setAttribute('aria-pressed',String(!rmb));
   $('currency-rmb').setAttribute('aria-pressed',String(rmb));
@@ -304,6 +306,7 @@ function renderPreview(expandId) {
         const editable=(key,label)=>{const input=node('input',{value:row[key]||''});input.addEventListener('input',()=>{row[key]=input.value.trim();if(key==='code'||key==='type') row.course=`${row.code||''}${row.type?`-${row.type}`:''}${row.group?` Group ${row.group}`:''}`;upgrade.draftChanged();});input.addEventListener('change',()=>{renderPreview(row.id);renderBindings();});metadata.append(field(label,input));};
         if(row.code!==undefined) editable('code','代码');if(row.type!==undefined) editable('type','课型');if(row.group!==undefined) editable('group','Group');if(row.room!==undefined) editable('room','房间');if(row.lecturer!==undefined) editable('lecturer','教师');if(row.date!==undefined) editable('date','日期');
         if(row.corrections?.length) metadata.append(node('small',{className:'import-corrections',text:row.corrections.map(item=>`${item.raw} → ${item.corrected}`).join('；')}));
+        if(row.gridFailure) metadata.append(node('small',{className:'import-grid-warning',text:t('gridFallbackNotice')}));
         if(row.confidence) metadata.append(node('small',{className:'import-confidence',text:`置信度：${Object.entries(row.confidence).map(([key,value])=>`${key} ${Math.round(value*100)}%`).join(' · ')}`}));
         if(row.type==='LAB') {
           const choice=node('select');for(const [value,label] of [['','选择自己的 Group'],['1','Group 1'],['2','Group 2'],['skip','不加入此 Group']]) choice.append(node('option',{value,text:label}));
@@ -507,13 +510,16 @@ $('timetable-file').addEventListener('change',async event=>{
     const rows=await importTimetable(file,message=>{if(generation===importGeneration) $('import-status').textContent=localizeMessage(message);});
     if(generation!==importGeneration) return;
     if(!rows.length) throw Error(t('noRecognizedLessons'));
-    preview.push(...rows.map(r=>{
+    const group=normalizeTimetableGroup(profileForm.elements.group.value),filteredRows=filterOtherLabGroups(rows,group),excluded=rows.length-filteredRows.length;
+    if(!filteredRows.length) throw Error(t('noMatchingGroupLessons',{group}));
+    preview.push(...filteredRows.map(r=>{
       const dayNumber={Mo:1,Tu:2,We:3,Th:4,Fr:5}[r.day]??r.weekday??1;
       const course=r.course||`${r.code||''}${r.type?`-${r.type}`:''}${r.group?` Group ${r.group}`:''}`;
       const weekly=toWeeklySession({kind:'weekly',weekday:dayNumber,course,time:r.start||r.time,endTime:r.end||r.endTime});
       return {...weekly,id:crypto.randomUUID(),exceptions:[],...r,course,weekday:dayNumber,time:r.start||r.time,endTime:r.end||r.endTime};
     }));
-    $('import-status').textContent=t('recognizedLessons',{count:rows.length,groupWarning:rows.some(r=>/\bGroup\s*\d+\b/i.test(r.course))?t('groupWarning'):''});
+    const hasGroupRows=rows.some(r=>/\bGroup\s*\d+\b/i.test(r.course||''));
+    $('import-status').textContent=t('recognizedLessons',{count:filteredRows.length,groupWarning:group!=='all'?t('groupFilterSummary',{group,count:excluded}):hasGroupRows?t('groupWarning'):''});
     renderPreview();await renderBindings();
   } catch(error) {if(generation===importGeneration) {$('import-status').textContent=error.message;toast(error.message,true);}}
   finally {event.target.value='';}
@@ -556,7 +562,7 @@ for(const link of document.querySelectorAll('a[href="#profile-heading"]')) link.
   const data=await getData(),p=data.attendanceProfile||{};
   await setLanguage(data.attendanceLanguage||'zh',false);
   await setSubscriptionCurrency(data.attendanceSubscriptionCurrency||'rm',false);
-  profileForm.elements.student.value=p.student||'';profileForm.elements.name.value=p.name||'';profileForm.elements.studentType.value=p.studentType||'local';
+  profileForm.elements.student.value=p.student||'';profileForm.elements.name.value=p.name||'';profileForm.elements.studentType.value=p.studentType||'local';profileForm.elements.group.value=normalizeTimetableGroup(p.group);
   $('profile-details').open=!(p.student&&p.name);
   await upgrade.init(data);
   await renderBindings();await renderSaved();

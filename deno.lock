@@ -29,6 +29,7 @@
   "workspace": {
     "packageJson": {
       "dependencies": [
+        "npm:@supabase/supabase-js@2.117.2",
         "npm:@tesseract.js-data/eng@1",
         "npm:esbuild@0.25",
         "npm:jsqr@^1.4.0",
@@ -37,6 +38,7 @@
         "npm:playwright@^1.63.0",
         "npm:pngjs@7",
         "npm:qrcode@^1.5.4",
+        "npm:stripe@23.0.0",
         "npm:tesseract.js@7"
       ]
     }

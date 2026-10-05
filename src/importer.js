@@ -3,7 +3,7 @@ import {createWorker,PSM} from 'tesseract.js';
 import {decodeQrPixelsInRegions,qrScanRegions} from './qr.js';
 import {rowsFromPage} from './recognition.js';
 import {weekDates} from './recognition.js';
-import {detectTimetableGrid} from './timetable-grid.js';
+import {detectTimetableGrid,hasForeground,otsuThreshold} from './timetable-grid.js';
 import {periodTime,parseCellText} from './timetable-fields.js';
 import {mergeSessions} from './schedule.js';
 import {t} from './options-locale.js';
@@ -23,55 +23,110 @@ async function imageCanvas(blob) {
 function enhancedCanvas(source,scale=3) {
   const canvas=document.createElement('canvas');canvas.width=source.width*scale;canvas.height=source.height*scale;
   const context=canvas.getContext('2d',{willReadFrequently:true});context.drawImage(source,0,0,canvas.width,canvas.height);
-  const image=context.getImageData(0,0,canvas.width,canvas.height),gray=new Uint8Array(canvas.width*canvas.height);
-  for(let i=0;i<gray.length;i++) {const at=i*4;gray[i]=Math.round(.299*image.data[at]+.587*image.data[at+1]+.114*image.data[at+2]);}
-  const radius=Math.max(8,Math.round(12*scale)),stride=canvas.width+1,integral=new Uint32Array((canvas.width+1)*(canvas.height+1));
-  for(let y=1;y<=canvas.height;y++) {let row=0;for(let x=1;x<=canvas.width;x++) {row+=gray[(y-1)*canvas.width+x-1];integral[y*stride+x]=integral[(y-1)*stride+x]+row;}}
-  for(let y=0;y<canvas.height;y++) for(let x=0;x<canvas.width;x++) {
-    const x0=Math.max(0,x-radius),x1=Math.min(canvas.width,x+radius+1),y0=Math.max(0,y-radius),y1=Math.min(canvas.height,y+radius+1);
-    const sum=integral[y1*stride+x1]-integral[y0*stride+x1]-integral[y1*stride+x0]+integral[y0*stride+x0],mean=sum/((x1-x0)*(y1-y0));
-    const value=gray[y*canvas.width+x]<(mean-8)?0:255,at=(y*canvas.width+x)*4;
-    image.data[at]=image.data[at+1]=image.data[at+2]=value;image.data[at+3]=255;
+  const image=context.getImageData(0,0,canvas.width,canvas.height),threshold=otsuThreshold(image);
+  for(let i=0;i<image.data.length;i+=4) {
+    const value=Math.round(.299*image.data[i]+.587*image.data[i+1]+.114*image.data[i+2])<=threshold?0:255;
+    image.data[i]=image.data[i+1]=image.data[i+2]=value;image.data[i+3]=255;
   }
   context.putImageData(image,0,0);return canvas;
+}
+
+function cropCanvas(source,left,top,width,height,scale=3) {
+  const canvas=document.createElement('canvas');canvas.width=Math.max(1,Math.ceil(width*scale));canvas.height=Math.max(1,Math.ceil(height*scale));
+  const context=canvas.getContext('2d',{willReadFrequently:true});context.fillStyle='#fff';context.fillRect(0,0,canvas.width,canvas.height);
+  context.drawImage(source,left,top,width,height,0,0,canvas.width,canvas.height);return canvas;
+}
+
+function hasInk(source,left,top,right,bottom) {
+  const width=right-left,height=bottom-top;if(width<4||height<4) return false;
+  const image=source.getContext('2d',{willReadFrequently:true}).getImageData(left,top,width,height);
+  return hasForeground(image,Math.max(2,width*height*.001));
 }
 
 async function makeWorker(onProgress) {
   return createWorker('eng',1,{workerPath:asset('worker.min.js'),corePath:asset('tesseract-core'),langPath:asset('lang'),workerBlobURL:false,cacheMethod:'none',logger:m=>onProgress?.(`${m.status} ${Math.round((m.progress||0)*100)}%`)});
 }
 
-function extractOcr(data,scale=1) {
+function extractOcr(data,scale=1,offset={x:0,y:0}) {
   const tokens=[];
   for(const block of data.blocks||[]) for(const para of block.paragraphs||[]) for(const line of para.lines||[]) for(const word of line.words||[]) {
-    const b=word.bbox;tokens.push({text:word.text,x:b.x0/scale,y:b.y0/scale,width:(b.x1-b.x0)/scale,height:(b.y1-b.y0)/scale,confidence:word.confidence});
+    const b=word.bbox;tokens.push({text:word.text,x:offset.x+b.x0/scale,y:offset.y+b.y0/scale,width:(b.x1-b.x0)/scale,height:(b.y1-b.y0)/scale,confidence:word.confidence});
   }
   return {text:data.text||'',tokens};
 }
 
 async function recognizeImageGrid(source,onProgress) {
   const ctx=source.getContext('2d',{willReadFrequently:true}),grid=detectTimetableGrid(ctx.getImageData(0,0,source.width,source.height));
-  if(!grid.ok) {onProgress?.(`表格网格检测失败，回退到整图 OCR：${grid.reason}`);return null;}
-  const worker=await makeWorker(onProgress),headerCanvas=enhancedCanvas(source,3);
+  if(!grid.ok) return {rows:[],gridFailure:grid.reason};
+  const worker=await makeWorker(onProgress);
   try {
-    const header=extractOcr((await worker.recognize(headerCanvas,{}, {text:true,blocks:true})).data,3),dates=weekDates(header.text),weekdayIds={Mo:1,Tu:2,We:3,Th:4,Fr:5},rows=[];
+    const titleBounds={left:0,top:0,width:source.width,height:Math.max(1,grid.table.top)};
+    const timeBounds={left:grid.table.left,top:grid.table.top,width:grid.table.right-grid.table.left,height:grid.table.headerBottom-grid.table.top};
+    const dayBounds={left:grid.table.left,top:grid.table.headerBottom,width:grid.table.dayBoundary-grid.table.left,height:grid.table.bottom-grid.table.headerBottom};
+    const titleCanvas=enhancedCanvas(cropCanvas(source,titleBounds.left,titleBounds.top,titleBounds.width,titleBounds.height,2),1);
+    const timeCanvas=enhancedCanvas(cropCanvas(source,timeBounds.left,timeBounds.top,timeBounds.width,timeBounds.height,3),1);
+    const dayCanvas=enhancedCanvas(cropCanvas(source,dayBounds.left,dayBounds.top,dayBounds.width,dayBounds.height,2),1);
+    await worker.setParameters({tessedit_pageseg_mode:PSM.SINGLE_BLOCK,tessedit_char_whitelist:'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 :/.-()'});
+    const title=extractOcr((await worker.recognize(titleCanvas,{}, {text:true,blocks:true})).data,1);
+    const header=extractOcr((await worker.recognize(timeCanvas,{}, {text:true,blocks:true})).data,3,{x:timeBounds.left,y:timeBounds.top});
+    await worker.setParameters({tessedit_pageseg_mode:PSM.SINGLE_BLOCK,tessedit_char_whitelist:'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'});
+    const dayLabels=extractOcr((await worker.recognize(dayCanvas,{}, {text:true,blocks:true})).data,2,{x:dayBounds.left,y:dayBounds.top});
+    const dates=weekDates(title.text),weekdayIds={Mo:1,Tu:2,We:3,Th:4,Fr:5},rows=[];
+    const weekdayNames={mo:'Mo',mon:'Mo',monday:'Mo',tu:'Tu',tue:'Tu',tues:'Tu',tuesday:'Tu',we:'We',wed:'We',wednesday:'We',th:'Th',thu:'Th',thur:'Th',thurs:'Th',thursday:'Th',fr:'Fr',fri:'Fr',friday:'Fr'};
+    const rowDays=new Map();
+    for(const row of grid.dayRows) {
+      const label=dayLabels.tokens.toSorted((a,b)=>Math.abs(a.y+a.height/2-row.center)-Math.abs(b.y+b.height/2-row.center)).find(token=>Math.abs(token.y+token.height/2-row.center)<(row.bottom-row.top)*.42);
+      const normalized=label?.text.toLowerCase().replace(/[^a-z]/g,'');
+      if(weekdayNames[normalized]) rowDays.set(row.day,weekdayNames[normalized]);
+    }
     const headerRanges=header.tokens.flatMap(token=>{const found=[...token.text.matchAll(/(\d{1,2}:[0-5]\d)\s*[-–—]\s*(\d{1,2}:[0-5]\d)/g)];return found.map(match=>({x:token.x+token.width/2,start:match[1],end:match[2]}));});
     const clockTokens=header.tokens.filter(token=>/^\d{1,2}:[0-5]\d$/.test(token.text.trim())).sort((a,b)=>a.y-b.y||a.x-b.x);
     for(const start of clockTokens) {const end=clockTokens.find(item=>item.x>start.x+start.width&&Math.abs(item.y-start.y)<Math.max(item.height,start.height)*1.5);if(end) headerRanges.push({x:(start.x+end.x+end.width)/2,start:start.text.trim(),end:end.text.trim()});}
     for(const cell of grid.cells) for(const segment of cell.groupSegments) {
       const padding=Math.max(1,Math.round(Math.min(source.width,source.height)*.002)),left=Math.ceil(cell.left+padding),top=Math.ceil(segment.top+padding),right=Math.floor(cell.right-padding),bottom=Math.floor(segment.bottom-padding);
-      if(right-left<4||bottom-top<4) continue;
-      const crop=document.createElement('canvas');crop.width=(right-left)*3;crop.height=(bottom-top)*3;
-      const cropCtx=crop.getContext('2d',{willReadFrequently:true});cropCtx.fillStyle='#fff';cropCtx.fillRect(0,0,crop.width,crop.height);cropCtx.drawImage(source,left,top,right-left,bottom-top,0,0,crop.width,crop.height);
+      if(!hasInk(source,left,top,right,bottom)) continue;
+      const crop=cropCanvas(source,left,top,right-left,bottom-top,3);
+      const cropCtx=crop.getContext('2d',{willReadFrequently:true});
       cropCtx.fillStyle='#fff';cropCtx.fillRect(0,0,crop.width,3);cropCtx.fillRect(0,crop.height-3,crop.width,3);cropCtx.fillRect(0,0,3,crop.height);cropCtx.fillRect(crop.width-3,0,3,crop.height);
-      const recognized=extractOcr((await worker.recognize(crop,{}, {text:true,blocks:true})).data);
-      if(!recognized.text.trim()) continue;
-      const periodCenter=(grid.periodColumns[cell.periodStart-1].center+grid.periodColumns[cell.periodEnd-1].center)/2;
-      const headerTime=headerRanges.toSorted((a,b)=>Math.abs(a.x-periodCenter)-Math.abs(b.x-periodCenter))[0];
+      const prepared=enhancedCanvas(crop,1);
+      await worker.setParameters({tessedit_pageseg_mode:PSM.SINGLE_BLOCK,tessedit_char_whitelist:'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 -'});
+      const recognized=extractOcr((await worker.recognize(prepared,{}, {text:true,blocks:true})).data);
+      const nearestHeader=period=>headerRanges.toSorted((a,b)=>Math.abs(a.x-grid.periodColumns[period-1].center)-Math.abs(b.x-grid.periodColumns[period-1].center))[0];
+      const firstHeader=nearestHeader(cell.periodStart),lastHeader=nearestHeader(cell.periodEnd);
+      const headerTime=firstHeader&&lastHeader?{start:firstHeader.start,end:lastHeader.end}:null;
       const mapped=periodTime(cell.periodStart,cell.periodEnd,{header:headerTime});
-      const parsed=parseCellText(recognized.text,{day:cell.day,date:dates?.get(weekdayIds[cell.day])||null,start:mapped.start,end:mapped.end,needsReview:mapped.needsReview,ocrConfidence:recognized.tokens.length?recognized.tokens.reduce((sum,item)=>sum+item.confidence,0)/recognized.tokens.length/100:0});
+      const day=rowDays.get(cell.day)||cell.day;
+      const context={day,date:dates?.get(weekdayIds[day])||null,start:mapped.start,end:mapped.end,needsReview:mapped.needsReview||!rowDays.has(cell.day),ocrConfidence:recognized.tokens.length?recognized.tokens.reduce((sum,item)=>sum+item.confidence,0)/recognized.tokens.length/100:0};
+      const parsed=recognized.text.trim()?parseCellText(recognized.text,context):{...parseCellText('',{...context,needsReview:true}),course:'未识别课程（需复核）',needsReview:true};
       rows.push(parsed);
     }
-    return {rows,header};
+    return {rows,header,title};
+  } finally {await worker.terminate();}
+}
+
+async function ocr(canvas,onProgress) {
+  const worker=await makeWorker(onProgress);
+  try {
+    const result=extractOcr((await worker.recognize(canvas,{}, {text:true,blocks:true})).data);
+    if(rowsFromPage(result).length) return result;
+    const courses=result.tokens.filter(token=>/\b[A-Z]{2,}\d{3,}/i.test(token.text));
+    if(!courses.length) return result;
+    const firstY=Math.min(...courses.map(token=>token.y)),lastY=Math.max(...courses.map(token=>token.y+token.height));
+    const firstX=Math.min(...courses.map(token=>token.x));
+    const headerTop=Math.floor(firstY*.48),headerLeft=Math.floor(firstX*.75),daysTop=Math.floor(firstY*.75);
+    const titleLeft=Math.floor(canvas.width*.18),titleTop=Math.floor(firstY*.08);
+    const regions=[
+      {left:titleLeft,top:titleTop,width:Math.floor(canvas.width*.72),height:Math.ceil(firstY*.3)},
+      {left:headerLeft,top:headerTop,width:canvas.width-headerLeft,height:Math.ceil(firstY*.36)},
+      {left:0,top:daysTop,width:Math.ceil(firstX*.95),height:Math.min(canvas.height-daysTop,Math.ceil(lastY*1.15-daysTop))}
+    ].filter(region=>region.width>0&&region.height>0);
+    onProgress?.(t('importerRecognizeHeader'));
+    await worker.setParameters({tessedit_pageseg_mode:PSM.SINGLE_BLOCK});
+    for(const rectangle of regions) {
+      const part=extractOcr((await worker.recognize(canvas,{rectangle},{text:true,blocks:true})).data,1,{x:rectangle.left,y:rectangle.top});
+      result.text+=`\n${part.text}`;result.tokens.push(...part.tokens);
+    }
+    return result;
   } finally {await worker.terminate();}
 }
 
@@ -82,44 +137,6 @@ export async function decodeQrFile(file) {
   const url=decodeQrPixelsInRegions(data.data,canvas.width,canvas.height,qrScanRegions(canvas.width,canvas.height));
   if(!url) throw Error(t('importerQrUnread'));
   return url;
-}
-
-async function ocr(canvas,onProgress) {
-  const worker=await createWorker('eng',1,{
-    workerPath:asset('worker.min.js'),corePath:asset('tesseract-core'),langPath:asset('lang'),
-    workerBlobURL:false,cacheMethod:'none',logger:m=>onProgress?.(`${m.status} ${Math.round((m.progress||0)*100)}%`)
-  });
-  try {
-    const extract=data=>{
-      const tokens=[];
-      for(const block of data.blocks||[]) for(const para of block.paragraphs||[]) for(const line of para.lines||[]) for(const word of line.words||[]) {
-        const b=word.bbox;
-        tokens.push({text:word.text,x:b.x0,y:b.y0,width:b.x1-b.x0,height:b.y1-b.y0});
-      }
-      return {text:data.text||'',tokens};
-    };
-    const result=extract((await worker.recognize(canvas,{}, {text:true,blocks:true})).data);
-    if(rowsFromPage(result).length) return result;
-    const courses=result.tokens.filter(t=>/\b[A-Z]{2,}\d{3,}/i.test(t.text));
-    if(!courses.length) return result;
-    const firstY=Math.min(...courses.map(t=>t.y)),lastY=Math.max(...courses.map(t=>t.y+t.height));
-    const firstX=Math.min(...courses.map(t=>t.x));
-    const headerTop=Math.floor(firstY*.48),headerLeft=Math.floor(firstX*.75),daysTop=Math.floor(firstY*.75);
-    const titleLeft=Math.floor(canvas.width*.18),titleTop=Math.floor(firstY*.08);
-    const regions=[
-      {left:titleLeft,top:titleTop,width:Math.floor(canvas.width*.72),height:Math.ceil(firstY*.3)},
-      {left:headerLeft,top:headerTop,width:canvas.width-headerLeft,height:Math.ceil(firstY*.36)},
-      {left:0,top:daysTop,width:Math.ceil(firstX*.95),height:Math.min(canvas.height-daysTop,Math.ceil(lastY*1.15-daysTop))}
-    ];
-    onProgress?.(t('importerRecognizeHeader'));
-    await worker.setParameters({tessedit_pageseg_mode:PSM.SINGLE_BLOCK});
-    for(const rectangle of regions) {
-      const part=extract((await worker.recognize(canvas,{rectangle},{text:true,blocks:true})).data);
-      result.text+=`\n${part.text}`;
-      result.tokens.push(...part.tokens);
-    }
-    return result;
-  } finally {await worker.terminate();}
 }
 
 export async function importTimetable(file,onProgress) {
@@ -148,13 +165,13 @@ export async function importTimetable(file,onProgress) {
   } else if(file.type==='image/jpeg' || file.type==='image/png' || /\.(?:jpe?g|png)$/i.test(file.name)) {
     onProgress?.(t('importerOcrImage'));
     const original=await imageCanvas(file),gridResult=await recognizeImageGrid(original,onProgress);
-    if(gridResult) rows=gridResult.rows;
-    if(!rows.length) {
-      const prepared=enhancedCanvas(original,3);
-      rows=rowsFromPage(await ocr(prepared,onProgress));
+    if(gridResult.gridFailure) {
+      onProgress?.(t('importerGridFallback',{reason:gridResult.gridFailure}));
+      rows=rowsFromPage(await ocr(enhancedCanvas(original,3),onProgress));
       if(!rows.length) rows=rowsFromPage(await ocr(original,onProgress));
-      if(rows.length) rows=rows.map(row=>({...row,needsReview:true,confidence:{legacy:0.45},gridFailure:'网格逐格识别未完成；结果来自整图回退解析'}));
-    }
+      if(rows.length) rows=rows.map(row=>({...row,needsReview:true,confidence:{legacy:0.45},gridFailure:gridResult.gridFailure}));
+    } else rows=gridResult.rows;
+    if(!rows.length) throw Error('已检测到课表网格，但没有识别出课程内容。请调整图片或手动添加课程。');
   } else throw Error(t('importerUnsupported'));
   return rows;
 }

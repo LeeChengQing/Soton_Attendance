@@ -12,6 +12,7 @@ test('backend validates exact Forms hosts, paths, calendar dates and time ranges
   assert.deepEqual(normalizeSchedules([row])[0].exceptions,['2026-10-05']);
   for(const patch of [{startTime:'25:00'},{endTime:'08:00'},{exceptions:['2026-02-30']},{weekday:'1'},{automationReady:'true'}]) assert.throws(()=>normalizeSchedules([{...row,...patch}]));
   assert.throws(()=>validateEvent({courseCode:'COMP1311',occurrenceKey:'x',status:'unknown',classDate:'2026-02-30'}));
+  assert.throws(()=>validateEvent({courseCode:'COMP1311',occurrenceKey:'occ-1',status:'submitted_pending_confirmation',classDate:'2026-10-05'}));
 });
 test('scheduler credential denies missing configuration and ordinary user bearer tokens',()=>{
   assert.equal(schedulerAuthorized(new Request('http://test',{headers:{Authorization:'Bearer user'}}),'secret-dedicated'),false);

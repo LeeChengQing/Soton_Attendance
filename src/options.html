@@ -13,14 +13,14 @@
     <section class="card" aria-labelledby="profile-heading">
       <div class="section-head"><span class="step">01</span><div><h2 id="profile-heading" data-i18n="profileHeading">学生资料</h2></div><a id="open-subscription" class="button secondary subscription-link" href="#phone-subscription" data-i18n="openSubscription">订阅手机提醒</a></div>
       <details id="profile-details" open><summary id="profile-summary" data-i18n="profileSummaryEmpty">填写学号与姓名</summary>
-        <form id="profile-form" class="form-grid"><label><span data-i18n="studentId">学号</span><input name="student" maxlength="50" required></label><label><span data-i18n="studentName">姓名</span><input name="name" maxlength="100" required></label><label><span data-i18n="studentType">学生身份</span><select name="studentType"><option value="local" data-i18n="localStudent">本地学生</option><option value="international" data-i18n="internationalStudent">国际学生</option></select></label><button type="submit" data-i18n="saveProfile">保存资料</button></form>
+        <form id="profile-form" class="form-grid"><label><span data-i18n="studentId">学号</span><input name="student" maxlength="50" required></label><label><span data-i18n="studentName">姓名</span><input name="name" maxlength="100" required></label><label><span data-i18n="studentType">学生身份</span><select name="studentType"><option value="local" data-i18n="localStudent">本地学生</option><option value="international" data-i18n="internationalStudent">国际学生</option></select></label><label><span data-i18n="studentGroup">课表组别</span><select name="group"><option value="all" data-i18n="groupAny">不筛选</option><option value="1">Group 1</option><option value="2">Group 2</option><option value="3">Group 3</option></select></label><button type="submit" data-i18n="saveProfile">保存资料</button></form>
         <p class="upload-hint" data-i18n="chromeLoginHint">请在当前 Chrome 用户中登录学校 Microsoft 账号。</p>
       </details>
     </section>
     <section class="card" aria-labelledby="import-heading">
       <div class="section-head"><span class="step">02</span><div><h2 id="import-heading" data-i18n="timetableHeading">课表</h2><p data-i18n="timetableDescription">直接删除不需要的课程；展开可修改。</p></div><button id="clear-preview" type="button" class="quiet clear-section" data-i18n="clearDraft">清空草稿</button></div>
       <div class="toolbar"><label class="file-button"><span data-i18n="importTimetable">导入课表</span><input id="timetable-file" type="file" accept=".jpg,.jpeg,.png,.pdf,image/jpeg,image/png,application/pdf"></label><button id="add-row" type="button" class="secondary" data-i18n="addCourse">添加课程</button></div>
-      <p class="upload-hint" data-i18n="timetableHint">支持 JPG、PNG、PDF。Group 1／2 只保留自己的组别。</p>
+      <p class="upload-hint" data-i18n="timetableHint">支持 JPG、PNG、PDF。选择组别后，只过滤明确标记为其他组的 Lab；其他课程和无法识别组别的课程会保留。</p>
       <p id="import-status" class="status" role="status" aria-live="polite" data-i18n="noTimetable">还没有导入课表。</p>
       <div id="preview-summary" class="agenda-overview" aria-live="polite"></div><div id="preview-rows" class="agenda"></div>
       <p id="draft-status" class="status" data-i18n="draftAutoSave">草稿自动保存，启用后才会执行。</p>

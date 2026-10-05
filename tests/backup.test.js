@@ -14,6 +14,14 @@ test('restore retains local terminal records and schedules only future triggers 
   assert.equal(restored.attendanceCloudToken,undefined);assert.equal(restored.attendanceRecords[occ.key].state,'unknown');assert.equal(restored.attendanceSessions[0].createdAt,'2026-10-01T00:00:00Z');
   assert.throws(()=>validateBackup({...backup,sessions:[{...session,exceptions:['2026-02-30']}]}));
 });
+test('backup preserves timetable group and older profiles default to do not filter',()=>{
+  const backup=createBackup({attendanceProfile:{student:'123',name:'A',studentType:'local',group:'3'},attendanceSessions:[session],attendanceBindings:{},attendanceRecords:{}});
+  assert.equal(backup.profile.group,'3');
+  assert.equal(restoreBackup(backup,{}).attendanceProfile.group,'3');
+  const legacy=structuredClone(backup);delete legacy.profile.group;
+  assert.equal(restoreBackup(legacy,{}).attendanceProfile.group,'all');
+  assert.throws(()=>validateBackup({...backup,profile:{...backup.profile,group:'4'}}),/学生资料/);
+});
 test('unknown result offers manual inspection and never an automatic resubmit',()=>{
   const recovery=recoveryForRecord({state:'unknown',occ});
   assert.match(recovery.description,/手动核对/);assert.equal(recovery.action,'inspect');

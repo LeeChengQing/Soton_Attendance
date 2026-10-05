@@ -12,3 +12,6 @@ test('profile matching normalizes edge whitespace and legacy local identity but 
   assert.equal(sameProfile(saved,{student:'123',name:'Student',studentType:'local'}),true);
   for(const patch of [{student:'456'},{name:'Changed'},{studentType:'international'}]) assert.equal(sameProfile({student:'123',name:'Student',studentType:'local'},{student:'123',name:'Student',studentType:'local',...patch}),false);
 });
+test('a changed timetable group requires saving the profile first',()=>{
+  assert.equal(sameProfile({student:'123',name:'Student',studentType:'local',group:'1'},{student:'123',name:'Student',studentType:'local',group:'2'}),false);
+});

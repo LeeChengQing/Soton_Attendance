@@ -31,7 +31,11 @@ function toWeeklySession(session) {
   if (!Number.isInteger(weekday) || weekday < 0 || weekday > 6) throw Error(`${session.course || "\u8BFE\u7A0B"} \u7F3A\u5C11\u6709\u6548\u661F\u671F\u3002`);
   return { ...weekly, kind: "weekly", weekday };
 }
-var fingerprint = (s) => [s.course?.trim().toLowerCase(), s.kind, s.kind === "dated" ? s.date : s.weekday, s.time, s.endTime].join("|");
+var fingerprint = (s) => {
+  const kind = s.kind || (s.date ? "dated" : "weekly");
+  const day = kind === "dated" ? s.date : s.weekday ?? s.day;
+  return [s.course?.trim().toLowerCase(), kind, day, s.time ?? s.start, s.endTime ?? s.end].join("|");
+};
 function mergeSessions(existing, incoming) {
   const merged = [...existing], seen = new Set(existing.map(fingerprint));
   for (const row of incoming) if (!seen.has(fingerprint(row))) {
@@ -149,20 +153,35 @@ function deliveryFromCourse(course) {
   throw Error("\u65E0\u6CD5\u5224\u65AD\u6B64\u8BFE\u7A0B\u7C7B\u578B\uFF0C\u8BF7\u9009\u62E9 Lecture\u3001Tutorial \u6216 Laboratory\u3002");
 }
 function deliveryOption(options, target) {
-  return options.find((value) => target === "lab" ? ["lab", "laboratory"].includes(normalize(value)) : normalize(value) === target);
+  const words = (value) => normalize(value).match(/[a-z]+/g) || [];
+  const kinds = (value) => [...new Set(words(value).map((word) => word === "laboratory" ? "lab" : word).filter((word) => ["lecture", "tutorial", "lab"].includes(word)))];
+  const matches = options.filter((value) => {
+    const labels = words(value), negative = labels.some((word, index) => ["no", "not", "non", "without", "never"].includes(word) && labels.slice(index + 1, index + 4).some((next) => ["lecture", "tutorial", "lab", "laboratory"].includes(next)));
+    return !negative && kinds(value).length === 1 && kinds(value)[0] === target;
+  });
+  return matches.length === 1 ? matches[0] : void 0;
 }
 function identityOption(options, target) {
-  return options.find((value) => target === "international" ? /international/i.test(value) : /\blocal\b/i.test(value) && !/international/i.test(value));
+  const matches = options.filter((value) => {
+    const text = normalize(value), negative = /\b(?:not|no|non|without|never)\b/.test(text);
+    return !negative && (target === "international" ? /\binternational\b/.test(text) : /\blocal\b/.test(text) && !/\binternational\b/.test(text));
+  });
+  return matches.length === 1 ? matches[0] : void 0;
 }
 function buildFillPlan(questions, mapping, profile, date, course) {
-  if (!verifyQuestions(questions, mapping)) {
+  const unused = new Set(questions), resolved = mapping.map((entry) => {
+    let question = questions.find((item) => unused.has(item) && normalizeComparable(item.title) === normalizeComparable(entry.title));
+    if (!question) question = questions.find((item) => unused.has(item) && matchesMappedMeaning(entry, item));
+    if (question) unused.delete(question);
+    return { entry, question };
+  });
+  if (resolved.some((item) => !item.question)) {
     const error = Error("\u8868\u5355\u9898\u76EE\u53D1\u751F\u53D8\u5316\uFF0C\u5DF2\u505C\u6B62\u3002");
     error.code = "form_schema_changed";
     error.diff = questionDiff(mapping, questions);
     throw error;
   }
-  return mapping.map((entry, i) => {
-    const q = questions.find((item) => normalizeComparable(item.title) === normalizeComparable(entry.title));
+  return resolved.map(({ entry, question: q }, i) => {
     let value;
     if (q.type === "date" && q.required === false) return { type: "date", field: entry.field, skip: true };
     const expectedType = ["student", "name"].includes(entry.field) ? "text" : entry.field === "date" ? "date" : /^(?:delivery|local)(?::|$)/.test(entry.field) ? "radio" : null;
@@ -178,8 +197,24 @@ function buildFillPlan(questions, mapping, profile, date, course) {
       value = identityOption(q.options || [], target);
     } else throw Error(`\u672A\u914D\u7F6E\u7B2C ${i + 1} \u9898\u3002`);
     if (!value) throw Error(`\u7B2C ${i + 1} \u9898\u6CA1\u6709\u5339\u914D\u7684\u7B54\u6848\u3002`);
-    return { type: q.type, value, field: entry.field, questionTitle: q.title };
+    return { type: q.type, value, field: entry.field, questionTitle: q.title, ...q.type === "date" ? { expectedDate: date, dateFormat: q.placeholder || "" } : {} };
   });
+}
+function matchesMappedMeaning(entry, question) {
+  const title = normalizeComparable(question.title), options = (question.options || []).map(normalizeComparable), field = entry.field || "";
+  if ((field === "student" || field === "name") && question.type !== "text") return false;
+  if ((field === "delivery" || field.startsWith("delivery:")) && question.type !== "radio") return false;
+  if ((field === "local" || field.startsWith("local:")) && question.type !== "radio") return false;
+  if (field === "student") return /\b(?:student|university|learner)\b.*\b(?:id|number|no)\b|\b(?:id|identification)\s*(?:number|no\.?|#)\b|学号/.test(title);
+  if (field === "name") return /\bname\b|姓名/.test(title);
+  if (field === "date") return question.type === "date";
+  if (field === "skip") return question.type === "date" && question.required === false;
+  if (field === "delivery" || field.startsWith("delivery:")) {
+    const kinds = ["lecture", "tutorial", "lab"].filter((kind) => options.some((option) => kind === "lab" ? /\b(?:lab|laboratory)\b/.test(option) : new RegExp(`\\b${kind}\\b`).test(option)));
+    return kinds.length >= 2 || /\b(?:delivery|session type|class type|lesson type)\b/.test(title);
+  }
+  if (field === "local" || field.startsWith("local:")) return options.some((option) => /\blocal\b/.test(option)) && options.some((option) => /\binternational\b/.test(option));
+  return false;
 }
 
 // src/bindings.js
@@ -386,7 +421,7 @@ async function cancelPhoneSubscriptionRecovery() {
 // src/outbox.js
 function enqueue(snapshot = {}, action, payload, now = Date.now()) {
   const q = { version: snapshot.version || 0, items: [...snapshot.items || []] };
-  const logical = action === "sync" ? "sync" : action === "event" ? `event:${payload.occurrenceKey}` : `${action}:${payload.sessionId}`;
+  const logical = action === "sync" ? "sync" : action === "event" ? `event:${payload.occurrenceKey}:${payload.status}` : `${action}:${payload.sessionId}`;
   if (action !== "sync" && q.items.some((item) => item.logical === logical)) return q;
   if (action === "sync") {
     q.version = Math.max(q.version + 1, now);
@@ -593,7 +628,7 @@ function validateBackup(input) {
   const allowed2 = ["format", "version", "exportedAt", "profile", "bindings", "sessions", "records"];
   if (Object.keys(input).some((k) => !allowed2.includes(k))) throw Error("\u5907\u4EFD\u5305\u542B\u4E0D\u652F\u6301\u7684\u5B57\u6BB5\u6216\u51ED\u8BC1\uFF0C\u672A\u5BFC\u5165\u3002");
   if (!Array.isArray(input.sessions) || input.sessions.length > 200 || !input.bindings || typeof input.bindings !== "object" || Array.isArray(input.bindings) || !input.records || typeof input.records !== "object" || Array.isArray(input.records)) throw Error("\u5907\u4EFD\u7ED3\u6784\u65E0\u6548\u3002");
-  if (input.profile && (!/^(local|international)$/.test(input.profile.studentType) || typeof input.profile.student !== "string" || !input.profile.student.trim() || input.profile.student.length > 50 || typeof input.profile.name !== "string" || !input.profile.name.trim() || input.profile.name.length > 100 || Object.keys(input.profile).some((k) => !["student", "name", "studentType"].includes(k)))) throw Error("\u5907\u4EFD\u5B66\u751F\u8D44\u6599\u65E0\u6548\u3002");
+  if (input.profile && (!/^(local|international)$/.test(input.profile.studentType) || typeof input.profile.student !== "string" || !input.profile.student.trim() || input.profile.student.length > 50 || typeof input.profile.name !== "string" || !input.profile.name.trim() || input.profile.name.length > 100 || input.profile.group !== void 0 && !/^(?:all|[123])$/.test(input.profile.group) || Object.keys(input.profile).some((k) => !["student", "name", "studentType", "group"].includes(k)))) throw Error("\u5907\u4EFD\u5B66\u751F\u8D44\u6599\u65E0\u6548\u3002");
   const ids = /* @__PURE__ */ new Set();
   for (const row of input.sessions) {
     validateSession(row);
@@ -620,7 +655,7 @@ function restoreBackup(input, current, now = (/* @__PURE__ */ new Date()).toISOS
   const b = validateBackup(input), records = {};
   for (const r of Object.values(b.records)) records[r.occ.key] = r;
   for (const r of Object.values(current.attendanceRecords || {})) if (r.occ?.key) records[r.occ.key] = r;
-  return { attendanceProfile: b.profile || {}, attendanceBindings: b.bindings, attendanceSessions: b.sessions.map((s) => ({ ...validateSession(s), createdAt: now, enabled: false })), attendanceRecords: records, attendanceScheduleMode: "weekly", attendanceDraft: { version: 1, rows: [], reviewedAt: null }, attendanceSetupCoverageEpoch: now, attendanceSetupSession: null };
+  return { attendanceProfile: { ...b.profile || {}, ...b.profile ? { group: b.profile.group || "all" } : {} }, attendanceBindings: b.bindings, attendanceSessions: b.sessions.map((s) => ({ ...validateSession(s), createdAt: now, enabled: false })), attendanceRecords: records, attendanceScheduleMode: "weekly", attendanceDraft: { version: 1, rows: [], reviewedAt: null }, attendanceSetupCoverageEpoch: now, attendanceSetupSession: null };
 }
 
 // src/reliability.js
@@ -683,7 +718,7 @@ async function enqueueCloud(action, payload, extra = {}) {
 }
 async function persistTerminal(records, key) {
   const r = records[key], o = r.occ;
-  const cloudStatus = r.state === "submitted_pending_confirmation" ? "unknown" : r.state === "missed_sleep" ? "missed" : r.state;
+  const cloudStatus = r.state === "missed_sleep" ? "missed" : r.state === "submitted_pending_confirmation" ? "unknown" : r.state;
   await enqueueCloud("event", { status: cloudStatus, courseCode: o.course, classDate: o.date, startTime: o.time, endTime: o.endTime, formUrl: r.formUrl || void 0, occurrenceKey: o.key, detail: r.detail }, { attendanceRecords: records });
 }
 var draining = false;

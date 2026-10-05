@@ -32,7 +32,7 @@ for(const [entry,outfile,format] of [['options','options.js','esm'],['background
 }
 
 await writeFile(new URL('manifest.json',out),JSON.stringify({
-  manifest_version:3,name:'Attendance 自动打卡',version,version_name:release?'V1.0 Release':version+' candidate',description:'本机识别课表与二维码，按每周课程结束前五分钟自动填写 Microsoft Forms，并同步手机提醒。',
+  manifest_version:3,name:'Attendance 自动打卡',version,version_name:release?'V1.0.0 Release':version+' candidate',description:'本机识别课表与二维码，按每周课程结束前五分钟自动填写 Microsoft Forms，并同步手机提醒。',
   minimum_chrome_version:'120',permissions:['storage','alarms','notifications','tabs','scripting'],
   host_permissions:['https://forms.office.com/*','https://forms.cloud.microsoft/*','https://qckpwckfukyurkobrsig.supabase.co/*'],
   action:{default_title:'打开 Attendance 设置',default_icon:'icon.png'},options_page:'options.html',

@@ -291,7 +291,7 @@ label.checkbox input { width: 18px; height: 18px; min-height: 0; margin: 2px 0 0
 .mapping-fields { margin-bottom: 12px; }
 .import-metadata { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
 .needs-review { outline: 2px solid var(--danger); outline-offset: 2px; }
-.import-corrections, .import-confidence { grid-column: 1 / -1; color: var(--danger); }
+.import-corrections, .import-confidence, .import-grid-warning { grid-column: 1 / -1; color: var(--danger); }
 .mapping-fields > summary { color: var(--silver); font-size: 14px; }
 
 @media (max-width: 850px) {

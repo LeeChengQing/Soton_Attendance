@@ -1,5 +1,38 @@
 const DAY_NAMES=['Mo','Tu','We','Th','Fr'];
 
+export function otsuThreshold(imageData) {
+  const {width,height,data}=imageData||{};
+  if(!Number.isInteger(width)||!Number.isInteger(height)||!data||data.length<width*height*4) throw new TypeError('invalid pixel image');
+  const histogram=new Uint32Array(256),total=width*height;
+  for(let i=0;i<total;i++) {const at=i*4,gray=Math.round(.299*data[at]+.587*data[at+1]+.114*data[at+2]);histogram[gray]++;}
+  let sum=0;for(let value=0;value<256;value++) sum+=value*histogram[value];
+  let backgroundWeight=0,backgroundSum=0,bestVariance=-1,threshold=127;
+  for(let value=0;value<256;value++) {
+    backgroundWeight+=histogram[value];if(!backgroundWeight) continue;
+    const foregroundWeight=total-backgroundWeight;if(!foregroundWeight) break;
+    backgroundSum+=value*histogram[value];
+    const meanBackground=backgroundSum/backgroundWeight,meanForeground=(sum-backgroundSum)/foregroundWeight;
+    const variance=backgroundWeight*foregroundWeight*(meanBackground-meanForeground)**2;
+    if(variance>bestVariance) {bestVariance=variance;threshold=value;}
+  }
+  return threshold;
+}
+
+export function hasForeground(imageData,minPixels=1) {
+  const {width,height,data}=imageData||{};
+  if(!Number.isInteger(width)||!Number.isInteger(height)||!data||data.length<width*height*4) throw new TypeError('invalid pixel image');
+  let count=0,minimum=255,maximum=0;
+  for(let i=0;i<width*height;i++) {const at=i*4,gray=Math.round(.299*data[at]+.587*data[at+1]+.114*data[at+2]);minimum=Math.min(minimum,gray);maximum=Math.max(maximum,gray);}
+  if(maximum-minimum<12) return false;
+  const threshold=otsuThreshold(imageData);
+  for(let i=0;i<width*height;i++) {
+    const at=i*4,gray=Math.round(.299*data[at]+.587*data[at+1]+.114*data[at+2]);
+    if(gray<=threshold||gray<150) {if(++count>=minPixels) return true;}
+  }
+  return false;
+}
+
+
 function darkAt(image,x,y,radius=2) {
   for(let dy=-radius;dy<=radius;dy++) for(let dx=-radius;dx<=radius;dx++) {
     const px=x+dx,py=y+dy;
@@ -11,12 +44,13 @@ function darkAt(image,x,y,radius=2) {
 function adaptiveMask(image) {
   const {width,height,data}=image,size=width*height,gray=new Uint8Array(size),integral=new Uint32Array((width+1)*(height+1)),stride=width+1;
   for(let i=0;i<size;i++) {const at=i*4;gray[i]=Math.round(.299*data[at]+.587*data[at+1]+.114*data[at+2]);}
+  const globalThreshold=otsuThreshold(image);
   for(let y=1;y<=height;y++) {let row=0;for(let x=1;x<=width;x++) {row+=gray[(y-1)*width+x-1];integral[y*stride+x]=integral[(y-1)*stride+x]+row;}}
   const radius=Math.max(3,Math.round(Math.min(width,height)*.006)),mask=new Uint8Array(size);
   for(let y=0;y<height;y++) for(let x=0;x<width;x++) {
     const x0=Math.max(0,x-radius),x1=Math.min(width,x+radius+1),y0=Math.max(0,y-radius),y1=Math.min(height,y+radius+1);
     const sum=integral[y1*stride+x1]-integral[y0*stride+x1]-integral[y1*stride+x0]+integral[y0*stride+x0],mean=sum/((x1-x0)*(y1-y0)),value=gray[y*width+x];
-    if(value<150||value<mean-18) mask[y*width+x]=1;
+    if(value<=globalThreshold||value<150||value<mean-18) mask[y*width+x]=1;
   }
   return {width,height,data,mask};
 }
@@ -96,9 +130,14 @@ export function detectTimetableGrid(imageData,{expectedPeriods=11,expectedWeekda
       const groupSegments=[];let segmentTop=row.top;
       for(const split of splits) {if(split.center-segmentTop>3) groupSegments.push({top:segmentTop,bottom:split.center});segmentTop=split.center;}
       if(row.bottom-segmentTop>3) groupSegments.push({top:segmentTop,bottom:row.bottom});
-      cells.push({day:row.day,periodStart:first+1,periodEnd:last+1,left,right,top:row.top,bottom:row.bottom,groupSegments});
+      cells.push({day:row.day,periodStart:first+1,periodEnd:last+1,left,right,top:row.top,bottom:row.bottom,x:left,y:row.top,width:right-left,height:row.bottom-row.top,groupSegments});
       col=last+1;
     }
   }
-  return {ok:true,table:{left:tableLeft,right:tableRight,top:tableTop,headerBottom,bottom:tableBottom,dayBoundary},dayRows,periodColumns,cells,lines:{horizontal,verticalHeader}};
+  const matrix=Array.from({length:expectedWeekdays},()=>Array(expectedPeriods).fill(null));
+  for(const cell of cells) {
+    const row=DAY_NAMES.indexOf(cell.day);
+    for(let col=cell.periodStart;col<=cell.periodEnd;col++) matrix[row][col-1]=cell;
+  }
+  return {ok:true,table:{left:tableLeft,right:tableRight,top:tableTop,headerBottom,bottom:tableBottom,dayBoundary},dayRows,periodColumns,cells,matrix,lines:{horizontal,verticalHeader}};
 }

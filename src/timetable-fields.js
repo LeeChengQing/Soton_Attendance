@@ -9,9 +9,13 @@ const editDistance=(left,right)=>{
 export function periodTime(periodStart,periodEnd=periodStart,{startHour=8,minutesPerPeriod=60,header=null}={}) {
   if(!Number.isInteger(periodStart)||!Number.isInteger(periodEnd)||periodStart<1||periodEnd<periodStart||!Number.isFinite(startHour)||!Number.isFinite(minutesPerPeriod)||minutesPerPeriod<=0) throw new TypeError('invalid period mapping');
   const startMinutes=startHour*60+periodStart*minutesPerPeriod,endMinutes=startHour*60+(periodEnd+1)*minutesPerPeriod;
-  const start=minuteClock(startMinutes),end=minuteClock(endMinutes);
-  const conflict=header&&((header.start&&header.start!==start)||(header.end&&header.end!==end));
-  return {start,end,needsReview:Boolean(conflict)};
+  const mappedStart=minuteClock(startMinutes),mappedEnd=minuteClock(endMinutes);
+  const validClock=value=>typeof value==='string'&&/^\d{1,2}:[0-5]\d$/.test(value)&&Number(value.split(':')[0])<24;
+  const headerStart=validClock(header?.start)?header.start.padStart(5,'0'):'';
+  const headerEnd=validClock(header?.end)?header.end.padStart(5,'0'):'';
+  const headerUsable=headerStart&&headerEnd&&headerEnd>headerStart;
+  const conflict=headerUsable&&((headerStart!==mappedStart)||(headerEnd!==mappedEnd));
+  return {start:headerUsable?headerStart:mappedStart,end:headerUsable?headerEnd:mappedEnd,needsReview:Boolean(conflict||(header?.start||header?.end)&&!headerUsable)};
 }
 
 function normalizedLines(text) {
@@ -20,7 +24,7 @@ function normalizedLines(text) {
 
 export function parseCellText(text,context={}) {
   const lines=normalizedLines(text),raw=lines.join('\n'),corrections=[];
-  const courseMatch=raw.match(/\b([A-Z]{3,}\d{4})\b/i);
+  const courseMatch=raw.match(/\b([A-Z]{4}\d{4})\b/i);
   const codeRaw=courseMatch?.[1]||'';
   const code=codeRaw.toUpperCase();
   const typeCandidates=lines.flatMap(line=>[...line.matchAll(/-?\s*([A-Z0-9]{3})\b/gi)]).map(match=>match[1].toUpperCase());
@@ -35,10 +39,10 @@ export function parseCellText(text,context={}) {
     if(corrected!==room) {corrections.push({field:'room',raw:room,corrected});room=corrected;}
   }
   const groupMatch=raw.match(/\bGroup\s*([12])\b/i),group=groupMatch?.[1]||'';
-  const metadataPattern=/^(?:[A-Z]{3,}\d{4}|-?\s*[A-Z0-9]{3}|(?:3[RRO]0[0-9OG]{2}|R\d{3})|Group\s*[12])$/i;
+  const metadataPattern=/^(?:[A-Z]{4}\d{4}(?:\s*-\s*(?:LEC|LAB|TUT))?|-?\s*[A-Z0-9]{3}|(?:3[RRO]0[0-9OG]{2}|R\d{3})|Group\s*[12])$/i;
   const lecturer=lines.find(line=>{const clean=line.replace(/[|¦]/g,' ').trim();return !metadataPattern.test(clean)&&!/^[\s.-]+$/.test(clean);})||'';
   const fields={
-    code:{raw:codeRaw,value:code,confidence:code?.match(/^[A-Z]{3,}\d{4}$/)?(codeRaw===code?0.94:0.8):0},
+    code:{raw:codeRaw,value:code,confidence:code?.match(/^[A-Z]{4}\d{4}$/)?(codeRaw===code?0.94:0.8):0},
     type:{raw:typeRaw,value:type,confidence:type?(['LEC','LAB','TUT'].includes(typeRaw)?0.92:0.68):0},
     group:{raw:groupMatch?.[0]||'',value:group,confidence:group?0.9:0.75},
     room:{raw:roomCandidate,value:room,confidence:room?(roomCandidate.toUpperCase()===room?0.9:0.68):0},
@@ -47,6 +51,7 @@ export function parseCellText(text,context={}) {
   const evidence=Number.isFinite(context.ocrConfidence)?Math.max(.2,Math.min(1,context.ocrConfidence)):1;
   for(const value of Object.values(fields)) value.confidence=Number((value.confidence*evidence).toFixed(2));
   const confidence=Object.fromEntries(Object.entries(fields).map(([key,value])=>[key,value.confidence]));
-  const base={...context,code,type,group,room,lecturer,confidence,fields,raw,corrections};
+  const course=code?`${code}${type?`-${type}`:''}${group?` Group ${group}`:''}`:raw.replace(/\s+/g,' ').trim();
+  const base={...context,code,type,group,room,lecturer,course,confidence,fields,raw,corrections};
   return {...base,needsReview:Boolean(context.needsReview||corrections.length||!code||!type||Object.values(confidence).some(value=>value<0.7))};
 }

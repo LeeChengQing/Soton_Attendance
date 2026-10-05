@@ -7,14 +7,14 @@ function terminalRecords(records={}) {
 }
 export function createBackup(data) {
   const p=data.attendanceProfile;
-  return {format:'soton-attendance-configuration',version:1,exportedAt:new Date().toISOString(),profile:p?.student&&p?.name?{student:p.student,name:p.name,studentType:p.studentType}:null,bindings:Object.fromEntries(Object.entries(data.attendanceBindings||{}).map(([key,b])=>[key,{scope:b.scope,url:b.url,title:b.title,questions:b.questions,mapping:b.mapping,verified:b.verified}])),sessions:(data.attendanceSessions||[]).map(s=>({id:s.id,kind:'weekly',course:s.course,weekday:s.weekday,time:s.time,endTime:s.endTime,exceptions:s.exceptions||[],enabled:s.enabled!==false})),records:terminalRecords(data.attendanceRecords)};
+  return {format:'soton-attendance-configuration',version:1,exportedAt:new Date().toISOString(),profile:p?.student&&p?.name?{student:p.student,name:p.name,studentType:p.studentType,group:p.group||'all'}:null,bindings:Object.fromEntries(Object.entries(data.attendanceBindings||{}).map(([key,b])=>[key,{scope:b.scope,url:b.url,title:b.title,questions:b.questions,mapping:b.mapping,verified:b.verified}])),sessions:(data.attendanceSessions||[]).map(s=>({id:s.id,kind:'weekly',course:s.course,weekday:s.weekday,time:s.time,endTime:s.endTime,exceptions:s.exceptions||[],enabled:s.enabled!==false})),records:terminalRecords(data.attendanceRecords)};
 }
 export function validateBackup(input) {
   if(!input||typeof input!=='object'||Array.isArray(input)||input.format!=='soton-attendance-configuration'||input.version!==1) throw Error('不是支持的 Attendance 配置备份。');
   const allowed=['format','version','exportedAt','profile','bindings','sessions','records'];
   if(Object.keys(input).some(k=>!allowed.includes(k))) throw Error('备份包含不支持的字段或凭证，未导入。');
   if(!Array.isArray(input.sessions)||input.sessions.length>200||!input.bindings||typeof input.bindings!=='object'||Array.isArray(input.bindings)||!input.records||typeof input.records!=='object'||Array.isArray(input.records)) throw Error('备份结构无效。');
-  if(input.profile&&(!/^(local|international)$/.test(input.profile.studentType)||typeof input.profile.student!=='string'||!input.profile.student.trim()||input.profile.student.length>50||typeof input.profile.name!=='string'||!input.profile.name.trim()||input.profile.name.length>100||Object.keys(input.profile).some(k=>!['student','name','studentType'].includes(k)))) throw Error('备份学生资料无效。');
+  if(input.profile&&(!/^(local|international)$/.test(input.profile.studentType)||typeof input.profile.student!=='string'||!input.profile.student.trim()||input.profile.student.length>50||typeof input.profile.name!=='string'||!input.profile.name.trim()||input.profile.name.length>100||input.profile.group!==undefined&&!/^(?:all|[123])$/.test(input.profile.group)||Object.keys(input.profile).some(k=>!['student','name','studentType','group'].includes(k)))) throw Error('备份学生资料无效。');
   const ids=new Set();for(const row of input.sessions) {validateSession(row);if(typeof row.id!=='string'||!row.id||ids.has(row.id)) throw Error('备份任务 ID 无效或重复。');ids.add(row.id);if(Object.keys(row).some(k=>!['id','kind','course','weekday','time','endTime','exceptions','enabled'].includes(k))) throw Error('备份任务包含不支持的状态。');}
   if(Object.keys(input.bindings).length>200) throw Error('备份绑定数量过多。');
   for(const [key,b] of Object.entries(input.bindings)) {
@@ -35,7 +35,7 @@ export function restoreBackup(input,current,now=new Date().toISOString()) {
   const b=validateBackup(input),records={};
   for(const r of Object.values(b.records)) records[r.occ.key]=r;
   for(const r of Object.values(current.attendanceRecords||{})) if(r.occ?.key) records[r.occ.key]=r;
-  return {attendanceProfile:b.profile||{},attendanceBindings:b.bindings,attendanceSessions:b.sessions.map(s=>({...validateSession(s),createdAt:now,enabled:false})),attendanceRecords:records,attendanceScheduleMode:'weekly',attendanceDraft:{version:1,rows:[],reviewedAt:null},attendanceSetupCoverageEpoch:now,attendanceSetupSession:null};
+  return {attendanceProfile:{...(b.profile||{}),...(b.profile?{group:b.profile.group||'all'}:{})},attendanceBindings:b.bindings,attendanceSessions:b.sessions.map(s=>({...validateSession(s),createdAt:now,enabled:false})),attendanceRecords:records,attendanceScheduleMode:'weekly',attendanceDraft:{version:1,rows:[],reviewedAt:null},attendanceSetupCoverageEpoch:now,attendanceSetupSession:null};
 }
 export function recoveryForRecord(record) {
   if(record.state==='submitted_pending_confirmation') return {action:'inspect',label:'我要手动检查',description:'已提交但尚未确认。请检查学校记录；系统不会重复提交。'};

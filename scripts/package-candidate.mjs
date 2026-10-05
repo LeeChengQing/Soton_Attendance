@@ -39,6 +39,10 @@ export function validateCandidateFiles(files,version) {
     if(/ATTENDANCE_SCHEDULER_SECRET|SUPABASE_SERVICE_ROLE_KEY|sb_secret_|-----BEGIN PRIVATE KEY-----/.test(file.data.toString())) throw Error('Privileged credential reference in candidate');
   }
 }
+export function validateManifestReleaseType(manifest,version,release) {
+  const expected=release?'V1.0.0 Release':`${version} candidate`;
+  if(manifest.version_name!==expected) throw Error('Manifest display name does not match package type');
+}
 async function tree(root,prefix='') {
   const files=[];
   for(const entry of await readdir(join(root,prefix),{withFileTypes:true})) {
@@ -51,6 +55,7 @@ async function main() {
   const release=process.argv.includes('--release');
   const root=resolve(fileURLToPath(new URL('../',import.meta.url))),out=join(root,'extension'),pkg=JSON.parse(await readFile(join(root,'package.json'))),files=await tree(out);
   validateCandidateFiles(files,pkg.version);
+  validateManifestReleaseType(JSON.parse(files.find(f=>f.name==='manifest.json').data),pkg.version,release);
   // Compare every generated executable against current source using the real bundler.
   for(const [entry,format] of [['options','esm'],['background','esm'],['content','iife']]) {
     const result=await build({entryPoints:[join(root,'src',`${entry}.js`)],outfile:join(out,`${entry}.js`),write:false,bundle:true,platform:'browser',format,target:['chrome120'],logLevel:'warning',legalComments:'none'});

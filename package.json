@@ -11,7 +11,7 @@
     "test:mv3": "node scripts/extension-smoke.mjs",
     "test:backend": "npx --yes deno@2.9.6 test --node-modules-dir=none --allow-env supabase/functions/_shared/activation.deno.ts supabase/functions/_shared/entitlement.deno.ts supabase/functions/_shared/reliability.deno.ts",
     "candidate": "npm test && npm run build && npm run smoke && node scripts/package-candidate.mjs",
-    "release": "npm test && npm run build && npm run smoke && node scripts/package-candidate.mjs --release"
+    "release": "npm test && node scripts/build.mjs --release && npm run smoke && node scripts/package-candidate.mjs --release"
   },
   "dependencies": {
     "@supabase/supabase-js": "2.117.2",

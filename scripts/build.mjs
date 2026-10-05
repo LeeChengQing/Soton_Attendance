@@ -4,7 +4,7 @@ import {build} from 'esbuild';
 
 const root=new URL('../',import.meta.url),out=new URL('../extension/',import.meta.url);
 const version=JSON.parse(await readFile(new URL('package.json',root))).version;
-const release=process.env.ATTENDANCE_RELEASE==='1';
+const release=process.argv.includes('--release')||process.env.ATTENDANCE_RELEASE==='1';
 await rm(out,{recursive:true,force:true});
 await mkdir(new URL('assets/tesseract-core/',out),{recursive:true});
 await mkdir(new URL('assets/lang/',out),{recursive:true});

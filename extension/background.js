@@ -245,6 +245,25 @@ function validateBindingForCourse(binding, course, profile, date) {
   return plan;
 }
 
+// src/license-key.js
+var legacyUngroupedPattern = /^[0-9a-f]{32}$/i;
+var legacyGroupedPattern = /^(?:[0-9a-f]{8}-){3}[0-9a-f]{8}$/i;
+var chinaSemesterPattern = /^AC-CN-SEM-[A-Z0-9]{8,12}$/i;
+var standardWebsitePattern = /^AC-(?:[0-9a-f]{4}-){11}[0-9a-f]{4}$/i;
+var internationalPrefixes = ["AC-INTL-BNDL-", "AC-INTL-MOBM-", "AC-INTL-MOBY-"];
+function normalizeLicenseKey(value) {
+  if (typeof value !== "string") throw new Error("invalid_activation_key");
+  const trimmed = value.trim();
+  if (legacyUngroupedPattern.test(trimmed) || legacyGroupedPattern.test(trimmed)) {
+    return trimmed.replaceAll("-", "").toUpperCase();
+  }
+  if (chinaSemesterPattern.test(trimmed)) return trimmed.toUpperCase();
+  if (standardWebsitePattern.test(trimmed)) return trimmed.toUpperCase();
+  const prefix = internationalPrefixes.find((candidate) => trimmed.startsWith(candidate));
+  if (prefix && /^[A-Za-z0-9]{8,12}$/.test(trimmed.slice(prefix.length))) return trimmed;
+  throw new Error("invalid_activation_key");
+}
+
 // src/cloud.js
 var API_URL = "https://qckpwckfukyurkobrsig.supabase.co/functions/v1/device-api";
 async function call(action, body = {}, token = "", timeoutMs = 1e4) {
@@ -332,17 +351,18 @@ async function getEntitlementStatus() {
   return call("entitlement-status", {}, cloud.attendanceCloudToken);
 }
 async function redeemActivationKey(activationKey) {
+  const normalizedKey = normalizeLicenseKey(activationKey);
   const { attendanceCloudSetupChoice, attendanceCloudRecoveryPending } = await chrome.storage.local.get(["attendanceCloudSetupChoice", "attendanceCloudRecoveryPending"]);
   if (attendanceCloudRecoveryPending?.completionMayHaveCommitted || ["recovery-starting", "recovery-verifying", "recovery-outcome-unknown", "recovery-finalizing"].includes(attendanceCloudSetupChoice)) throw Error(attendanceCloudSetupChoice === "recovery-outcome-unknown" || attendanceCloudRecoveryPending?.completionMayHaveCommitted ? "recovery_outcome_unknown" : "recovery_in_progress");
   const cloud = await ensureCloudDevice({ allowRegistration: true });
-  return call("redeem-activation-key", { activationKey }, cloud.attendanceCloudToken);
+  return call("redeem-activation-key", { activationKey: normalizedKey }, cloud.attendanceCloudToken);
 }
 async function sha256(value) {
   const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(value));
   return [...new Uint8Array(digest)].map((byte) => byte.toString(16).padStart(2, "0")).join("");
 }
 async function startPhoneSubscriptionRecovery(activationKey) {
-  if (typeof activationKey !== "string" || !activationKey.trim()) throw Error("recovery_unavailable");
+  const normalizedKey = normalizeLicenseKey(activationKey);
   const data = await chrome.storage.local.get(["attendanceCloudRecoveryPending", "attendanceCloudSetupChoice"]);
   const prior = data.attendanceCloudRecoveryPending;
   const pending = prior?.targetDeviceKey && prior?.targetToken ? prior : {
@@ -353,7 +373,7 @@ async function startPhoneSubscriptionRecovery(activationKey) {
   await chrome.storage.local.set({ attendanceCloudSetupChoice: "recovery-starting", attendanceCloudRecoveryPending: pending });
   try {
     const result = await call("recovery-start", {
-      activationKey: activationKey.trim(),
+      activationKey: normalizedKey,
       targetDeviceKey: pending.targetDeviceKey,
       targetTokenHash: await sha256(pending.targetToken)
     });

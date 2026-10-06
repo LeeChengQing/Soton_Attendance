@@ -236,7 +236,7 @@
 
 **Files:**
 - Existing migration: `supabase/migrations/20261002080603_phone_subscription_recovery.sql` (apply only; do not rewrite activation-key hashes).
-- Conditional performance follow-up: `supabase/migrations/20261006035442_phone_subscription_recovery_device_index.sql` (add only if the Supabase advisor reports the new table's `device_id` foreign key is unindexed).
+- Conditional performance follow-up: `supabase/migrations/20261006035548_phone_subscription_recovery_device_index.sql` (add only if the Supabase advisor reports the new table's `device_id` foreign key is unindexed).
 - Deploy source: `supabase/functions/device-api/index.ts`, `supabase/functions/device-api/deno.json`, and its imported `_shared` modules.
 - Production project: `[CHINA] AutoCheck-DB`, ref `qckpwckfukyurkobrsig`.
 

@@ -58,7 +58,7 @@ Internally retain distinct failure categories where the current architecture sup
 
 - Direct website entry selects Complete experience bundle. The extension purchase link selects Mobile notifications · Semester. Query selection does not become the default on a later direct visit.
 - Currency-specific selection and current plaintext key display/copy behavior remain intact.
-- Tests prove canonicalization and hashes against the current website implementation for all four key formats, including grouped/ungrouped legacy forms, lowercase standard hex, and mixed-case international suffixes.
+- Tests compare fixed, hard-coded known-good hash vectors derived from the website's current implementations for all four key formats, including grouped/ungrouped legacy forms, lowercase standard hex, and mixed-case international suffixes. Expected hashes must not be computed dynamically from the implementation under test.
 - Activation and recovery call the same normalization/hash contract and find the same corresponding license record for supported test keys.
 - Activation and recovery inputs preserve the full key without truncation.
 - Existing verification-code flow becomes reachable for previously activated supported keys when current rules permit, without bypassing challenge, ownership, expiry, retry, device, or rate-limit checks.
@@ -68,4 +68,4 @@ Internally retain distinct failure categories where the current architecture sup
 
 ## Deployment dependency
 
-Deploy the corrected Device API Edge Function after implementation and regression checks, then verify live activation/recovery lookup using authorized test keys. Treat the website and extension changes as one compatible release. The user-provided plan authorizes this deployment step; do not apply a database migration unless the implementation demonstrates it is necessary and the required schema path has been reviewed.
+Deploy the corrected Device API Edge Function first, verify it is active, then publish the updated extension package second. Use the previously requested GitHub `V1.0.0 Release` distribution: update the release date to the current Malaysia date, remove older assets, and retain only the latest extension package asset. Treat the website and extension changes as one compatible release. The user-provided plan authorizes this deployment step; do not apply a database migration unless the implementation demonstrates it is necessary and the required schema path has been reviewed.

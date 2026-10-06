@@ -236,6 +236,7 @@
 
 **Files:**
 - Existing migration: `supabase/migrations/20261002080603_phone_subscription_recovery.sql` (apply only; do not rewrite activation-key hashes).
+- Conditional performance follow-up: `supabase/migrations/20261006035442_phone_subscription_recovery_device_index.sql` (add only if the Supabase advisor reports the new table's `device_id` foreign key is unindexed).
 - Deploy source: `supabase/functions/device-api/index.ts`, `supabase/functions/device-api/deno.json`, and its imported `_shared` modules.
 - Production project: `[CHINA] AutoCheck-DB`, ref `qckpwckfukyurkobrsig`.
 
@@ -249,11 +250,11 @@
 
 - [ ] **Step 2: Apply only the existing recovery migration if still absent**
 
-  Use Supabase MCP `apply_migration` on `qckpwckfukyurkobrsig` with the contents of the existing migration and name `phone_subscription_recovery`. Do not run a key-hash migration. If the table and RPCs have appeared since inspection, skip this step.
+  Use Supabase MCP `apply_migration` on `qckpwckfukyurkobrsig` with the contents of the existing migration and name `phone_subscription_recovery`. Do not run a key-hash migration. If the table and RPCs have appeared since inspection, skip this step. The conditional index migration belongs only to Step 3 when confirmed by the advisor.
 
 - [ ] **Step 3: Verify recovery schema and security settings read-only**
 
-  Confirm the table and both RPC signatures exist, RLS is enabled, and only `service_role` can execute the RPCs. Run Supabase security and performance advisors after the DDL change and resolve any issue caused by this migration before deploying.
+  Confirm the table and both RPC signatures exist, RLS is enabled, and only `service_role` can execute the RPCs. Run Supabase security and performance advisors after the DDL change. If the new table's `device_id` foreign key is reported without an index, add and apply the narrow follow-up index migration, then rerun the performance advisor. Do not change any license-key hashes.
 
 - [ ] **Step 4: Deploy the Device API first**
 

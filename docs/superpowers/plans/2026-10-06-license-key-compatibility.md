@@ -235,7 +235,7 @@
 ### Task 6: Apply the necessary recovery schema and deploy the Device API
 
 **Files:**
-- Existing migration: `supabase/migrations/20261002080603_phone_subscription_recovery.sql` (apply only; do not rewrite activation-key hashes).
+- Existing migration: `supabase/migrations/20261006035236_phone_subscription_recovery.sql` (apply only; do not rewrite activation-key hashes; filename matches the production migration ledger).
 - Conditional performance follow-up: `supabase/migrations/20261006035548_phone_subscription_recovery_device_index.sql` (add only if the Supabase advisor reports the new table's `device_id` foreign key is unindexed).
 - Deploy source: `supabase/functions/device-api/index.ts`, `supabase/functions/device-api/deno.json`, and its imported `_shared` modules.
 - Production project: `[CHINA] AutoCheck-DB`, ref `qckpwckfukyurkobrsig`.
@@ -244,23 +244,23 @@
 - Consumes: passing local checks from Task 5 and the user's conditional authorization to apply a migration only when required.
 - Produces: recovery table/RPCs present in production and a deployed Device API version that uses the new key contract.
 
-- [ ] **Step 1: Reconfirm production prerequisites read-only**
+- [x] **Step 1: Reconfirm production prerequisites read-only** — confirmed target ref `qckpwckfukyurkobrsig`, pre-deploy v9, and absent recovery objects.
 
   Verify the target project ref/name, whether `private.phone_subscription_recovery_challenges` and both recovery RPCs exist, and the current `device-api` version. The initial read-only inspection found the table/RPCs absent and `device-api` at v9; repeat before mutation.
 
-- [ ] **Step 2: Apply only the existing recovery migration if still absent**
+- [x] **Step 2: Apply only the existing recovery migration if still absent** — applied the recovery schema as remote migration `20261006035236`; no activation-key hashes were rewritten.
 
   Use Supabase MCP `apply_migration` on `qckpwckfukyurkobrsig` with the contents of the existing migration and name `phone_subscription_recovery`. Do not run a key-hash migration. If the table and RPCs have appeared since inspection, skip this step. The conditional index migration belongs only to Step 3 when confirmed by the advisor.
 
-- [ ] **Step 3: Verify recovery schema and security settings read-only**
+- [x] **Step 3: Verify recovery schema and security settings read-only** — confirmed table, RPCs, RLS, service-role-only execution, and rechecked advisors. Added the narrow `device_id` index as remote migration `20261006035548` after the advisor reported the missing FK index.
 
   Confirm the table and both RPC signatures exist, RLS is enabled, and only `service_role` can execute the RPCs. Run Supabase security and performance advisors after the DDL change. If the new table's `device_id` foreign key is reported without an index, add and apply the narrow follow-up index migration, then rerun the performance advisor. Do not change any license-key hashes.
 
-- [ ] **Step 4: Deploy the Device API first**
+- [x] **Step 4: Deploy the Device API first** — deployed v10 ACTIVE with `verify_jwt=false` and the shared canonicalization/hash helper.
 
   Use the Supabase MCP Edge Function deployment tool to upload `device-api/index.ts`, `device-api/deno.json`, and every relative `_shared` dependency. Keep `verify_jwt=false` because the existing function uses its own authenticated device-token contract; do not alter that authentication mode.
 
-- [ ] **Step 5: Verify deployed function version and safe smoke behavior**
+- [x] **Step 5: Verify deployed function version and safe smoke behavior** — v10 is ACTIVE and source/hash configuration verified. No designated fixture exists, so no customer key was used and live recovery delivery remains unverified.
 
   Confirm `device-api` is active at a version newer than v9. Use only a designated test license/device for any live activation or recovery request; never consume a customer key or send a recovery code to a customer as a test. If no designated test fixture exists, stop at deployment/schema checks and report live lookup as unverified.
 
@@ -271,17 +271,17 @@
 **Files:**
 - Update: `docs/releases/v1.0.0.md`
 - Build: `outputs/Soton-Auto-Check-v1.0.0-latest-Windows-macOS.zip`
-- Publish: existing GitHub `V1.0.0 Release` for `cqcq-bot/Soton_Attendance`
+- Publish: existing GitHub `V1.0.0 Release` for `LeeChengQing/Soton_Attendance` (the configured `cqcq-bot` remote redirects to this canonical owner)
 
 **Interfaces:**
 - Consumes: completed Task 6 and verified active Device API deployment.
 - Produces: one updated extension ZIP attached to the existing release, with the release date set to the current Malaysia date and no older assets remaining.
 
-- [ ] **Step 1: Update release notes for the current Malaysia date**
+- [x] **Step 1: Update release notes for the current Malaysia date** — updated to 6 October 2026 and recorded key formats, checkout routing, tests, and live-test limitation.
 
   Record the actual release date in `Asia/Kuala_Lumpur` and summarize the website key-format compatibility, activation/recovery normalization fix, and corrected Mobile notifications · Semester extension entry. Do not claim live recovery delivery was verified unless a designated test fixture was available and safely used.
 
-- [ ] **Step 2: Build and inspect the release candidate**
+- [x] **Step 2: Build and inspect the release candidate** — `npm run release` passed; verified the release manifest, 21 packaged files, deterministic ZIP, source bundles, and SHA-256 `c78140a653a4a83e857e597ddbaf9d59fa0f2fcfc8576aabcf7681ac56549334`.
 
   Run `npm run release` only after Task 6 confirms the Device API is active. Inspect the package manifest, included files, ZIP name, and SHA-256 sidecar. Do not publish a package before the backend deployment is complete.
 

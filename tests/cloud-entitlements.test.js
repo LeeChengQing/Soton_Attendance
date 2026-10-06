@@ -46,19 +46,52 @@ test("entitlement status uses the existing device token without sending client a
   });
 });
 
-test("activation sends only the entered key with the device token and never stores it", async () => {
+test("activation sends a canonical website key with the device token and never stores it", async () => {
   await withCloudMocks(async ({ requests, stored }) => {
     assert.equal(typeof cloud.redeemActivationKey, "function");
-    const code = "01234567-89ABCDEF-01234567-89ABCDEF";
+    const code = "ac-0123-4567-89ab-cdef-0123-4567-89ab-cdef-0123-4567-89ab-cdef";
     await cloud.redeemActivationKey(code);
     assert.equal(requests.length, 1);
     assert.equal(requests[0].options.headers.Authorization, "Bearer device-token");
     assert.deepEqual(JSON.parse(requests[0].options.body), {
       action: "redeem-activation-key",
-      activationKey: code,
+      activationKey: "AC-0123-4567-89AB-CDEF-0123-4567-89AB-CDEF-0123-4567-89AB-CDEF",
     });
     assert.deepEqual(stored, []);
   });
+});
+
+test("activation preserves the case-sensitive international suffix", async () => {
+  await withCloudMocks(async ({ requests }) => {
+    const key = "AC-INTL-MOBY-aBcD1234";
+    await cloud.redeemActivationKey(key);
+    assert.equal(JSON.parse(requests[0].options.body).activationKey, key);
+  });
+});
+
+test("malformed activation input is rejected before device registration or state writes", async () => {
+  const oldChrome = globalThis.chrome;
+  const oldFetch = globalThis.fetch;
+  const stored = [];
+  const requests = [];
+  globalThis.chrome = { storage: { local: {
+    async get() { return {}; },
+    async set(value) { stored.push(value); },
+    async remove() {},
+  } } };
+  globalThis.fetch = async (url, options) => {
+    requests.push({ url, options });
+    return Response.json({ deviceId: "registered", deviceToken: "token", ntfyTopic: "test" });
+  };
+  try {
+    await assert.rejects(cloud.redeemActivationKey("not-a-license-key"), { message: "invalid_activation_key" });
+    assert.deepEqual(requests, []);
+    assert.deepEqual(stored, []);
+  } finally {
+    if (oldChrome === undefined) delete globalThis.chrome;
+    else globalThis.chrome = oldChrome;
+    globalThis.fetch = oldFetch;
+  }
 });
 
 test('registration replay retains durable ownership proof after a committed response is lost',async()=>{

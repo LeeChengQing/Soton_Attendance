@@ -42,13 +42,13 @@
       </div>
       <p id="entitlement-status" class="status" role="status" aria-live="polite" data-i18n="entitlementLoading">展开后查询手机提醒授权。</p>
       <h3 class="activation-heading" data-i18n="activationHeading">首次激活新密钥或续期</h3>
-      <form id="activation-form" class="activation-form"><label for="activation-key" data-i18n="newKey">新密钥</label><div class="activation-row"><input id="activation-key" name="activationKey" type="text" maxlength="35" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="XXXXXXXX-XXXXXXXX-XXXXXXXX-XXXXXXXX"><button id="activate-key" type="submit" data-i18n="activate">激活手机提醒</button><button id="refresh-entitlement" type="button" class="secondary" data-i18n="refresh">刷新授权</button></div></form>
+      <form id="activation-form" class="activation-form"><label for="activation-key" data-i18n="newKey">新密钥</label><div class="activation-row"><input id="activation-key" name="activationKey" type="text" maxlength="64" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="XXXXXXXX-XXXXXXXX-XXXXXXXX-XXXXXXXX"><button id="activate-key" type="submit" data-i18n="activate">激活手机提醒</button><button id="refresh-entitlement" type="button" class="secondary" data-i18n="refresh">刷新授权</button></div></form>
       <p id="activation-message" class="status" role="status" aria-live="polite"></p>
       <details class="phone-recovery" id="phone-recovery" aria-labelledby="recovery-heading">
         <summary><h3 id="recovery-heading" data-i18n="recoveryTitle">已兑换过密钥？恢复手机提醒</h3></summary>
         <p data-i18n="recoveryDescription">输入之前兑换过的原密钥，验证码会发送到原来接收提醒的手机。恢复不会再次兑换密钥；如果电脑上的本地资料也已清除，请重新导入课表并填写学生资料。</p>
         <form id="phone-recovery-form" class="phone-recovery-form">
-          <div class="phone-recovery-field"><label for="recovery-key" data-i18n="oldKey">已兑换的原密钥</label><div class="phone-recovery-row"><input id="recovery-key" type="text" maxlength="35" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="XXXXXXXX-XXXXXXXX-XXXXXXXX-XXXXXXXX"><button id="send-recovery-code" type="button" data-i18n="sendCode">发送验证码</button></div></div>
+          <div class="phone-recovery-field"><label for="recovery-key" data-i18n="oldKey">已兑换的原密钥</label><div class="phone-recovery-row"><input id="recovery-key" type="text" maxlength="64" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="XXXXXXXX-XXXXXXXX-XXXXXXXX-XXXXXXXX"><button id="send-recovery-code" type="button" data-i18n="sendCode">发送验证码</button></div></div>
           <div class="phone-recovery-field"><label for="recovery-code" data-i18n="receivedCode">手机收到的 6 位验证码</label><div class="phone-recovery-row"><input id="recovery-code" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" placeholder="000000" disabled><button id="verify-recovery-code" type="button" class="primary" disabled data-i18n="verifyRecover">验证并恢复</button></div></div>
         </form>
         <p id="recovery-message" class="status" role="status" aria-live="polite"></p>

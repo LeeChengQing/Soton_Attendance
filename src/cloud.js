@@ -1,4 +1,5 @@
 import {bindingForCourse,validateBindingForCourse} from './bindings.js';
+import {normalizeLicenseKey} from './license-key.js';
 import {todayMalaysia} from './schedule.js';
 
 const API_URL='https://qckpwckfukyurkobrsig.supabase.co/functions/v1/device-api';
@@ -79,10 +80,11 @@ export async function getEntitlementStatus() {
 }
 
 export async function redeemActivationKey(activationKey) {
+  const normalizedKey=normalizeLicenseKey(activationKey);
   const {attendanceCloudSetupChoice,attendanceCloudRecoveryPending}=await chrome.storage.local.get(['attendanceCloudSetupChoice','attendanceCloudRecoveryPending']);
   if(attendanceCloudRecoveryPending?.completionMayHaveCommitted||['recovery-starting','recovery-verifying','recovery-outcome-unknown','recovery-finalizing'].includes(attendanceCloudSetupChoice)) throw Error(attendanceCloudSetupChoice==='recovery-outcome-unknown'||attendanceCloudRecoveryPending?.completionMayHaveCommitted?'recovery_outcome_unknown':'recovery_in_progress');
   const cloud=await ensureCloudDevice({allowRegistration:true});
-  return call('redeem-activation-key',{activationKey},cloud.attendanceCloudToken);
+  return call('redeem-activation-key',{activationKey:normalizedKey},cloud.attendanceCloudToken);
 }
 
 async function sha256(value) {
@@ -91,7 +93,7 @@ async function sha256(value) {
 }
 
 export async function startPhoneSubscriptionRecovery(activationKey) {
-  if(typeof activationKey!=='string'||!activationKey.trim()) throw Error('recovery_unavailable');
+  const normalizedKey=normalizeLicenseKey(activationKey);
   const data=await chrome.storage.local.get(['attendanceCloudRecoveryPending','attendanceCloudSetupChoice']);
   const prior=data.attendanceCloudRecoveryPending;
   const pending=prior?.targetDeviceKey&&prior?.targetToken?prior:{
@@ -102,7 +104,7 @@ export async function startPhoneSubscriptionRecovery(activationKey) {
   await chrome.storage.local.set({attendanceCloudSetupChoice:'recovery-starting',attendanceCloudRecoveryPending:pending});
   try {
     const result=await call('recovery-start',{
-      activationKey:activationKey.trim(),
+      activationKey:normalizedKey,
       targetDeviceKey:pending.targetDeviceKey,
       targetTokenHash:await sha256(pending.targetToken),
     });

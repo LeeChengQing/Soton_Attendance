@@ -1,5 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { hashActivationKey, normalizeActivationKey } from "../_shared/activation.ts";
+import { hashActivationKeyInput } from "../_shared/activation.ts";
 import {normalizeSchedules,validateEvent} from "../_shared/validation.ts";
 
 const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
@@ -132,14 +132,13 @@ async function redeemActivationKey(request: Request, input: Record<string, unkno
   const device = await authenticatedDevice(request);
   if (!device) return response({ error: "unauthorized" }, 401);
 
-  let normalized: string;
+  let keyHash: string;
   try {
-    normalized = normalizeActivationKey(input.activationKey);
+    keyHash = await hashActivationKeyInput(input.activationKey);
   } catch {
     return response({ error: "invalid_activation_key" }, 400);
   }
 
-  const keyHash = await hashActivationKey(normalized);
   const { data, error } = await db.rpc("redeem_activation_key", {
     p_key_hash: keyHash,
     p_device_id: device.id,
@@ -166,9 +165,9 @@ async function redeemActivationKey(request: Request, input: Record<string, unkno
 }
 
 async function startPhoneSubscriptionRecovery(input: Record<string, unknown>) {
-  let normalized: string;
+  let keyHash: string;
   try {
-    normalized = normalizeActivationKey(input.activationKey);
+    keyHash = await hashActivationKeyInput(input.activationKey);
   } catch {
     return response({ error: "recovery_unavailable" }, 400);
   }
@@ -182,7 +181,7 @@ async function startPhoneSubscriptionRecovery(input: Record<string, unknown>) {
   const code = recoveryCode();
   const codeHmac = await recoveryCodeHmac(code);
   const { data, error } = await db.rpc("begin_phone_subscription_recovery", {
-    p_key_hash: await hashActivationKey(normalized),
+    p_key_hash: keyHash,
     p_target_device_key: targetDeviceKey,
     p_target_token_hash: targetTokenHash,
     p_code_hmac: codeHmac,

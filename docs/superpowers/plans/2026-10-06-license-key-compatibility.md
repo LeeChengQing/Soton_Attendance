@@ -285,11 +285,11 @@
 
   Run `npm run release` only after Task 6 confirms the Device API is active. Inspect the package manifest, included files, ZIP name, and SHA-256 sidecar. Do not publish a package before the backend deployment is complete.
 
-- [ ] **Step 3: Replace the existing release assets**
+- [x] **Step 3: Replace the existing release assets** — updated the existing `V1.0.0 Release` body/date and replaced prior uploaded assets with the new ZIP. The existing tag was not moved.
 
   Update the existing `V1.0.0 Release` body/date, remove all previously attached assets, and attach only the newly built `Soton-Auto-Check-v1.0.0-latest-Windows-macOS.zip`. Do not move or force-update the existing release tag.
 
-- [ ] **Step 4: Verify the published result**
+- [x] **Step 4: Verify the published result** — GitHub API confirms one uploaded ZIP with the expected filename, size, and SHA-256; release tag remains `v1.0.0` at its original commit.
 
   Read the release back from GitHub and confirm its date/body and that exactly one asset remains with the expected filename. Download or otherwise verify its published SHA-256 against the local package before reporting completion.
 

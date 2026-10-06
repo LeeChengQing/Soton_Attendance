@@ -19,7 +19,7 @@ const identityOption=(options,kind)=>{
 };
 
 export function fieldMappingForQuestion(question,course='') {
-  const title=normalize(question.title),options=question.options||[];
+  const title=normalize(question.title).replace(/\s*single line text(?:\s*\.\s*\(text\))?$/,'').trim(),options=question.options||[];
   if(question.type==='date') return {choices:[[question.required===false?'skip':'date',t(question.required===false?'dateOptional':'dateAutoCheck')]],selected:question.required===false?'skip':'date'};
   if(question.type==='text') {
     if(/(?:student|university|learner|id|identification).*(?:\bid\b|number|no\.?\b)|学号/.test(title)) return {choices:[['student',t('profileFieldStudent')]],selected:'student'};

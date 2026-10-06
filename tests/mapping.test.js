@@ -17,6 +17,12 @@ test('each known question shows only choices from its own category', () => {
   ]);
 });
 
+test('a Name text question with the Forms single-line hint maps only to the name profile field',()=>{
+  const result=fieldMappingForQuestion({title:'2.NameSingle line text. (text)',type:'text',options:[]});
+  assert.equal(result.selected,'name');
+  assert.deepEqual(result.choices.map(([field])=>field),['name']);
+});
+
 test('unknown questions do not offer unrelated field categories', () => {
   assert.deepEqual(fieldMappingForQuestion({title:'Other text',type:'text',options:[]},'COMP1311').choices.map(([field])=>field),['','student','name']);
   assert.deepEqual(fieldMappingForQuestion({title:'Other choice',type:'radio',options:['Yes','No']},'COMP1311').choices.map(([field])=>field),['']);

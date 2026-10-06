@@ -218,7 +218,7 @@
 
 - [ ] **Step 2: Run website tests and typecheck**
 
-  Run in `C:\Auto-Check Website`: `npm test`, `npm run typecheck`, and `npm run test:e2e -- tests/checkout-e2e/product-entry.spec.ts`.
+  Run in `C:\Auto-Check Website`: `npm test`, `npm run typecheck`, and `npm run test:e2e -- --config playwright.checkout.config.ts tests/checkout-e2e/product-entry.spec.ts`.
 
   Expected: all unit/type checks pass; direct and extension-query storefront selections pass in desktop and mobile viewports.
 

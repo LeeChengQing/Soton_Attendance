@@ -44,12 +44,50 @@ test('recognizes delivery and student type options embedded in longer labels', (
   assert.equal(identity.selected,'local');
 });
 
-test('does not preselect an ambiguous mixed delivery option',()=>{
+test('automatic delivery mapping does not offer ambiguous mixed options as fixed kinds',()=>{
   const question={title:'Session type',type:'radio',options:['Lecture or Tutorial','Laboratory']};
-  assert.equal(fieldMappingForQuestion(question,'COMP1311-LEC').selected,'');
+  const result=fieldMappingForQuestion(question);
+  assert.equal(result.selected,'delivery');
+  assert.deepEqual(result.choices.map(([field])=>field),['delivery','delivery:lab']);
 });
 
 test('ignores negative identity labels when choosing local or international',()=>{
   const question={title:'Student category',type:'radio',options:['Not a local student','Local student','International student']};
   assert.equal(fieldMappingForQuestion(question).selected,'local');
+});
+
+test('shared delivery defaults to automatic mapping with a bare module first or alone',()=>{
+  const question={title:'Module Delivery',type:'radio',options:['Lecture','Tutorial','Laboratory']};
+  for(const courses of [['COMP1311','COMP1311-LEC'],['COMP1311']]) {
+    const result=fieldMappingForQuestion(question,courses);
+    assert.equal(result.selected,'delivery');
+    assert.deepEqual(result.choices.map(([field])=>field),['delivery','delivery:lecture','delivery:tutorial','delivery:lab']);
+  }
+});
+
+test('delivery detection uses known titles or at least two unambiguous option kinds',()=>{
+  for(const title of ['Module Delivery','Session Type','Class Type','Lesson Type','授课方式','How will you attend?']) {
+    assert.equal(fieldMappingForQuestion({title,type:'radio',options:['Lecture','Tutorial','Laboratory']}).selected,'delivery',title);
+  }
+});
+
+test('delivery titles with no recognized kinds remain unsupported and unselected',()=>{
+  const result=fieldMappingForQuestion({title:'Module Delivery',type:'radio',options:['Yes','No']},['COMP1311','COMP1311-LEC']);
+  assert.equal(result.selected,'');
+  assert.deepEqual(result.choices,[['','课程类型选项不受支持']]);
+});
+
+test('shared mapping preserves identity, student, name and optional/required date choices',()=>{
+  const cases=[
+    [{title:'Student ID',type:'text'},'student',['student']],
+    [{title:'Name',type:'text'},'name',['name']],
+    [{title:'Student category',type:'radio',options:['Local','International']},'local',['local','local:local','local:international']],
+    [{title:'Date',type:'date',required:false},'skip',['skip']],
+    [{title:'Date',type:'date',required:true},'date',['date']]
+  ];
+  for(const [question,selected,choices] of cases) {
+    const result=fieldMappingForQuestion(question,['COMP1311','COMP1311-LEC']);
+    assert.equal(result.selected,selected);
+    assert.deepEqual(result.choices.map(([field])=>field),choices);
+  }
 });

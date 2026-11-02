@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {reserveSubmissionRecord,transition} from '../src/state.js';
 
-function record(){return {state:'launched',tabId:7,occ:{key:'COMP1311:2026-10-05:15:00'}};}
+function record(){return {state:'launched',tabId:7,occ:{key:'COMP1311:2026-10-05:15:00',weekStartDate:'2026-10-05',date:'2026-10-05',time:'15:00',endTime:'16:00'}};}
 
 test('first reservation persists the permanent attempt marker and grants one click',()=>{
   const first=reserveSubmissionRecord({run:record()},'run',7,'2026-10-05T07:00:00.000Z');
@@ -25,8 +25,8 @@ test('a persisted reservation denies after restart, timeout, and another schedul
 
 test('pending confirmation is neither success nor failure and only manual confirmation can finish it',()=>{
   assert.equal(transition('pending','submitted_pending_confirmation').state,'submitted_pending_confirmation');
-  assert.equal(transition('submitted_pending_confirmation','manual_submitted').state,'success');
-  assert.equal(transition('unknown','manual_submitted').state,'success');
+  assert.equal(transition('submitted_pending_confirmation','manual_submitted').state,'success_manual');
+  assert.equal(transition('unknown','manual_submitted').state,'success_manual');
   assert.throws(()=>transition('unknown','success'));
   assert.throws(()=>transition('submitted_pending_confirmation','failed'));
 });
@@ -35,4 +35,14 @@ test('explicit release is the only way to clear a reservation marker',()=>{
   const result=reserveSubmissionRecord({run:{...record(),submissionKey:'run',submissionAttemptedAt:'2026-10-05T07:00:00.000Z'}},'run',7,'2026-10-05T07:01:00.000Z');
   assert.equal(result.granted,false);
   assert.equal(result.reason,'already_attempted');
+});
+
+test('reservation refuses the course end boundary and later, even inside wake grace',()=>{
+  const occ={weekStartDate:'2026-10-12',date:'2026-10-14',time:'09:00',endTime:'10:00'};
+  for(const now of ['2026-10-14T02:00:00.000Z','2026-10-14T02:05:00.000Z']) {
+    const result=reserveSubmissionRecord({run:{state:'launched',tabId:7,occ}},'run',7,now);
+    assert.equal(result.granted,false);
+    assert.equal(result.reason,'course_ended');
+    assert.equal(result.records.run.state,'missed');
+  }
 });

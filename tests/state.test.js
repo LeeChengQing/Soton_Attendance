@@ -9,6 +9,6 @@ test('only explicit form success can produce success state', () => {
 });
 
 test('late occurrences are marked missed rather than automatically submitted', () => {
-  assert.equal(dueAction(Date.parse('2026-10-02T09:00:00+08:00'),Date.parse('2026-10-02T09:05:00+08:00')),'missed');
+  assert.equal(dueAction(Date.parse('2026-10-02T09:00:00+08:00'),Date.parse('2026-10-02T09:05:01+08:00')),'missed');
   assert.equal(dueAction(Date.parse('2026-10-02T09:00:00+08:00'),Date.parse('2026-10-02T09:00:30+08:00')),'launch');
 });

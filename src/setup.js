@@ -1,21 +1,21 @@
-import {bindingForCourse,moduleKey,validateBindingForCourse} from './bindings.js';
+import {bindingForCourse,moduleKey,resolveFillPlan} from './bindings.js';
 import {todayMalaysia} from './schedule.js';
 
 export const itemTerminal=state=>['passed','failed','cancelled','timed_out'].includes(state);
 export function coverageRevision(course,binding,profile) {
-  const plan=validateBindingForCourse(binding,course,profile,todayMalaysia());
-  if(!plan?.length) throw Error(`${moduleKey(course)} 需要重新读取并保存表单题目。`);
+  const plan=resolveFillPlan(binding,typeof course==='object'?course:{course},profile,todayMalaysia());
+  if(!plan?.length) throw Error(`${moduleKey(typeof course==='object'?course.course:course)} 需要重新读取并保存表单题目。`);
   return JSON.stringify({profile:{student:profile.student,name:profile.name,studentType:profile.studentType},url:binding.url,title:binding.title,questions:binding.questions,mapping:binding.mapping,answers:plan.map(e=>e.type==='date'?{...e,value:'<today>'}:e)});
 }
 export function buildVariants(tasks,bindings,profile) {
   const variants=new Map();
   for(const task of tasks) {
     const course=task.course,binding=bindingForCourse(bindings,course);
-    const revision=coverageRevision(course,binding,profile);
-    const plan=validateBindingForCourse(binding,course,profile,todayMalaysia());
+    const revision=coverageRevision(task,binding,profile);
+    const plan=resolveFillPlan(binding,task,profile,todayMalaysia());
     const delivery=plan.filter(e=>e.field.startsWith('delivery')).map(e=>e.value).join(' / ');
     const key=JSON.stringify([moduleKey(course),String(course).trim().toUpperCase().replace(/\s+/g,' '),binding.url,delivery,revision]);
-    if(!variants.has(key)) variants.set(key,{id:crypto.randomUUID(),key,revision,course,delivery,state:'queued'});
+    if(!variants.has(key)) variants.set(key,{id:crypto.randomUUID(),key,revision,course,type:task.type,delivery,state:'queued'});
   }
   if(!variants.size) throw Error('请先添加课程并核对表单绑定。');
   if(variants.size>200) throw Error('一次最多检查 200 个表单课型。');

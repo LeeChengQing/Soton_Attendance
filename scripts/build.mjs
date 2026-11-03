@@ -1,41 +1,51 @@
-import {mkdir,rm,copyFile,writeFile} from 'node:fs/promises';
-import {fileURLToPath} from 'node:url';
+import {mkdir,copyFile,readFile,writeFile,cp} from 'node:fs/promises';
+import {resolve,join} from 'node:path';
 import {build} from 'esbuild';
+import {scanReleaseDirectory} from './scan-release.mjs';
 
-const root=new URL('../',import.meta.url),out=new URL('../extension/',import.meta.url);
-await rm(out,{recursive:true,force:true});
-await mkdir(new URL('assets/tesseract-core/',out),{recursive:true});
-await mkdir(new URL('assets/lang/',out),{recursive:true});
-await mkdir(new URL('licenses/',out),{recursive:true});
-const copy=async(src,dest)=>copyFile(new URL(src,root),new URL(dest,out));
-for(const name of ['options.html','options.css']) await copy(`src/${name}`,name);
-await copy('README.md','README.md');
-await copy('src/icon.png','icon.png');
-await copy('node_modules/pdfjs-dist/build/pdf.worker.min.mjs','assets/pdf.worker.min.mjs');
-await copy('node_modules/tesseract.js/dist/worker.min.js','assets/worker.min.js');
-for(const suffix of ['lstm','simd-lstm','relaxedsimd-lstm']) {
-  await copy(`node_modules/tesseract.js-core/tesseract-core-${suffix}.wasm.js`,`assets/tesseract-core/tesseract-core-${suffix}.wasm.js`);
-  await copy(`node_modules/tesseract.js-core/tesseract-core-${suffix}.wasm`,`assets/tesseract-core/tesseract-core-${suffix}.wasm`);
+export const root=resolve(import.meta.dirname,'..');
+export const liveFiles=['manifest.json','background.js','content.js','options.js','options.html','options.css','activation-gate.css','options-dashboard.js','attendance-hotfix.js','popup.html','popup.css','popup.js'];
+export function v105Plugin(entry) {
+  const variants=entry==='background'?['forms','schedule','cloud','outbox','backup']:entry==='content'?['forms']:[];
+  return {
+    name:'preserve-v105-entry-variants',
+    setup(api) {
+      api.onResolve({filter:/^\.\.?\/.*\.js$/},args=>{
+        const name=args.path.split('/').at(-1).slice(0,-3);
+        if(variants.includes(name)&&[join(root,'src'),join(root,'src/v1.0.5')].includes(args.resolveDir)) return {path:join(root,`src/v1.0.5/${entry}-${name}.js`)};
+      });
+    }
+  };
 }
-await copy('node_modules/@tesseract.js-data/eng/4.0.0_best_int/eng.traineddata.gz','assets/lang/eng.traineddata.gz');
-for(const [source,name] of [
-  ['node_modules/jsqr/LICENSE','jsqr-LICENSE'],
-  ['node_modules/pdfjs-dist/LICENSE','pdfjs-LICENSE'],
-  ['node_modules/tesseract.js/LICENSE.md','tesseract-js-LICENSE'],
-  ['node_modules/tesseract.js-core/LICENSE','tesseract-core-LICENSE']
-]) await copy(source,`licenses/${name}`);
-
-for(const [entry,outfile,format] of [['options','options.js','esm'],['background','background.js','esm'],['content','content.js','iife']]) {
-  await build({entryPoints:[fileURLToPath(new URL(`src/${entry}.js`,root))],outfile:fileURLToPath(new URL(outfile,out)),bundle:true,platform:'browser',format,target:['chrome120'],logLevel:'warning',legalComments:'none'});
+export async function buildCandidate({debug=false}={}) {
+  const pkg=JSON.parse(await readFile(join(root,'package.json'),'utf8'));
+  const out=join(root,`dist/attendance-v${pkg.version}${debug?'-developer-debug':''}`);
+  await mkdir(out,{recursive:true});
+  for(const name of ['manifest.json','options.html','options.css','activation-gate.css','options-dashboard.js','attendance-hotfix.js','logo.png','popup.html','popup.css','popup.js']) await copyFile(join(root,'src',name),join(out,name));
+  await copyFile(join(root,'src/icon.png'),join(out,'icon.png'));
+  for(const name of ['assets','licenses','vendor']) await cp(join(root,name),join(out,name),{recursive:true});
+  await copyFile(join(root,'README.md'),join(out,'README.md'));
+  for(const entry of ['options','background','content','popup']) {
+    await build({entryPoints:[join(root,`src/${entry}.js`)],outfile:join(out,`${entry}.js`),bundle:true,minifySyntax:true,platform:'browser',format:entry==='content'?'iife':'esm',target:['chrome120'],logLevel:'warning',legalComments:'none',define:{__ATTENDANCE_DEV__:String(debug)},plugins:[v105Plugin(entry)]});
+    if(entry==='options') {
+      // Preserve the private __commonJS property keys emitted by the live pnpm build.
+      // These are code, not comments: keep them rather than weakening parity checks.
+      const versions={ 'regenerator-runtime':'0.13.11','tesseract.js':'7.0.0','jsqr':'1.4.0','qrcode':'1.5.4','dijkstrajs':'1.0.3' };
+      const path=join(out,'options.js'),code=await readFile(path,'utf8');
+      await writeFile(path,code.replace(/^(\s*)"node_modules\/([^/]+)\/([^"\n]+)"\(/gm,(match,indent,pkg,suffix)=>versions[pkg]?`${indent}"node_modules/.pnpm/${pkg}@${versions[pkg]}/node_modules/${pkg}/${suffix}"(`:match));
+    }
+  }
+  const manifest=JSON.parse(await readFile(join(out,'manifest.json'),'utf8'));
+  manifest.version=pkg.version;
+  manifest.version_name=debug?`${pkg.version} Developer Debug — license bypass`:`${pkg.version.replace(/\.0$/,'')} Release`;
+  if(debug) manifest.name+=' [Developer Debug]';
+  manifest.optional_permissions=['power'];
+  await writeFile(join(out,'manifest.json'),JSON.stringify(manifest,null,2));
+  if(!debug) await scanReleaseDirectory(out);
+  return out;
 }
-
-await writeFile(new URL('manifest.json',out),JSON.stringify({
-  manifest_version:3,name:'Attendance 自动打卡',version:'2.4.0',description:'本机识别课表与二维码，按每周课程结束前五分钟自动填写 Microsoft Forms，并同步手机提醒。',
-  minimum_chrome_version:'120',permissions:['storage','alarms','notifications','tabs'],
-  host_permissions:['https://forms.office.com/*','https://forms.cloud.microsoft/*','https://qckpwckfukyurkobrsig.supabase.co/*'],
-  action:{default_title:'打开 Attendance 设置',default_icon:'icon.png'},options_page:'options.html',
-  icons:{128:'icon.png'},background:{service_worker:'background.js',type:'module'},
-  content_scripts:[{matches:['https://forms.office.com/*','https://forms.cloud.microsoft/*'],js:['content.js'],run_at:'document_idle'}],
-  content_security_policy:{extension_pages:"script-src 'self' 'wasm-unsafe-eval'; object-src 'self'"}
-},null,2));
-console.log('Built extension/');
+if(process.argv[1]&&resolve(process.argv[1])===resolve(import.meta.filename)) {
+  const out=await buildCandidate({debug:process.argv.includes('--debug')});
+  console.log(`Built candidate: ${out}`);
+  console.log('Run npm run candidate to verify and package; npm run release to verify, back up and replace root runtime files.');
+}

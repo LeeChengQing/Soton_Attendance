@@ -1,25 +1,36 @@
 {
   "name": "attendance-extension",
   "private": true,
-  "version": "2.4.0",
+  "version": "1.1.0",
   "type": "module",
   "scripts": {
-    "test": "node --test",
+    "test": "node --test --test-concurrency=2 tests/*.test.js",
     "build": "node scripts/build.mjs",
+    "verify:parity": "node scripts/verify-parity.mjs",
     "smoke": "node scripts/smoke.mjs",
-    "keys:generate": "node scripts/generate-activation-keys.mjs"
+    "keys:generate": "node scripts/generate-china-keys.js",
+    "test:mv3": "node scripts/extension-smoke.mjs",
+    "test:backend": "npx --yes deno@2.9.6 test --node-modules-dir=none --allow-env supabase/functions/_shared/activation.deno.ts supabase/functions/_shared/entitlement.deno.ts supabase/functions/_shared/reliability.deno.ts supabase/functions/_shared/recovery-code.deno.ts supabase/functions/_shared/checkout.deno.ts supabase/functions/_shared/notification-webhook.deno.ts",
+    "candidate": "node scripts/package-candidate.mjs",
+    "release": "node scripts/package-candidate.mjs --replace",
+    "assert:permissions": "node scripts/assert-permissions.mjs"
   },
   "dependencies": {
+    "@supabase/supabase-js": "2.117.2",
     "@tesseract.js-data/eng": "^1.0.0",
     "jsqr": "^1.4.0",
     "pdfjs-dist": "^6.3.289",
+    "stripe": "23.0.0",
     "tesseract.js": "^7.0.0"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "^0.5.10",
     "esbuild": "^0.25.0",
     "pdf-lib": "^1.17.1",
+    "pg": "8.23.1",
     "playwright": "^1.63.0",
     "pngjs": "^7.0.0",
-    "qrcode": "^1.5.4"
+    "qrcode": "^1.5.4",
+    "supabase": "^2.121.0"
   }
 }

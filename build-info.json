@@ -1,0 +1,15 @@
+{
+  "version": "1.1.0",
+  "stage": "activation-gate-review",
+  "date": "2026-11-03",
+  "targetedTests": {
+    "passed": 117,
+    "failed": 0
+  },
+  "realChromeMV3": {
+    "passed": 1,
+    "failed": 0
+  },
+  "productionRelease": false,
+  "liveRootReplaced": false
+}

@@ -1,27 +1,45 @@
 import {normalize} from './forms.js';
+import {normalizeComparable} from './question-title.js';
+import {t} from './options-locale.js';
 
-const placeholder=label=>[['',label]];
-const radioOption=(options,kind)=>options.find(option=>kind==='lab'?['lab','laboratory'].includes(normalize(option)):normalize(option)===kind);
-const identityOption=(options,kind)=>options.find(option=>kind==='local'?/\blocal\b/i.test(option)&&!/international/i.test(option):/international/i.test(option));
-
-export function fieldMappingForQuestion(question,course='') {
-  const title=normalize(question.title),options=question.options||[];
-  if(question.type==='date') return {choices:[['date','当日日期 · 自动核对']],selected:'date'};
-  if(question.type==='text') {
-    if(/student.*id|university.*id|学号/.test(title)) return {choices:[['student','学号']],selected:'student'};
-    if(/\bname\b|姓名/.test(title)) return {choices:[['name','姓名']],selected:'name'};
-    if(/\bdate\b|日期/.test(title)) return {choices:placeholder('日期题型不匹配，请核对表单'),selected:''};
-    return {choices:[...placeholder('选择文字资料'),['student','学号'],['name','姓名']],selected:''};
+var placeholder = (label) => [["", label]];
+var optionHas = (option, kind) => {
+  const words = normalize(option).match(/[a-z]+/g) || [];
+  const kinds = [...new Set(words.map((word) => word === "laboratory" ? "lab" : word).filter((word) => ["lecture", "tutorial", "lab"].includes(word)))];
+  const negative = words.some((word, index) => ["no", "not", "non", "without", "never"].includes(word) && words.slice(index + 1, index + 4).some((next) => ["lecture", "tutorial", "lab", "laboratory"].includes(next)));
+  return !negative && kinds.length === 1 && kinds[0] === kind;
+};
+var radioOption = (options, kind) => {
+  const matches = options.filter((option) => optionHas(option, kind));
+  return matches.length === 1 ? matches[0] : void 0;
+};
+var identityOption2 = (options, kind) => {
+  const matches = options.filter((option) => {
+    const title = normalize(option);
+    if (/\b(?:not|no|non|without|never)\b/.test(title)) return false;
+    return kind === "local" ? /\blocal\b/.test(title) && !/\binternational\b/.test(title) : /\binternational\b/.test(title);
+  });
+  return matches.length === 1 ? matches[0] : void 0;
+};
+function fieldMappingForQuestion(question) {
+  const title = normalizeComparable(question.title), options = question.options || [];
+  if (question.type === "date") return { choices: [[question.required === false ? "skip" : "date", t(question.required === false ? "dateOptional" : "dateAutoCheck")]], selected: question.required === false ? "skip" : "date" };
+  if (question.type === "text") {
+    if (/(?:student|university|learner|id|identification).*(?:\bid\b|number|no\.?\b)|学号/.test(title)) return { choices: [["student", t("profileFieldStudent")]], selected: "student" };
+    if (/\bname\b|姓名/.test(title)) return { choices: [["name", t("profileFieldName")]], selected: "name" };
+    if (/\bdate\b|日期/.test(title)) return { choices: placeholder(t("dateMismatchQuestion")), selected: "" };
+    return { choices: [...placeholder(t("selectTextData")), ["student", t("profileFieldStudent")], ["name", t("profileFieldName")]], selected: "" };
   }
-  if(question.type==='radio') {
-    const deliveryKinds=['lecture','tutorial','lab'].filter(kind=>radioOption(options,kind));
-    if(/delivery|授课/.test(title)||deliveryKinds.length>=2) {
-      const choices=[['delivery','按课程名称自动选']];
-      for(const kind of deliveryKinds) choices.push([`delivery:${kind}`,`固定选 ${radioOption(options,kind)}`]);
-      const courseKind=/(?:^|\W)(?:tut|tutorial)\b/i.test(course)?'tutorial':/(?:^|\W)(?:lab|laboratory)\b/i.test(course)?'lab':/(?:^|\W)(?:lec|lecture)\b/i.test(course)?'lecture':null;
-      return {choices:deliveryKinds.length?choices:placeholder('课程类型选项不受支持'),selected:courseKind&&deliveryKinds.includes(courseKind)?'delivery':''};
+  if (question.type === "radio") {
+    const deliveryKinds = ["lecture", "tutorial", "lab"].filter((kind) => radioOption(options, kind));
+    if (/delivery|授课|session type|class type|lesson type/.test(title) || deliveryKinds.length >= 2) {
+      const choices = [["delivery", t("courseKindAuto")]];
+      for (const kind of deliveryKinds) choices.push([`delivery:${kind}`, t("fixedOption", { option: radioOption(options, kind) })]);
+      // Shared bindings choose each variant's delivery kind at runtime.
+      return { choices: deliveryKinds.length ? choices : placeholder(t("unsupportedCourseOptions")), selected: deliveryKinds.length ? "delivery" : "" };
     }
-    if(identityOption(options,'local')&&identityOption(options,'international')) return {choices:[['local','按学生身份自动选 Local / International'],['local:local','固定选 Local'],['local:international','固定选 International']],selected:'local'};
+    if (identityOption2(options, "local") && identityOption2(options, "international")) return { choices: [["local", t("studentTypeAuto")], ["local:local", t("fixedLocal")], ["local:international", t("fixedInternational")]], selected: "local" };
   }
-  return {choices:placeholder('暂不支持这道题'),selected:''};
+  return { choices: placeholder(t("unsupportedQuestion")), selected: "" };
 }
+export { fieldMappingForQuestion };

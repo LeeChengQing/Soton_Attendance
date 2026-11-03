@@ -1,3 +1,4 @@
+import {scheduleWeekStatus} from './runtime-timing.js';
 const DAYS={sunday:0,sun:0,monday:1,mon:1,tuesday:2,tue:2,wednesday:3,wed:3,thursday:4,thu:4,friday:5,fri:5,saturday:6,sat:6};
 const pad=n=>String(n).padStart(2,'0');
 const iso=d=>`${d.getUTCFullYear()}-${pad(d.getUTCMonth()+1)}-${pad(d.getUTCDate())}`;
@@ -5,11 +6,12 @@ const iso=d=>`${d.getUTCFullYear()}-${pad(d.getUTCMonth()+1)}-${pad(d.getUTCDate
 export function normalizeDate(value) {
   const text=String(value||'').trim();
   let m=text.match(/^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})$/);
-  if (m) return `${m[1]}-${pad(m[2])}-${pad(m[3])}`;
+  if (m) return calendarDate(`${m[1]}-${pad(m[2])}-${pad(m[3])}`);
   m=text.match(/^(\d{1,2})[-/.](\d{1,2})[-/.](\d{4})$/);
-  if (m) return `${m[3]}-${pad(m[2])}-${pad(m[1])}`;
+  if (m) return calendarDate(`${m[3]}-${pad(m[2])}-${pad(m[1])}`);
   return null;
 }
+function calendarDate(value) {const d=new Date(`${value}T00:00:00Z`);return Number.isFinite(d.getTime())&&iso(d)===value?value:null;}
 
 export function parseScheduleText(text) {
   const rows=[];
@@ -64,21 +66,28 @@ export function occurrencesBetween(sessions,startDate,endDate) {
   for(let d=new Date(`${startDate}T00:00:00Z`);d<=new Date(`${endDate}T00:00:00Z`);d.setUTCDate(d.getUTCDate()+1)) {
     const date=iso(d);
     for(const s of sessions) {
-      if(s.kind==='dated' ? s.date!==date : s.weekday!==d.getUTCDay() || date<s.startDate || date>s.endDate || (s.exceptions||[]).includes(date)) continue;
-      result.push({...s,date,key:`${encodeURIComponent(s.course.trim().toLowerCase())}:${date}:${s.time}`});
+      if(s.enabled===false) continue;
+      if(scheduleWeekStatus(s,Date.parse(`${date}T00:00:00+08:00`))!=='active') continue;
+      if(s.kind==='dated' ? s.date!==date : s.weekday!==d.getUTCDay() || (s.exceptions||[]).includes(date)) continue;
+      result.push({...s,date,key:`${encodeURIComponent(s.course.trim().toLowerCase())}:${date}:${s.time}${s.isTest&&s.testRunId?`:TEST_${s.testRunId}`:''}`});
     }
   }
   return result.sort((a,b)=>a.date.localeCompare(b.date)||a.time.localeCompare(b.time)||a.id.localeCompare(b.id));
 }
 
 export function toWeeklySession(session) {
-  const {date,startDate,endDate,...weekly}=session;
+  const {date}=session;
   const weekday=session.kind==='dated'?new Date(`${normalizeDate(date)}T00:00:00Z`).getUTCDay():Number(session.weekday);
   if(!Number.isInteger(weekday)||weekday<0||weekday>6) throw Error(`${session.course||'课程'} 缺少有效星期。`);
-  return {...weekly,kind:'weekly',weekday};
+  const weekState=scheduleWeekStatus(session);
+  return {...session,kind:'weekly',weekday,weekState,...(['needs_week_assignment','expired'].includes(weekState)?{enabled:false}:{})};
 }
 
-const fingerprint=s=>[s.course?.trim().toLowerCase(),s.kind,s.kind==='dated'?s.date:s.weekday,s.time,s.endTime].join('|');
+const fingerprint=s=>{
+  const kind=s.kind||(s.date?'dated':'weekly');
+  const day=kind==='dated'?s.date:(s.weekday??s.day);
+  return [s.course?.trim().toLowerCase(),kind,day,s.time??s.start,s.endTime??s.end,s.weekStartDate].join('|');
+};
 export function mergeSessions(existing,incoming) {
   const merged=[...existing], seen=new Set(existing.map(fingerprint));
   for(const row of incoming) if(!seen.has(fingerprint(row))) {merged.push(row);seen.add(fingerprint(row));}

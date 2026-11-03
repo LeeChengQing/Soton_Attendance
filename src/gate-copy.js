@@ -1,0 +1,26 @@
+const entries={
+  title:['请激活插件','Activate your extension'],
+  subtitle:['输入购买后获得的授权密钥，激活后即可使用全部功能。未激活时插件无法运行。','Enter your purchased license key to enable all features. Activation is required to run the extension.'],
+  keyLabel:['激活密钥','License key'],hint:['可直接粘贴，自动识别空格和大小写。','Paste your key. Spaces and letter case are handled automatically.'],
+  activate:['激活','Activate'],activating:['正在验证…','Verifying…'],success:['激活成功','Activated'],retry:['重新激活','Activate again'],
+  buy:['还没有密钥？前往购买','Need a key? Buy a license'],recover:['没收到密钥？找回订单','Missing your key? Find your order'],support:['联系客服','Contact support'],
+  deviceId:['设备 ID','Device ID'],copy:['复制','Copy'],copied:['已复制','Copied'],
+  'err.format':['请检查密钥格式','Please check the key format.'],
+  'err.invalid':['密钥无法使用。请检查输入，可能的原因：输入有误（注意 0/O、1/I 容易混淆）／已达到设备数量上限／已退款或已被停用，或已过期','This key cannot be used. Check for typos (0/O and 1/I can look alike). The device limit may have been reached, or the license may have been refunded, disabled, or expired.'],
+  'err.rateLimited':['尝试次数过多，请 {n} 秒后再试','Too many attempts. Try again in {n} seconds.'],
+  'err.network':['无法连接授权服务，请检查网络后重试','Cannot connect to the licensing service. Check your connection and try again.'],
+  'err.server':['授权服务暂时不可用，请稍后重试','The licensing service is temporarily unavailable. Please try again later.'],
+  'err.update':['此版本已停止支持，请下载最新版本','This version is no longer supported. Download the latest version.'],
+  'expired.title':['授权已失效','License no longer active'],
+  'expired.bodyExpired':['这台设备的授权已于 {date} 到期。续费或输入新密钥后即可继续使用。','This device’s license expired on {date}. Renew or enter a new key to continue.'],
+  'expired.bodyRevoked':['这台设备的授权已被停用（可能因退款或管理员操作）。如有疑问请联系客服。','This device’s license has been disabled, possibly after a refund or by an administrator. Contact support for help.'],
+  'expired.reassure':['你的课表、学生资料和打卡记录仍保存在本机，不会被删除。','Your timetable, student details, and check-in history remain on this device and will not be deleted.'],
+  renew:['前往续费','Renew license'],haveNewKey:['我有新密钥','I have a new key'],
+  'grace.warn':['暂时无法联系授权服务，你仍可正常使用。请检查网络。','The licensing service is temporarily unavailable. You can keep using the extension. Check your connection.'],
+  maintenance:['授权服务维护中，请稍后重试。','The licensing service is under maintenance. Please try again later.'],
+  download:['下载新版','Download update'],reducedTransparency:['降低透明效果','Reduce transparency'],
+  active:['已激活','Active'],locked:['未激活','Activation required'],lifetime:['永久有效','No expiry'],expires:['到期时间：{date}','Expires: {date}'],
+  open:['打开激活页','Open activation page'],copyFailed:['复制失败，请重试','Could not copy. Please try again.'],
+  unavailableLink:['此入口暂未配置，请通过购买渠道联系卖家。','This link is not configured. Contact the seller through your purchase channel.']
+};
+export const gateCopy=Object.fromEntries(['zh','en'].map((language,index)=>[language,Object.fromEntries(Object.entries(entries).map(([key,value])=>[`gate.${key}`,value[index]]))]));

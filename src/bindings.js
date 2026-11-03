@@ -1,4 +1,4 @@
-import {buildFillPlan} from './forms.js';
+import {buildFillPlan,deliveryFromCourse} from './forms.js';
 
 export function moduleKey(course) {
   const text=String(course||'').trim();
@@ -15,17 +15,38 @@ export function legacyLinkSuggestion(bindings,courses) {
   return {url:urls.length===1?urls[0]:'',conflict:urls.length>1};
 }
 
-export function validateBindingForCourse(binding,course,profile,date) {
-  if(!binding?.verified) throw Error(`${moduleKey(course)} 尚未绑定并核对共用表单。`);
+export function validateBinding(binding) {
+  if(!binding?.verified) throw Error('尚未绑定并核对共用表单。');
   if(!binding.questions) return null;
-  const plan=buildFillPlan(binding.questions,binding.mapping,profile,date,course);
-  for(const [i,entry] of binding.mapping.entries()) {
+  // Use representative answers solely to validate the mapping and available choices.
+  // No course row is consulted or assigned a delivery here.
+  const profile={student:'Student ID',name:'Name',studentType:'local'};
+  const mapping=binding.mapping.map(entry=>{
+    if(entry.field!=='delivery') return entry;
+    let failure;
+    for(const kind of ['lecture','tutorial','lab']) {
+      const candidate={...entry,field:`delivery:${kind}`};
+      try {buildFillPlan(binding.questions,[candidate],profile,'2026-10-14','');return candidate;}
+      catch(error) {failure=error;}
+    }
+    throw failure;
+  });
+  buildFillPlan(binding.questions,mapping,profile,'2026-10-14','');
+  return true;
+}
+
+export function resolveFillPlan(binding,session,profile,date) {
+  if(!binding?.verified) throw Error(`${moduleKey(session.course)} 尚未绑定并核对共用表单。`);
+  const kind=deliveryFromCourse(session.course,session.type);
+  if(!binding.questions) return null;
+  for(const entry of binding.mapping) {
     if(!entry.field?.startsWith('delivery:')) continue;
-    const automatic=binding.mapping.map((item,index)=>index===i?{...item,field:'delivery'}:item);
-    let expected;
-    try {expected=buildFillPlan(binding.questions,automatic,profile,date,course)[i].value;}
-    catch(error) {if(/无法判断此课程类型/.test(error.message)) continue;throw error;}
-    if(plan[i].value!==expected) throw Error(`${course} 的固定课型与课程名称不一致，请重新核对共用表单。`);
+    const fixed=entry.field.split(':')[1];
+    if((fixed==='laboratory'?'lab':fixed)!==kind) throw Error(`${session.course} 的固定课型与课程名称不一致，请重新核对共用表单。`);
   }
-  return plan;
+  return buildFillPlan(binding.questions,binding.mapping,profile,date,session.course,session.type);
+}
+
+export function validateBindingForCourse(binding,course,profile,date) {
+  return resolveFillPlan(binding,typeof course==='object'?course:{course},profile,date);
 }

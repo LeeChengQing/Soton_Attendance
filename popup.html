@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Auto Check</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body class="popup-stage popup-pending">
+  <section id="popup-activation" hidden><h1 id="popup-activation-title">需要激活</h1><button id="popup-open-activation" type="button">打开激活页</button></section>
+  <div class="popup-card">
+    <span class="bubble-beak" aria-hidden="true"></span>
+    <header class="popup-brand"><img src="logo.png" width="32" height="32" alt=""><span>Auto Check</span><small>V1.1</small></header>
+    <main>
+      <section class="current-course-card" aria-labelledby="current-course-heading">
+        <h2 id="current-course-heading" data-ui-label data-ui-zh="正在上课" data-ui-en="Current class">正在上课</h2>
+        <div id="current-courses" class="current-courses" aria-live="polite"><p class="current-course-meta">正在读取课程…</p></div>
+        <p id="current-course-message" role="status" aria-live="polite"></p>
+      </section>
+      <section id="overview" class="popup-hero" aria-labelledby="overview-status-title">
+        <p class="eyebrow" data-ui-label data-ui-zh="个人工作区" data-ui-en="PERSONAL WORKSPACE">个人工作区</p>
+        <h1 id="overview-status-title">正在读取本机配置…</h1>
+        <p id="overview-status-description" class="muted"></p>
+        <div class="profile-status"><span data-ui-label data-ui-zh="学生资料" data-ui-en="Student profile">学生资料</span><strong id="overview-profile-status">—</strong></div>
+        <p id="overview-profile-hint" class="muted"></p>
+        <a class="primary-action" href="options.html" target="_blank" rel="noopener" data-ui-label data-ui-zh="打开设置　↗" data-ui-en="Open settings　↗">打开设置　↗</a>
+      </section>
+      <nav class="popup-list" aria-label="管理入口">
+        <a class="popup-list-item" href="options.html#import-heading" target="_blank" rel="noopener"><span data-ui-label data-ui-zh="课表与任务" data-ui-en="Timetable & tasks">课表与任务</span><strong id="overview-sessions">—</strong><span aria-hidden="true">↗</span></a>
+        <a class="popup-list-item" href="options.html#binding-heading" target="_blank" rel="noopener"><span data-ui-label data-ui-zh="已验证表单" data-ui-en="Verified forms">已验证表单</span><strong id="overview-bindings">—</strong><span aria-hidden="true">↗</span></a>
+        <a class="popup-list-item" href="options.html#records-heading" target="_blank" rel="noopener"><span data-ui-label data-ui-zh="打卡记录" data-ui-en="History records">打卡记录</span><strong id="overview-records">—</strong><span aria-hidden="true">↗</span></a>
+      </nav>
+    </main>
+  </div>
+  <script src="options-dashboard.js"></script>
+  <script type="module" src="popup.js"></script>
+</body>
+</html>
